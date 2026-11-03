@@ -454,11 +454,11 @@ else { matInput.value = ''; if(fullMatInput) fullMatInput.value = ''; if(msgDiv)
 }
 
 const pilotosDB = {
-"JA": { "nombre": "José Arellano G.", "rut": "8.621.855-0", "licencia": "1641" }, "SS": { "nombre": "Sebastian Saez X.", "rut": "99.999.999-9", "licencia": "3535" }, "FC": { "nombre": "Felipe Casampere G.", "rut": "15.781.258-0", "licencia": "2114" }, "AC": { "nombre": "Alfredo Castro C.", "rut": "7.155.617-4", "licencia": "920" },
-"RE": { "nombre": "Ricardo Espinosa U.", "rut": "6.827.727-2", "licencia": "674" }, "IF": { "nombre": "Iván Fabry R.", "rut": "6.111.339-8", "licencia": "1359" }, "FG": { "nombre": "Felipe Guínez A.", "rut": "15.771.343-4", "licencia": "2217" }, "EI": { "nombre": "Esteban Inostroza L.", "rut": "12.120.521-1", "licencia": "1256" },
-"AK": { "nombre": "Alexander Kaufmann R.", "rut": "6.926.596-0", "licencia": "4185" }, "EM": { "nombre": "Enrique Mancini A.", "rut": "19.310.398-7", "licencia": "4148" }, "NM": { "nombre": "Nicolás Mohr S.", "rut": "18239044-5", "licencia": "2064" }, "CM": { "nombre": "Claudio Muñoz P.", "rut": "7.999.795-1", "licencia": "921" },
-"FE": { "nombre": "Francisco Esquivel C.", "rut": "88.888.888-8", "licencia": "1899" }, "JO": { "nombre": "José Oyarzún M.", "rut": "16.239.897-0", "licencia": "2387" }, "FCH":{ "nombre": "Fernando Chacana X.", "rut": "66.666.666-6", "licencia": "2604" }, "MS": { "nombre": "Mauricio Solano P.", "rut": "14.322.271-3", "licencia": "1657" },
-"CV": { "nombre": "Cristhian Vázquez F.", "rut": "15.549.870-6", "licencia": "3435" }, "MV": { "nombre": "Matías Vega C.", "rut": "77.777.777-7", "licencia": "2420" }, "KW": { "nombre": "Klaus Wobbe S.", "rut": "14.103.915-6", "licencia": "1741" }, "CB": { "nombre": "Cristobal Briones B.", "rut": "10.345.076-4", "licencia": "2740" }
+"JA": { "nombre": "José Arellano G.", "rut": "8.621.855-0", "licencia": "TLA 1641" }, "SS": { "nombre": "Sebastian Saez X.", "rut": "99.999.999-9", "licencia": "PCA 3535" }, "FC": { "nombre": "Felipe Casampere G.", "rut": "15.781.258-0", "licencia": "TLA 2114" }, "AC": { "nombre": "Alfredo Castro C.", "rut": "7.155.617-4", "licencia": "TLA 920" },
+"RE": { "nombre": "Ricardo Espinosa U.", "rut": "6.827.727-2", "licencia": "TLA 674" }, "IF": { "nombre": "Iván Fabry R.", "rut": "6.111.339-8", "licencia": "1359" }, "FG": { "nombre": "Felipe Guínez A.", "rut": "15.771.343-4", "licencia": "TLA 2217" }, "EI": { "nombre": "Esteban Inostroza L.", "rut": "12.120.521-1", "licencia": "TLA 1256" },
+"AK": { "nombre": "Alexander Kaufmann R.", "rut": "6.926.596-0", "licencia": "PCA 4185" }, "EM": { "nombre": "Enrique Mancini A.", "rut": "19.310.398-7", "licencia": "PCA 4148" }, "NM": { "nombre": "Nicolás Mohr S.", "rut": "18239044-5", "licencia": "TLA 2064" }, "CM": { "nombre": "Claudio Muñoz P.", "rut": "7.999.795-1", "licencia": "TLA 921" },
+"FE": { "nombre": "Francisco Esquivel C.", "rut": "88.888.888-8", "licencia": "TLA 1899" }, "JO": { "nombre": "José Oyarzún M.", "rut": "16.239.897-0", "licencia": "TLA 2387" }, "FCH":{ "nombre": "Fernando Chacana X.", "rut": "66.666.666-6", "licencia": "PCA 2604" }, "MS": { "nombre": "Mauricio Solano P.", "rut": "14.322.271-3", "licencia": "TLA 1657" },
+"CV": { "nombre": "Cristhian Vázquez F.", "rut": "15.549.870-6", "licencia": "PCA 3435" }, "MV": { "nombre": "Matías Vega C.", "rut": "77.777.777-7", "licencia": "TLA 2420" }, "KW": { "nombre": "Klaus Wobbe S.", "rut": "14.103.915-6", "licencia": "TLA 1741" }, "CB": { "nombre": "Cristobal Briones B.", "rut": "10.345.076-4", "licencia": "TLA 2108" }
 };
 let capitanActual = { nombre: "", rut: "", licencia: "" }; let foActual = { nombre: "" }; let fo2Actual = { nombre: "" };
 
@@ -559,7 +559,7 @@ pSmsHtml += `</table>
 <span id="p_sms_obs" style="color:#000000!important; font-weight:bold;"></span>
 </div>
 <div style="padding-top:2px; color:#000000!important;">
-<b style="color:#000000!important;">Nombre y firma:</b>
+<b style="color:#000000!important;">Firma Comandante de Aeronave:</b>
 <span id="sms_p_nombre" style="border-bottom:1px solid black; display:inline-block; width:220px; padding-bottom: 4px; min-height: 16px; color:#000000!important; font-weight:bold; vertical-align: bottom;"></span>
 </div>
 </td></tr></table></div>`;
@@ -621,7 +621,7 @@ return `<div class="card" id="leg_card_${id}">
 <div class="form-group"><label>PM</label><input type="text" id="m_t${id}_pm" placeholder="Ej: EI/MV" oninput="triggerUpdate()"></div>
 </div>
 <div class="time-sequence-box">
-<div style="font-size:0.72rem; color:var(--text-main); margin-bottom:8px; font-weight:bold;">SECUENCIA HORARIA (ESTRICTA 24H)</div>
+<div style="font-size:0.72rem; color:var(--text-main); margin-bottom:8px; font-weight:bold;">SECUENCIA HORARIA (24H)</div>
 <div class="time-sequence-grid">
 <div class="time-step"><label>BLOCK OUT</label><span>Salida Calzos</span><input type="text" class="time-input" placeholder="HH:MM" maxlength="5" inputmode="numeric" id="m_t${id}_time_out" oninput="formatTime(this)" onblur="validateTime(this)"></div>
 <div class="time-step"><label>2. AIR OFF</label><span>Despegue</span><input type="text" class="time-input" placeholder="HH:MM" maxlength="5" inputmode="numeric" id="m_t${id}_time_off" oninput="formatTime(this)" onblur="validateTime(this)"></div>
@@ -632,10 +632,10 @@ return `<div class="card" id="leg_card_${id}">
 </div>
 <div class="grid-2">
 <div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;">HORÓMETRO</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" step="0.1" id="m_t${id}_horo_bot" placeholder="Inicial" oninput="triggerUpdate()"><input type="number" step="0.1" id="m_t${id}_horo_top" placeholder="Final" oninput="this.dataset.manual = (this.value !== '') ? 'true' : 'false'; triggerUpdate()"></div></div>
-<div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;">DATOS EXTRA</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" id="m_t${id}_pax" placeholder="PAX" oninput="triggerUpdate()"><input type="text" id="m_t${id}_dist" placeholder="Dist" oninput="triggerUpdate()"></div></div>
+<div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;"># PASAJEROS</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" id="m_t${id}_pax" placeholder="PAX" oninput="triggerUpdate()"><input type="text" id="m_t${id}_dist" placeholder="DISTANCIA" oninput="triggerUpdate()"></div></div>
 </div>
 <div style="margin-top:12px; padding:10px; border:1px solid var(--border-color); border-radius:8px; background:rgba(0,0,0,0.2);">
-<label style="font-size:0.75rem; color:var(--text-main); font-weight:bold; margin-bottom:8px; display:block;">COMBUSTIBLE PRINCIPAL (1 DECIMAL)</label>
+<label style="font-size:0.75rem; color:var(--text-main); font-weight:bold; margin-bottom:8px; display:block;">COMBUSTIBLE</label>
 <div class="grid-3">
 <div><label style="font-size:0.65rem; color:var(--text-muted);">FUEL ON</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()"></div>
 <div><label style="font-size:0.65rem; color:var(--text-muted);">2. FUEL OFF</label><input type="number" step="0.1" id="m_t${id}_fuel_off" oninput="triggerUpdate()"></div>
@@ -1006,22 +1006,22 @@ let t1Html = `<table class="print-table" style="margin-top:0; border-top:none; t
 <tr class="gray-bg compact-th">
 <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>FECHA</b></td>
 <td colspan="2" style="width:16%;" class="text-center"><b>DUTY</b></td>
-<td style="width:10%;" class="text-center"><b>HOROMETRO</b></td>
+<td style="width:10%;" class="text-center"><b>HORO</b></td>
 <td style="width:8%;" class="text-center"><b>AIRTIME</b></td>
 <td style="width:8%;" class="text-center"><b>BLOCK</b></td>
-<td colspan="${pfCols}" style="width:${pfWidth};" class="text-center"><b>HORAS PF (DEP / AT)</b></td>
+<td colspan="${pfCols}" style="width:${pfWidth};" class="text-center"><b>PILOT FLYING (TO/LD)</b></td>
 <td colspan="4" style="width:${fuelWidth};" class="text-center"><b>COMBUSTIBLE</b></td>
-<td rowspan="2" style="width:5%; vertical-align:middle;" class="text-center"><b>PAX<br>(P)</b></td>
+<td rowspan="2" style="width:5%; vertical-align:middle;" class="text-center"><b>PAX</b></td>
 </tr>
 <tr class="gray-bg compact-th">
 <td class="text-center"><b>INICIO-FIN</b></td>
 <td class="text-center"><b>TOTAL</b></td>
-<td class="text-center"><b>INICIAL-FINAL</b></td>
+<td class="text-center"><b>INICIO-FIN</b></td>
 <td class="text-center"><b>TOTAL</b></td>
 <td class="text-center"><b>TOTAL</b></td>
-<td class="text-center"><b>CAP: ${picIni} (DEP:${totP1Dep} AT:${totP1Arr})</b></td>
-<td class="text-center"><b>FO: ${sicIni} (DEP:${totP2Dep} AT:${totP2Arr})</b></td>
-${hasSic2 ? `<td class="text-center"><b>FO2: ${sic2Ini} (DEP:${totP3Dep} AT:${totP3Arr})</b></td>` : ''}
+<td class="text-center"><b>CAP: ${picIni} (TO:${totP1Dep} LD:${totP1Arr})</b></td>
+<td class="text-center"><b>FO: ${sicIni} (TO:${totP2Dep} LD:${totP2Arr})</b></td>
+${hasSic2 ? `<td class="text-center"><b>FO2: ${sic2Ini} (TO:${totP3Dep} LD:${totP3Arr})</b></td>` : ''}
 <td class="text-center"><b>INICIAL</b></td>
 <td class="text-center"><b>FINAL</b></td>
 <td class="text-center"><b>USADO</b></td>
