@@ -146,12 +146,12 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 9.0 (TRIPULACIÓN MÚLTIPLE & SHARED DRIVE)</div>
+<div class="subtitle">VERSIÓN 1.1 (MARCHA BLANCA TRIPULACIONES)</div>
 </header>
 <main id="mobile-ui" class="container">
 <!-- CABECERA GENERAL -->
 <div class="card">
-<div class="card-header"><span>📋 CABECERA DEL VUELO</span></div>
+<div class="card-header"><span>📋 DATOS DEL VUELO</span></div>
 <div class="card-content">
 <div class="grid-header">
 <div class="form-group"><label style="color:var(--accent);">Fecha del Vuelo</label><input type="date" id="m_fecha_gen" onchange="triggerUpdate()"></div>
@@ -170,17 +170,17 @@ Volver a la app
 <div class="form-group"><label style="color:var(--accent);">Material / Aeronave</label><input type="text" id="m_material" placeholder="Auto..." readonly class="inherited-input"></div>
 <div class="form-group">
 <label style="color:var(--accent);">Capitán (Iniciales)</label>
-<input type="text" id="m_pic_ini" placeholder="Ej: RE" oninput="lookupPilots()" style="text-transform: uppercase;">
+<input type="text" id="m_pic_ini" placeholder="Ej: XX" oninput="lookupPilots()" style="text-transform: uppercase;">
 <div id="ui_pic_name" style="font-size:0.65rem; color:var(--text-muted); margin-top:4px; height:12px;"></div>
 </div>
 <div class="form-group">
 <label>FO (Iniciales)</label>
-<input type="text" id="m_sic_ini" placeholder="Ej: EI" oninput="lookupPilots()" style="text-transform: uppercase;">
+<input type="text" id="m_sic_ini" placeholder="Ej: YY" oninput="lookupPilots()" style="text-transform: uppercase;">
 <div id="ui_sic_name" style="font-size:0.65rem; color:var(--text-muted); margin-top:4px; height:12px;"></div>
 </div>
 <div class="form-group">
-<label>FO 2 (Opcional)</label>
-<input type="text" id="m_sic2_ini" placeholder="Ej: MV" oninput="lookupPilots()" style="text-transform: uppercase;">
+<label>TRIP. REFORZADA (Opcional)</label>
+<input type="text" id="m_sic2_ini" placeholder="Ej: ZZ" oninput="lookupPilots()" style="text-transform: uppercase;">
 <div id="ui_sic2_name" style="font-size:0.65rem; color:var(--text-muted); margin-top:4px; height:12px;"></div>
 </div>
 </div>
@@ -212,7 +212,7 @@ Volver a la app
 <div class="card-content">
 <div id="sms_form_container"></div>
 <div class="form-group" style="margin-top:15px;"><label>Observaciones:</label><textarea id="m_sms_obs" oninput="triggerUpdate()"></textarea></div>
-<div class="signature-block"><div>Nombre y firma comandante Vuelo: <strong id="sms_ui_nombre" style="color:var(--accent);">______________________</strong></div></div>
+<div class="signature-block"><div>Comandante de Aeronave: <strong id="sms_ui_nombre" style="color:var(--accent);">______________________</strong></div></div>
 </div>
 </details>
 
@@ -238,7 +238,7 @@ Volver a la app
         <div class="summary-box"><div class="summary-title">🛑 TOTAL BLOQUE</div><div class="summary-value" id="sum_block_hhmm">00:00</div><div class="summary-sub" id="sum_block_dec">0.0 hrs</div></div>
       </div>
       <div style="display:none;" id="sum_fuel_init"></div><div style="display:none;" id="sum_fuel_final"></div><div style="display:none;" id="sum_fuel_refuel"></div><div style="display:none;" id="sum_fuel_used"></div><div style="display:none;" id="sum_pax_legs"></div>
-      <div class="summary-title" style="color: var(--text-main); border-top:1px dashed var(--border-color); padding-top:12px;">👨‍✈️ HORAS OP WEB (TODOS LOS PILOTOS REGISTRADOS)</div>
+      <div class="summary-title" style="color: var(--text-main); border-top:1px dashed var(--border-color); padding-top:12px;">👨‍✈️ TOTAL HORAS POR PILOTO</div>
       <div id="sum_pilots_container" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;"></div>
     </div>
   </details>
