@@ -1,3 +1,4 @@
+<index>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -305,10 +306,10 @@ let accessToken = null;
 let pendingAction = null;
 
 // GESTIÓN DE FIRMAS CANVA
-const signaturePads = {};
 function initSignaturePad(canvasId) {
     const canvas = el(canvasId);
-    if (!canvas || signaturePads[canvasId]) return;
+    if (!canvas || canvas.dataset.initialized === "true") return;
+    
     const ctx = canvas.getContext('2d');
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2.5;
@@ -341,9 +342,14 @@ function initSignaturePad(canvasId) {
         ctx.stroke();
         lastX = pos.x; lastY = pos.y;
         canvas.dataset.signed = "true";
-        triggerUpdate();
     }
-    function stop(e) { if(isDrawing) { e.preventDefault(); isDrawing = false; } }
+    function stop(e) { 
+        if(isDrawing) { 
+            e.preventDefault(); 
+            isDrawing = false; 
+            autoSave(); 
+        } 
+    }
 
     canvas.addEventListener('mousedown', start);
     canvas.addEventListener('mousemove', draw);
@@ -352,7 +358,7 @@ function initSignaturePad(canvasId) {
     canvas.addEventListener('touchmove', draw, {passive: false});
     window.addEventListener('touchend', stop);
     
-    signaturePads[canvasId] = true;
+    canvas.dataset.initialized = "true";
 }
 
 function clearSignature(canvasId) {
@@ -361,7 +367,7 @@ function clearSignature(canvasId) {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.dataset.signed = "false";
-        triggerUpdate();
+        autoSave();
     }
 }
 
@@ -625,7 +631,6 @@ pSmsHtml += `</table>
 </td></tr></table></div>`;
 el('print-sms-wrapper').innerHTML = pSmsHtml;
 
-// Iniciar pad de firma estático (SMS)
 initSignaturePad('sms_signature_pad');
 }
 
@@ -956,6 +961,16 @@ syncPrintData(totalAirMins, totalBlockMins, initialFuel, globalRefuel, totalFuel
 function renderSecurityForms(activeDates, legsByDate) {
 const container = el('sec-forms-wrapper'), printContainer = el('print-sec-forms-wrapper');
 if(!container || !printContainer) return;
+
+// 1. RESPALDAR FIRMAS EXISTENTES ANTES DE REESCRIBIR EL DOM DINÁMICO
+const tempSignatures = {};
+activeDates.forEach(dateKey => {
+    const canvas = el(`sec_signature_pad_${dateKey}`);
+    if (canvas && canvas.dataset.signed === "true") {
+        tempSignatures[dateKey] = canvas.toDataURL('image/png');
+    }
+});
+
 let webHtml = '', printHtml = '';
 activeDates.forEach((dateKey, index) => {
 secManualState[dateKey] = secManualState[dateKey] || { sinObs: false, hinicioManual: false, hterminoManual: false };
@@ -1008,10 +1023,25 @@ pSecHtml += `</table>
 </table></div>`;
 printHtml += pSecHtml;
 });
+
 container.innerHTML = webHtml; printContainer.innerHTML = printHtml; updateFormFooters();
 
-// Iniciar pads de firma para los formularios generados dinámicamente
-activeDates.forEach(dateKey => { initSignaturePad(`sec_signature_pad_${dateKey}`); });
+// 2. RESTAURAR FIRMAS Y REINICIAR LISTENERS (Incluso después de reescribir DOM)
+activeDates.forEach(dateKey => { 
+    const canvasId = `sec_signature_pad_${dateKey}`;
+    initSignaturePad(canvasId); 
+    
+    if (tempSignatures[dateKey]) {
+        const canvas = el(canvasId);
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => { 
+            ctx.drawImage(img, 0, 0); 
+            canvas.dataset.signed = "true"; 
+        };
+        img.src = tempSignatures[dateKey];
+    }
+});
 }
 
 function syncPrintData(air, block, initF, refF, usedF, finF, strPax, activeDates, dailyStats) {
