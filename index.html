@@ -1,4 +1,3 @@
-<index>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -81,6 +80,12 @@ hr.divider { border: 0; border-top: 1px solid var(--border-color); margin: 12px 
 .form-category-title { font-size: 0.75rem; font-weight: bold; color: var(--accent); margin: 15px 0 8px 0; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 4px; border-left: 3px solid var(--accent);}
 .signature-block { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 0.85rem; color: var(--text-muted); }
 
+/* FIRMAS TÁCTILES */
+.signature-pad-container { position: relative; width: 100%; max-width: 400px; border: 1px solid var(--border-color); border-radius: 6px; background: #E0E0E0; margin-top: 8px; overflow: hidden; }
+.signature-pad { width: 100%; height: 120px; display: block; touch-action: none; cursor: crosshair; }
+.sig-btn-clear { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; cursor: pointer; z-index: 2; }
+.print-signature-img { max-height: 35px; display: inline-block; vertical-align: bottom; }
+
 /* Pantalla de Carga */
 #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; color: var(--accent); backdrop-filter: blur(4px); }
 .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
@@ -146,7 +151,7 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 1.1 (MARCHA BLANCA TRIPULACIONES)</div>
+<div class="subtitle">VERSIÓN 1.2 (SOPORTE FIRMAS EFB)</div>
 </header>
 <main id="mobile-ui" class="container">
 <!-- CABECERA GENERAL -->
@@ -212,7 +217,14 @@ Volver a la app
 <div class="card-content">
 <div id="sms_form_container"></div>
 <div class="form-group" style="margin-top:15px;"><label>Observaciones:</label><textarea id="m_sms_obs" oninput="triggerUpdate()"></textarea></div>
-<div class="signature-block"><div>Comandante de Aeronave: <strong id="sms_ui_nombre" style="color:var(--accent);">______________________</strong></div></div>
+<div class="signature-block">
+  <div>Comandante de Aeronave: <strong id="sms_ui_nombre" style="color:var(--accent);">______________________</strong></div>
+  <label style="font-size:0.75rem; margin-top:10px; display:block; color:var(--text-muted);">FIRMA (Lápiz o Dedo):</label>
+  <div class="signature-pad-container">
+    <button class="sig-btn-clear" onclick="clearSignature('sms_signature_pad')">Borrar</button>
+    <canvas id="sms_signature_pad" class="signature-pad" width="400" height="120"></canvas>
+  </div>
+</div>
 </div>
 </details>
 
@@ -287,16 +299,78 @@ Volver a la app
 <script>
 const GOOGLE_CLIENT_ID = '564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com'; 
 const DRIVE_API_URL = 'https://www.googleapis.com/drive/v3/files';
-const SHARED_FOLDER_ID = '1uFFBWEPcFGrbP6lYBX0x5I3mSEPTjBR9'; // <--- REEMPLAZA CON EL ID DE DRIVE DE LA CARPETA COMPARTIDA
+const SHARED_FOLDER_ID = '1uFFBWEPcFGrbP6lYBX0x5I3mSEPTjBR9';
 let tokenClient;
 let accessToken = null;
 let pendingAction = null;
+
+// GESTIÓN DE FIRMAS CANVA
+const signaturePads = {};
+function initSignaturePad(canvasId) {
+    const canvas = el(canvasId);
+    if (!canvas || signaturePads[canvasId]) return;
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+    
+    function start(e) {
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getPos(e);
+        lastX = pos.x; lastY = pos.y;
+    }
+    function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        lastX = pos.x; lastY = pos.y;
+        canvas.dataset.signed = "true";
+        triggerUpdate();
+    }
+    function stop(e) { if(isDrawing) { e.preventDefault(); isDrawing = false; } }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stop);
+    canvas.addEventListener('touchstart', start, {passive: false});
+    canvas.addEventListener('touchmove', draw, {passive: false});
+    window.addEventListener('touchend', stop);
+    
+    signaturePads[canvasId] = true;
+}
+
+function clearSignature(canvasId) {
+    const canvas = el(canvasId);
+    if(canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.dataset.signed = "false";
+        triggerUpdate();
+    }
+}
+
 
 function initDrive() {
 if (!window.google) return;
 tokenClient = google.accounts.oauth2.initTokenClient({
 client_id: GOOGLE_CLIENT_ID,
-scope: 'https://www.googleapis.com/auth/drive', // MODIFICADO PARA VER CARPETAS COMPARTIDAS
+scope: 'https://www.googleapis.com/auth/drive',
 callback: (tokenResponse) => { if (tokenResponse && tokenResponse.access_token) { accessToken = tokenResponse.access_token; if (pendingAction) { pendingAction(); pendingAction = null; } } }
 });
 }
@@ -312,21 +386,14 @@ function mostrarModalPDF(link) { el('loading-spinner').style.display = 'none'; e
 
 async function getOrCreateFolder(povName) {
 const folderName = `POV_${povName}`;
-// Busca la subcarpeta dentro de la carpeta compartida maestra
 const query = encodeURIComponent(`name='${folderName}' and '${SHARED_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
 let res = await fetch(`${DRIVE_API_URL}?q=${query}&fields=files(id, name)`, { headers: { 'Authorization': 'Bearer ' + accessToken } });
 let data = await res.json();
 if (data.files && data.files.length > 0) return data.files[0].id;
-
-// Si no existe, la crea asignando la carpeta maestra como "parent"
 let createRes = await fetch(DRIVE_API_URL, { 
     method: 'POST', 
     headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, 
-    body: JSON.stringify({ 
-        name: folderName, 
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: [SHARED_FOLDER_ID] 
-    }) 
+    body: JSON.stringify({ name: folderName, mimeType: 'application/vnd.google-apps.folder', parents: [SHARED_FOLDER_ID] }) 
 });
 let createData = await createRes.json(); return createData.id;
 }
@@ -391,7 +458,6 @@ printLayout.style.display = 'block'; printLayout.style.width = '800px';
 window.scrollTo(0, 0);
 
 await new Promise(resolve => setTimeout(resolve, 800));
-
 const pages = document.querySelectorAll('.pdf-page');
 
 const opt = {
@@ -405,17 +471,11 @@ jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
 
 try {
 if (pages.length === 0) throw new Error("No se detectaron páginas para renderizar.");
-
 let worker = html2pdf().set(opt).from(pages[0]).toPdf();
-
 for (let i = 1; i < pages.length; i++) {
-  worker = worker.get('pdf').then(pdf => {
-    pdf.addPage();
-  }).from(pages[i]).toContainer().toCanvas().toPdf();
+  worker = worker.get('pdf').then(pdf => { pdf.addPage(); }).from(pages[i]).toContainer().toCanvas().toPdf();
 }
-
 return await worker.output('blob');
-
 } finally {
 await new Promise(resolve => setTimeout(resolve, 100));
 vpMeta.setAttribute('content', originalVp); printLayout.style.display = 'none'; printLayout.style.width = '';
@@ -431,7 +491,6 @@ let legIds = [], nextLegId = 1, refuelData = {}; let updateRAF = null; let secMa
 const ordinals = ["", "PRIMER", "SEGUNDO", "TERCER", "CUARTO", "QUINTO", "SEXTO", "SÉPTIMO", "OCTAVO"];
 const formatDec = val => Number(val || 0).toFixed(1);
 
-// FUNCIÓN DE FORMATEO ESTRICTO DE FECHA PDF (DD/MM/AA)
 function formatDatePdf(dateStr) {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
@@ -485,7 +544,7 @@ if(nSIC) tripArr.push(nSIC);
 if(nSIC2) tripArr.push(nSIC2);
 
 setTxt('sms_p_tripulacion', tripArr.join(" / "));
-setTxt('sms_p_nombre', nom === "______________________" ? "" : nom);
+setTxt('sms_p_nombre_print', nom === "______________________" ? "" : nom);
 }
 function toggleSinObservaciones() { const isChecked = el('m_sms_sin_obs')?.checked; for(let i = 1; i <= 47; i++) { const cb = el(`m_sms_${i}`); if(cb) { if(isChecked) cb.checked = false; cb.disabled = isChecked; } } triggerUpdate(); }
 function toggleSecSinObs(dateKey) {
@@ -560,10 +619,14 @@ pSmsHtml += `</table>
 </div>
 <div style="padding-top:2px; color:#000000!important;">
 <b style="color:#000000!important; font-size:10px; ">Firma Comandante de Aeronave:</b>
-<span id="sms_p_nombre" style="border-bottom:1px solid black; display:inline-block; width:220px; padding-bottom: 4px; min-height: 16px; color:#000000!important; font-weight:bold; font-size:10px; vertical-align: bottom;"></span>
+<span id="sms_p_nombre_print" style="border-bottom:1px solid black; display:inline-block; width:220px; padding-bottom: 4px; min-height: 16px; color:#000000!important; font-weight:bold; font-size:10px; vertical-align: bottom;"></span>
+<img id="p_sms_signature_img" class="print-signature-img" src="" style="display:none; max-height:35px;">
 </div>
 </td></tr></table></div>`;
 el('print-sms-wrapper').innerHTML = pSmsHtml;
+
+// Iniciar pad de firma estático (SMS)
+initSignaturePad('sms_signature_pad');
 }
 
 function triggerUpdate() { if (updateRAF) cancelAnimationFrame(updateRAF); updateRAF = requestAnimationFrame(updateAll); }
@@ -845,7 +908,6 @@ dayLegs.forEach(leg => {
             let bShare = leg.bDiff / leg.pfCount; let aShare = leg.aDiff / leg.pfCount;
             pObj.block += bShare; pObj.air += aShare; pObj.pf_block += bShare; pObj.pf_air += aShare;
             
-            // Lógica cronológica para separar DEP y AT
             if (leg.bDiff > 0) {
                 if (leg.pfArr[0] === ini) pObj.dep++;
                 if (leg.pfArr[leg.pfArr.length - 1] === ini) pObj.arr++;
@@ -905,7 +967,7 @@ let defaultEst = (autoOrigen.trim().toUpperCase() === 'SCEL') ? 'AEROCARDAL' : '
 let currentAlerta = st.alerta !== undefined ? st.alerta : '';
 webHtml += `<details class="card" style="border-color: var(--accent);"><summary style="display:flex; justify-content:space-between; align-items:center;"><span style="flex:1;">🔎 INSPECCIÓN DE SEGURIDAD (${dateKey}) <span class="arrow"></span></span><div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();"><label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sec_sin_obs_${dateKey}" ${st.sinObs ? 'checked' : ''} onchange="toggleSecSinObs('${dateKey}')"> <span>Sin obs</span></label></div></summary><div class="card-content"><div style="margin-bottom: 12px; padding:10px; background:rgba(255,255,255,0.03); border-radius:6px;"><div class="grid-3"><div class="form-group"><label>Origen</label><input type="text" id="m_sec_origen_${dateKey}" value="${autoOrigen}" oninput="triggerUpdate()"></div><div class="form-group"><label>Destino</label><input type="text" id="m_sec_destino_${dateKey}" value="${autoDestino}" oninput="triggerUpdate()"></div><div class="form-group"><label>Estacionamiento</label><input type="text" id="m_sec_est_${dateKey}" value="${currentEst}" oninput="secManualState['${dateKey}'].estacionamiento=this.value; triggerUpdate()"></div></div><div class="grid-3" style="margin-top:5px;"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Inicio (Out)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'hinicio')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_hinicio_${dateKey}" value="${currentHInicio}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hinicioManual=true; secManualState['${dateKey}'].customHInicio=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Término (In)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'htermino')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_htermino_${dateKey}" value="${currentHTermino}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hterminoManual=true; secManualState['${dateKey}'].customHTermino=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label>Alerta</label><input type="text" id="m_sec_alerta_${dateKey}" value="${currentAlerta}" oninput="secManualState['${dateKey}'].alerta=this.value; triggerUpdate()"></div></div></div><div id="sec_form_container_${dateKey}">`;
 secData.forEach(item => { let isChecked = st[item.id] !== undefined ? st[item.id] : st.sinObs; webHtml += `<label class="checkbox-item"><input type="checkbox" id="m_sec_${dateKey}_${item.id}" ${isChecked ? 'checked' : ''} ${st.sinObs ? 'disabled' : ''} onchange="handleSecCheckboxChange('${dateKey}', '${item.id}')"> <span><b>${item.id}.</b> ${item.text}</span></label>`; });
-webHtml += `</div><div class="signature-block"><div>III. COMANDANTE DE LA AERONAVE:</div><div class="grid-3" style="margin-top:8px;"><div>Nombre: <strong id="sec_ui_nombre_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>RUT: <strong id="sec_ui_rut_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>Licencia: <strong id="sec_ui_licencia_${dateKey}" style="color:var(--accent);">______________________</strong></div></div></div></div></details>`;
+webHtml += `</div><div class="signature-block"><div>III. COMANDANTE DE LA AERONAVE:</div><div class="grid-3" style="margin-top:8px;"><div>Nombre: <strong id="sec_ui_nombre_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>RUT: <strong id="sec_ui_rut_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>Licencia: <strong id="sec_ui_licencia_${dateKey}" style="color:var(--accent);">______________________</strong></div></div><div style="margin-top:15px;"><label style="font-size:0.75rem; color:var(--text-muted);">FIRMA (Lápiz o Dedo):</label><div class="signature-pad-container"><button class="sig-btn-clear" onclick="clearSignature('sec_signature_pad_${dateKey}')">Borrar</button><canvas id="sec_signature_pad_${dateKey}" class="signature-pad" width="400" height="120"></canvas></div></div></div></div></details>`;
 
 let pSecHtml = `
 <div class="pdf-page" id="print_sec_container_${dateKey}" style="font-family:Arial, sans-serif; box-sizing:border-box;">
@@ -937,14 +999,19 @@ pSecHtml += `</table>
 <div class="text-center" style="margin-bottom:20px; font-weight:bold; color:#000000!important;">LICENCIA</div>
 <div class="text-center"><span id="sec_p_licencia_${dateKey}" style="font-weight:bold; color:#000000!important; font-size:9.5px;"></span></div>
 </td>
-<td style="width:20%; vertical-align:top; color:#000000!important;">
-<div class="text-center" style="font-weight:bold; color:#000000!important;">FIRMA</div>
+<td style="width:20%; vertical-align:bottom; text-align:center; color:#000000!important; padding-bottom:5px;">
+<div class="text-center" style="font-weight:bold; color:#000000!important; margin-bottom:5px;">FIRMA</div>
+<span id="sec_p_firma_linea_${dateKey}" style="display:inline-block; border-bottom:1px solid black; width:100px; min-height:10px;"></span>
+<img id="p_sec_signature_img_${dateKey}" class="print-signature-img" src="" style="display:none; max-height:35px;">
 </td>
 </tr>
 </table></div>`;
 printHtml += pSecHtml;
 });
 container.innerHTML = webHtml; printContainer.innerHTML = printHtml; updateFormFooters();
+
+// Iniciar pads de firma para los formularios generados dinámicamente
+activeDates.forEach(dateKey => { initSignaturePad(`sec_signature_pad_${dateKey}`); });
 }
 
 function syncPrintData(air, block, initF, refF, usedF, finF, strPax, activeDates, dailyStats) {
@@ -971,6 +1038,34 @@ const pnpVal = document.querySelector(`input[name="pnp_${id}"]:checked`)?.value 
 setTxt(`p_t${id}_dn_text`, dnVal === 'D' ? 'DIURNO' : (dnVal === 'N' ? 'NOCTURNO' : '')); 
 setTxt(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
 });
+
+// Sincronizar firmas en PDF
+const smsCanvas = el('sms_signature_pad');
+const pSmsSig = el('p_sms_signature_img');
+if (smsCanvas && smsCanvas.dataset.signed === "true") {
+    pSmsSig.src = smsCanvas.toDataURL('image/png');
+    pSmsSig.style.display = 'inline-block';
+    el('sms_p_nombre_print').style.display = 'none';
+} else if (pSmsSig) {
+    pSmsSig.style.display = 'none';
+    el('sms_p_nombre_print').style.display = 'inline-block';
+}
+
+activeDates.forEach(dateKey => {
+    const secCanvas = el(`sec_signature_pad_${dateKey}`);
+    const pSecSig = el(`p_sec_signature_img_${dateKey}`);
+    if (secCanvas && pSecSig) {
+        if (secCanvas.dataset.signed === "true") {
+            pSecSig.src = secCanvas.toDataURL('image/png');
+            pSecSig.style.display = 'inline-block';
+            el(`sec_p_firma_linea_${dateKey}`).style.display = 'none';
+        } else {
+            pSecSig.style.display = 'none';
+            el(`sec_p_firma_linea_${dateKey}`).style.display = 'inline-block';
+        }
+    }
+});
+
 
 let picIni = val('m_pic_ini').trim().toUpperCase() || 'CAP'; 
 let sicIni = val('m_sic_ini').trim().toUpperCase() || 'FO';
@@ -1094,7 +1189,7 @@ setTxt(`sec_p_nombre_${dateKey}`, capitanActual.nombre || ""); setTxt(`sec_p_rut
 }
 
 function getAllData() {
-let data = { globals: {}, legs: legIds.length, legData: {}, refuelData: refuelData, secManualState: secManualState };
+let data = { globals: {}, legs: legIds.length, legData: {}, refuelData: refuelData, secManualState: secManualState, signatures: {} };
 let globalFields = ['duty_start', 'duty_end', 'm_fecha_gen', 'm_pov', 'm_material', 'm_matricula', 'm_matricula_suffix', 'm_pic_ini', 'm_sic_ini', 'm_sic2_ini', 'm_sms_obs', 'm_sms_sin_obs'];
 for(let i=1; i<=47; i++) globalFields.push(`m_sms_${i}`);
 globalFields.forEach(id => { let element = el(id); if (element) { if(element.type === 'checkbox') data.globals[id] = element.checked; else data.globals[id] = element.value; } });
@@ -1111,6 +1206,15 @@ legIds.forEach(id => {
         }
     }); 
 });
+
+// Guardar Firmas
+const smsCanvas = el('sms_signature_pad');
+if (smsCanvas && smsCanvas.dataset.signed === "true") data.signatures.sms = smsCanvas.toDataURL('image/png');
+for (let key in secManualState) {
+    const sc = el(`sec_signature_pad_${key}`);
+    if (sc && sc.dataset.signed === "true") data.signatures[`sec_${key}`] = sc.toDataURL('image/png');
+}
+
 return JSON.stringify(data);
 }
 
@@ -1161,6 +1265,26 @@ if (element) {
 }
 }
 lookupAircraft(); toggleSinObservaciones(); lookupPilots(); 
+updateAll(); // Forzar recreación de formularios de seguridad dinámicos antes de cargar firmas.
+
+// Restaurar Firmas
+if (data.signatures) {
+    if (data.signatures.sms && el('sms_signature_pad')) {
+        const img = new Image();
+        img.onload = () => { el('sms_signature_pad').getContext('2d').drawImage(img, 0, 0); el('sms_signature_pad').dataset.signed = "true"; updateAll(); };
+        img.src = data.signatures.sms;
+    }
+    for(let key in data.signatures) {
+        if (key.startsWith('sec_')) {
+            const canvasId = key.replace('sec_', 'sec_signature_pad_');
+            if (el(canvasId)) {
+                const img = new Image();
+                img.onload = () => { el(canvasId).getContext('2d').drawImage(img, 0, 0); el(canvasId).dataset.signed = "true"; updateAll(); };
+                img.src = data.signatures[key];
+            }
+        }
+    }
+}
 }
 
 window.onload = () => { buildForms(); let saved = localStorage.getItem('aerocardal_flight_data'); if (saved) { if(confirm("Se encontró un vuelo en progreso guardado localmente en este iPad. ¿Deseas recuperarlo?")) { loadDataIntoApp(JSON.parse(saved)); } else { localStorage.removeItem('aerocardal_flight_data'); addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); } } else { addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); } };
