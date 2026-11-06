@@ -159,7 +159,7 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 1.5 (CONSOLIDACIÓN DIARIA EXACTA)</div>
+<div class="subtitle">VERSIÓN 1.6 (PAX POR TRAMO + MAYÚSCULAS PDF)</div>
 </header>
 <main id="mobile-ui" class="container">
 
@@ -837,7 +837,6 @@ legIds.forEach((id, i) => {
     const valTop = parseFloat(hTop.value); setVal(`m_t${id}_horo_diff`, !isNaN(valBot) && !isNaN(valTop) ? formatDec(valTop - valBot) : '');
     
     const fOn = el(`m_t${id}_fuel_on`), fOff = el(`m_t${id}_fuel_off`); 
-    // Removida la herencia estática del combustible, todos se inician a mano
     fOn.readOnly = false; fOn.classList.remove('readonly-strict');
 
     const valOn = parseFloat(fOn.value), valOff = parseFloat(fOff.value);
@@ -933,12 +932,15 @@ folioGroups.forEach(group => {
         let dLegs = group.legs.filter(l => l.date === date);
         let first = dLegs[0], last = dLegs[dLegs.length - 1];
         let block = 0, air = 0, fuelUsed = 0, refuel = 0, paxSum = 0;
+        let paxArr = []; // <-- Arreglo para pax separados por /
         let p1 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
             p2 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
             p3 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 };
 
         dLegs.forEach(leg => {
-            block += (leg.bDiff || 0); air += (leg.aDiff || 0); fuelUsed += (leg.fDiff || 0); refuel += leg.refuel; paxSum += leg.pax;
+            block += (leg.bDiff || 0); air += (leg.aDiff || 0); fuelUsed += (leg.fDiff || 0); refuel += leg.refuel; 
+            paxSum += leg.pax;
+            paxArr.push(leg.pax); // <-- Añadir al array de PAX
             
             const procesarPilotoFolio = (ini, pObj) => {
                 if (!ini) return;
@@ -960,7 +962,7 @@ folioGroups.forEach(group => {
         });
 
         group.dateStats.push({
-            date, block, air, fuelUsed, refuel, paxSum,
+            date, block, air, fuelUsed, refuel, paxSum, paxStr: paxArr.join('/'),
             fuelInit: isNaN(first.fuelOn) ? 0 : first.fuelOn, fuelFinal: isNaN(last.fuelOff) ? 0 : last.fuelOff,
             hIni: first.horoBot || '--', hFin: last.horoTop || '--',
             dutyStart: dailyStats[date].start, dutyEnd: dailyStats[date].end, dutyDuration: dailyStats[date].duration,
@@ -1003,7 +1005,7 @@ let gAir = 0, gBlock = 0, gFuelUsed = 0, gPax = 0;
 
 folioGroups.forEach(group => { 
     group.dateStats.forEach(ds => {
-        gAir += ds.air; gBlock += ds.block; gFuelUsed += ds.fuelUsed; gPax += ds.paxSum;
+        gAir += ds.air; gBlock += ds.block; gFuelUsed += ds.fuelUsed; gPax += ds.paxSum; // gPax usa ds.paxSum para el total global
         let bBottom = 'border-bottom:1px solid rgba(255,255,255,0.05);';
         let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
         let dStr = ds.dutyDuration > 0 ? `${minsToTime(ds.dutyDuration)}` : '--:--';
@@ -1015,7 +1017,7 @@ folioGroups.forEach(group => {
 
         folioTableHtml += `<tr>
         <td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">HOJA ${group.folioNum}<br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:normal;">${ds.date}</span></td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${ds.paxSum}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${ds.paxStr}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${Math.round(ds.fuelInit)}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${Math.round(ds.fuelUsed)}</td>
@@ -1189,7 +1191,7 @@ folioGroups.forEach(group => {
         let p3PFStr = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(ds.p3.pf_air/60).replace('.', ',')})<br>BLK: (${formatDec(ds.p3.pf_block/60).replace('.', ',')})<br>T:${ds.p3.dep} L:${ds.p3.arr}</div>` : '--';
 
         summaryHtml += `<tr class="compact-td">
-        <td class="text-center bold">${formatDatePdf(ds.date)}</td><td class="text-center">${ds.paxSum}</td><td class="text-center bold">${aStr}</td>
+        <td class="text-center bold">${formatDatePdf(ds.date)}</td><td class="text-center">${ds.paxStr}</td><td class="text-center bold">${aStr}</td>
         <td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center color-danger">${Math.round(ds.fuelUsed)}</td><td class="text-center color-accent">${Math.round(ds.fuelFinal)}</td><td class="text-center color-success">+${Math.round(ds.refuel)}</td>
         <td class="text-center">${ds.hIni}</td><td class="text-center">${ds.hFin}</td>
         <td class="text-center">${ds.dutyStart || '--:--'}</td><td class="text-center">${ds.dutyEnd || '--:--'}</td><td class="text-center bold">${dStr}</td>
