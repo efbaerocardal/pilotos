@@ -33,7 +33,7 @@ body { margin: 0; padding: 0; background-color: var(--bg-main); color: var(--tex
 header { background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 0.8rem 1rem; text-align: center; position: sticky; top: 0; z-index: 10; }
 h1 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 1px;}
 .subtitle { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; font-weight: bold; }
-.container { padding: 1rem 1rem 150px 1rem; max-width: 900px; margin: 0 auto; }
+.container { padding: 1rem 1rem 150px 1rem; max-width: 1000px; margin: 0 auto; }
 .card { background: var(--bg-card); margin-bottom: 1.2rem; border-radius: 10px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 .card-header { padding: 0.85rem 1rem; font-size: 1rem; font-weight: 600; background-color: rgba(255,255,255,0.05); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
 .card-content { padding: 1rem; }
@@ -122,7 +122,7 @@ ESTILOS DE IMPRESIÓN NATIVA Y PDF
 .tramo-title-gray { background-color: #F0F0F0 !important; color: #000000 !important; text-align: center; font-weight: bold; padding: 3px; letter-spacing: 0.5px; font-size: 10px; text-transform: uppercase; border: 1px solid black; }
 .header-cell, .gray-bg { background-color: #F5F5F5 !important; font-weight: bold; text-align: center; font-size: 8.5px; color: #000000 !important; }
 .summary-total-bg { background-color: #EBEBEB !important; font-weight: bold; font-size: 9px !important; color: #000000 !important; }
-.compact-th td { padding: 1px 1px !important; line-height: 1.0; font-size: 8px !important; font-weight: bold !important; color: #000000 !important; }
+.compact-th td { padding: 1px 1px !important; line-height: 1.0; font-size: 7.5px !important; font-weight: bold !important; color: #000000 !important; }
 .compact-td td { padding: 1px 1px !important; font-size: 8.5px !important; color: #000000 !important; }
 .cell-data { height: 16px; font-weight: bold; text-align: center; font-size: 9.5px; color: #000000 !important; }
 .bold { font-weight: bold; font-size: 9.5px; color: #000000 !important; }
@@ -142,6 +142,9 @@ ESTILOS DE IMPRESIÓN NATIVA Y PDF
 .text-xs { font-size: 7.5px !important; }
 .text-sm { font-size: 8.5px !important; }
 .text-md { font-size: 9.5px !important; }
+.color-danger { color: #cc0000 !important; }
+.color-success { color: #008800 !important; }
+.color-accent { color: #0000aa !important; }
 </style></head><body>
 
 <div id="loading-overlay">
@@ -157,12 +160,13 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 1.4 (PAGINACIÓN POR HOJAS Y MULTIDÍA)</div>
+<div class="subtitle">VERSIÓN 1.5 (CONSOLIDACIÓN DIARIA EXACTA)</div>
 </header>
 <main id="mobile-ui" class="container">
+
 <!-- CABECERA GENERAL -->
-<div class="card">
-<div class="card-header"><span>📋 DATOS DEL VUELO</span></div>
+<details class="card" open>
+<summary><span>📋 DATOS DEL VUELO</span><span class="arrow"></span></summary>
 <div class="card-content">
 <div class="grid-header">
 <div class="form-group"><label style="color:var(--accent);">Fecha Inicial Vuelo</label><input type="date" id="m_fecha_gen" onchange="triggerUpdate()"></div>
@@ -196,28 +200,29 @@ Volver a la app
 </div>
 </div>
 </div>
-</div> 
+</details> 
 
 <!-- DUTY PERIOD -->
-<div class="card">
-<div class="card-header"><span>🕒 PERIODO DE SERVICIO (DUTY PERIOD)</span></div>
+<details class="card" open>
+<summary><span>🕒 PERIODO DE SERVICIO INICIAL (DÍA 1)</span><span class="arrow"></span></summary>
 <div class="card-content grid-2">
 <div class="form-group"><label style="color:var(--accent);">Inicio Duty Period</label><input type="text" class="time-input" placeholder="HH:MM" id="duty_start" maxlength="5" inputmode="numeric" oninput="formatTime(this)" onblur="validateTime(this)"></div>
 <div class="form-group"><label style="color:var(--text-muted);">Término Duty Period (Editable)</label><input type="text" class="time-input" id="duty_end" placeholder="--:--" maxlength="5" inputmode="numeric" oninput="this.dataset.manual = (this.value !== '') ? 'true' : 'false'; formatTime(this)" onblur="validateTime(this)"></div>
 </div>
-</div>
+</details>
 
 <!-- TRAMOS DINÁMICOS -->
 <div id="tramos-container"></div>
-<button class="btn btn-outline" style="width: 100%; border-style: dashed;" onclick="addLeg()">+ AGREGAR TRAMO</button>
+<button class="btn btn-outline" style="width: 100%; border-style: dashed; margin-bottom: 20px;" onclick="addLeg()">+ AGREGAR TRAMO</button>
 
 <!-- FORMULARIOS ADJUNTOS -->
 <hr class="divider" style="margin: 20px 0;">
 <details class="card" style="border-color: var(--accent);">
 <summary style="display:flex; justify-content:space-between; align-items:center;">
-<span style="flex:1;">📝 FORMULARIO: ÍNDICE DE SEGURIDAD (SMS) <span class="arrow"></span></span>
+<span style="flex:1;">📝 FORMULARIO: ÍNDICE DE SEGURIDAD (SMS)</span>
 <div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();">
 <label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sms_sin_obs" checked onchange="toggleSinObservaciones()"> <span>Vuelo sin obs.</span></label>
+<span class="arrow"></span>
 </div>
 </summary>
 <div class="card-content">
@@ -231,14 +236,12 @@ Volver a la app
 <div id="sec-forms-wrapper"></div>
 
 <!-- RESUMEN GENERAL -->
-<div class="card" style="border-color: var(--accent); margin-top: 1.2rem;">
-<div class="card-header"><span style="color:var(--accent);">⏱️ RESUMEN GENERAL OPERACIONAL</span></div>
+<details class="card" open style="border-color: var(--accent); margin-top: 1.2rem;">
+<summary><span style="color:var(--accent);">⏱️ RESUMEN GENERAL OPERACIONAL</span><span class="arrow"></span></summary>
 <div class="card-content">
-  <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📝 DETALLE POR TRAMO</div>
-  <div style="overflow-x: auto; margin-bottom: 15px; border-radius:8px; border:1px solid var(--border-color);" id="ui_resumen_tramos"></div>
-  <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📅 CONSOLIDADO POR HOJA (MÁX 4 TRAMOS)</div>
+  <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📅 CONSOLIDADO POR HOJA (MÁX 4 TRAMOS) Y FECHA</div>
   <div style="overflow-x: auto; margin-bottom: 15px; border-radius:8px; border:1px solid var(--border-color);" id="ui_resumen_diario"></div>
-  <details class="param-section" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px;">
+  <details class="param-section" open style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px;">
     <summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;">
        <div style="font-size: 0.8rem; font-weight: bold; flex:1; color:var(--accent);">📊 TOTALES ACUMULADOS Y PILOTOS <span class="arrow"></span></div>
     </summary>
@@ -248,13 +251,12 @@ Volver a la app
         <div class="summary-box"><div class="summary-title">✈️ TOTAL VUELO (AIR)</div><div class="summary-value" id="sum_air_hhmm">00:00</div><div class="summary-sub" id="sum_air_dec">0,0 hrs</div></div>
         <div class="summary-box"><div class="summary-title">🛑 TOTAL BLOQUE</div><div class="summary-value" id="sum_block_hhmm">00:00</div><div class="summary-sub" id="sum_block_dec">0,0 hrs</div></div>
       </div>
-      <div style="display:none;" id="sum_fuel_init"></div><div style="display:none;" id="sum_fuel_final"></div><div style="display:none;" id="sum_fuel_refuel"></div><div style="display:none;" id="sum_fuel_used"></div><div style="display:none;" id="sum_pax_legs"></div>
       <div class="summary-title" style="color: var(--text-main); border-top:1px dashed var(--border-color); padding-top:12px;">👨‍✈️ TOTAL HORAS POR PILOTO</div>
       <div id="sum_pilots_container" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;"></div>
     </div>
   </details>
 </div>
-</div>
+</details>
 </main>
 
 <div class="fab-container">
@@ -480,7 +482,7 @@ const val = id => el(id)?.value || '';
 const setVal = (id, v) => { if(el(id)) el(id).value = v; };
 const setTxt = (id, t) => { if(el(id)) el(id).innerHTML = t !== null && t !== undefined ? String(t) : ''; };
 const setTxtUpper = (id, t) => { if(el(id)) el(id).innerHTML = t !== null && t !== undefined ? String(t).toUpperCase() : ''; };
-let legIds = [], nextLegId = 1, refuelData = {}; let updateRAF = null; let secManualState = {}; 
+let legIds = [], nextLegId = 1; let updateRAF = null; let secManualState = {}; 
 const ordinals = ["", "PRIMER", "SEGUNDO", "TERCER", "CUARTO", "QUINTO", "SEXTO", "SÉPTIMO", "OCTAVO", "NOVENO", "DÉCIMO", "UNDÉCIMO", "DUODÉCIMO"];
 const formatDec = val => Number(val || 0).toFixed(1);
 
@@ -643,16 +645,9 @@ function syncFolioDown(sourceId) {
     });
 }
 
-function addRefuelRecord(id) { (refuelData[id] = refuelData[id] || []).push({ id: Date.now(), amount: '', time: '' }); renderRefuels(id); }
-function removeRefuelRecord(legId, recordId) { refuelData[legId] = refuelData[legId].filter(r => r.id !== recordId); renderRefuels(legId); }
-function updateRefuelRecord(legId, recordId, field, value) { const rec = refuelData[legId].find(r => r.id === recordId); if(rec) rec[field] = value; triggerUpdate(); }
-function renderRefuels(id) { const container = el(`refuel_container_${id}`); if (!container) return; container.innerHTML = (refuelData[id] || []).map(r => `<div style="display:flex; gap:4px; align-items:center;"><input type="number" step="0.1" placeholder="Lbs/Kg" style="padding:6px; font-size:0.85rem;" value="${r.amount}" oninput="updateRefuelRecord(${id}, ${r.id}, 'amount', this.value)"><input type="text" class="time-input" placeholder="HH:MM" maxlength="5" inputmode="numeric" style="padding:6px; font-size:0.85rem;" value="${r.time}" oninput="formatTime(this)" onblur="validateTime(this); updateRefuelRecord(${id}, ${r.id}, 'time', this.value)"><button class="btn btn-danger" style="padding:4px 8px;" onclick="removeRefuelRecord(${id}, ${r.id})">X</button></div>`).join(''); triggerUpdate(); }
-const getLegRefuelTotal = id => (refuelData[id] || []).reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
-
 function getLegHTML(id, index, defaultOrigin = '') {
-refuelData[id] = [];
-return `<div class="card" id="leg_card_${id}">
-<div class="card-header">
+return `<details class="card" id="leg_card_${id}" open>
+<summary>
     <span style="display:flex; align-items:center; gap:10px;">
         🛫 ${ordinals[index] || index + '°'} TRAMO (Leg #${index})
     </span>
@@ -663,8 +658,9 @@ return `<div class="card" id="leg_card_${id}">
             <span class="link-btn" id="lbtn_fecha_${id}" onclick="toggleLink(${id}, 'fecha')" style="font-size:0.8rem; margin-left:3px;">🔗</span>
         </div>
         ${index > 1 ? `<button class="btn btn-danger" onclick="removeLeg(${id})" style="padding:4px 8px;">Eliminar</button>` : ''}
+        <span class="arrow"></span>
     </div>
-</div>
+</summary>
 <div class="card-content">
 <div class="grid-4" style="margin-bottom: 8px;">
 <div class="form-group"><label>Desde <span class="link-btn" id="lbtn_desde_${id}" onclick="toggleLink(${id}, 'desde')">🔗</span></label><input type="text" id="m_t${id}_desde" data-linked="true" value="${defaultOrigin}" style="text-transform: uppercase;" oninput="triggerUpdate()"></div>
@@ -689,9 +685,9 @@ return `<div class="card" id="leg_card_${id}">
 <div style="margin-top:12px; padding:10px; border:1px solid var(--border-color); border-radius:8px; background:rgba(0,0,0,0.2);">
 <label style="font-size:0.75rem; color:var(--text-main); font-weight:bold; margin-bottom:8px; display:block;">COMBUSTIBLE</label>
 <div class="grid-3">
-<div><label style="font-size:0.65rem; color:var(--text-muted);">FUEL ON</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
-<div><label style="font-size:0.65rem; color:var(--text-muted);">2. FUEL OFF</label><input type="number" step="0.1" id="m_t${id}_fuel_off" oninput="triggerUpdate()"></div>
-<div style="background:rgba(255,255,255,0.03); padding:6px; border-radius:6px; border: 1px dashed var(--border-color);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;"><span style="font-size:0.65rem; color:var(--success);">3. REFUEL</span><button class="btn btn-success" onclick="addRefuelRecord(${id})">+ Añadir</button></div><div id="refuel_container_${id}" style="display:flex; flex-direction:column; gap:4px;"></div></div>
+<div><label style="font-size:0.65rem; color:var(--text-muted);">1. FUEL ON (Inicial)</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
+<div><label style="font-size:0.65rem; color:var(--text-muted);">2. FUEL OFF (Final)</label><input type="number" step="0.1" id="m_t${id}_fuel_off" oninput="triggerUpdate()"></div>
+<div><label style="font-size:0.65rem; color:var(--success);">3. REFUEL (Automático)</label><input type="number" step="0.1" id="m_t${id}_fuel_refuel" placeholder="Auto" oninput="this.dataset.manual='true'; triggerUpdate()" onblur="triggerUpdate()"></div>
 </div>
 </div>
 <details class="param-section" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 15px;"><summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;"><div style="font-size: 0.8rem; font-weight: bold; flex:1;">⚙️ PARÁMETROS DE VUELO Y WAYPOINTS <span class="arrow"></span></div></summary>
@@ -704,7 +700,7 @@ return `<div class="card" id="leg_card_${id}">
 <input type="hidden" id="m_t${id}_horo_diff"><input type="hidden" id="m_t${id}_block_diff"><input type="hidden" id="m_t${id}_air_diff"><input type="hidden" id="m_t${id}_fuel_diff">
 <hr class="divider">
 <div class="grid-3">
-    <div class="form-group"><label>Hoja BIT</label><input type="text" id="m_t${id}_folio" placeholder="Hoja Única..." oninput="this.dataset.manual='true'; syncFolioDown(${id}); triggerUpdate();"></div>
+    <div class="form-group"><label>FOLIO BIT</label><input type="text" id="m_t${id}_folio" placeholder="Folio Único..." oninput="this.dataset.manual='true'; syncFolioDown(${id}); triggerUpdate();"></div>
     <div class="form-group"><label>Vientos</label><input type="text" id="m_t${id}_winds" oninput="triggerUpdate()"></div>
     <div class="form-group"><label>Aterrizaje / APP</label>
         <div style="display:flex; gap:10px; margin-top:2px;">
@@ -719,14 +715,14 @@ return `<div class="card" id="leg_card_${id}">
         </div>
     </div>
 </div>
-</div></div>`;
+</div></details>`;
 }
 
 function getPrintLegHTML(id, index) {
 return `<table class="print-table" id="print_leg_${id}">
 <tr><td colspan="6" class="tramo-title-darkgray"><b>${ordinals[index] || index + '°'} TRAMO</b></td></tr>
 <tr class="header-cell">
-<td class="col-fecha" style="color:#000000!important;"><b style="color:#000000!important;">FECHA</b> <span id="p_t${id}_fecha" style="font-weight:bold; color:#000000!important;"></span><br><span class="text-xs" style="color:#000000!important;"><b style="color:#000000!important;">HOJA BIT:</b> <span id="p_t${id}_folio" style="font-weight:bold; color:#000000!important;"></span></span></td>
+<td class="col-fecha" style="color:#000000!important;"><b style="color:#000000!important;">FECHA</b> <span id="p_t${id}_fecha" style="font-weight:bold; color:#000000!important;"></span><br><span class="text-xs" style="color:#000000!important;"><b style="color:#000000!important;">FOLIO BIT:</b> <span id="p_t${id}_folio" style="font-weight:bold; color:#000000!important;"></span></span></td>
 <td class="col-horo" style="color:#000000!important;"><b style="color:#000000!important;">HOROMETRO</b></td>
 <td class="col-block" style="color:#000000!important;"><b style="color:#000000!important;">BLOCK TIME</b></td>
 <td class="col-air" style="color:#000000!important;"><b style="color:#000000!important;">AIR TIME</b></td>
@@ -800,7 +796,8 @@ function removeLeg(id) {
 if (!confirm("¿Eliminar tramo? Actualizará continuidad.")) return;
 legIds = legIds.filter(l => l !== id); el(`leg_card_${id}`).remove();
 legIds.forEach((lId, i) => { 
-    el(`leg_card_${lId}`).querySelector('.card-header > span').innerHTML = `🛫 ${ordinals[i + 1] || (i+1) + '°'} TRAMO (Leg #${i+1})`; 
+    const summarySpan = el(`leg_card_${lId}`).querySelector('summary > span');
+    if(summarySpan) summarySpan.innerHTML = `🛫 ${ordinals[i + 1] || (i+1) + '°'} TRAMO (Leg #${i+1})`; 
 });
 if(legIds.length > 0) { 
     const fId = legIds[0];
@@ -816,206 +813,240 @@ triggerUpdate();
 function resetSecTime(dateKey, type) { secManualState[dateKey] = secManualState[dateKey] || {}; if(type === 'hinicio') secManualState[dateKey].hinicioManual = false; if(type === 'htermino') secManualState[dateKey].hterminoManual = false; triggerUpdate(); }
 
 function updateAll() {
-let totalAirMins = 0, totalBlockMins = 0, totalPax = 0, totalFuelUsed = 0, globalRefuel = 0;
-const pilotStats = {}, paxArray = []; const gDate = val('m_fecha_gen');
-let legsByDate = {}; let legDetails = [];
+let gDate = val('m_fecha_gen');
+let legDetails = [];
+
+// 1. Lectura Base y Cálculos de Tiempo/Horómetro por Tramo
 legIds.forEach((id, i) => {
-if (el(`m_t${id}_fecha`)?.dataset.linked === "true") setVal(`m_t${id}_fecha`, gDate);
-if (i > 0 && el(`m_t${id}_desde`)?.dataset.linked === "true") setVal(`m_t${id}_desde`, val(`m_t${legIds[i-1]}_dest`));
-const tDate = val(`m_t${id}_fecha`) || gDate || new Date().toISOString().split('T')[0];
-const desde = val(`m_t${id}_desde`).toUpperCase(), dest = val(`m_t${id}_dest`).toUpperCase();
-const tOut = val(`m_t${id}_time_out`), tOff = val(`m_t${id}_time_off`), tOn = val(`m_t${id}_time_on`), tIn = val(`m_t${id}_time_in`);
-const bDiff = tOut && tIn ? timeDiffMins(tOut, tIn) : 0; const aDiff = tOff && tOn ? timeDiffMins(tOff, tOn) : 0;
-const hBot = el(`m_t${id}_horo_bot`), hTop = el(`m_t${id}_horo_top`);
-if (i === 0) { hBot.readOnly = false; hBot.classList.remove('readonly-strict'); } 
-else { const prevTop = parseFloat(val(`m_t${legIds[i-1]}_horo_top`)); hBot.readOnly = true; hBot.classList.add('readonly-strict'); hBot.value = !isNaN(prevTop) ? formatDec(prevTop) : ''; }
+    if (el(`m_t${id}_fecha`)?.dataset.linked === "true") setVal(`m_t${id}_fecha`, gDate);
+    if (i > 0 && el(`m_t${id}_desde`)?.dataset.linked === "true") setVal(`m_t${id}_desde`, val(`m_t${legIds[i-1]}_dest`));
+    const tDate = val(`m_t${id}_fecha`) || gDate || new Date().toISOString().split('T')[0];
+    const desde = val(`m_t${id}_desde`).toUpperCase(), dest = val(`m_t${id}_dest`).toUpperCase();
+    const tOut = val(`m_t${id}_time_out`), tOff = val(`m_t${id}_time_off`), tOn = val(`m_t${id}_time_on`), tIn = val(`m_t${id}_time_in`);
+    const bDiff = tOut && tIn ? timeDiffMins(tOut, tIn) : 0; const aDiff = tOff && tOn ? timeDiffMins(tOff, tOn) : 0;
+    
+    const hBot = el(`m_t${id}_horo_bot`), hTop = el(`m_t${id}_horo_top`);
+    if (i === 0) { hBot.readOnly = false; hBot.classList.remove('readonly-strict'); } 
+    else { const prevTop = parseFloat(val(`m_t${legIds[i-1]}_horo_top`)); hBot.readOnly = true; hBot.classList.add('readonly-strict'); hBot.value = !isNaN(prevTop) ? formatDec(prevTop) : ''; }
 
-const valBot = parseFloat(hBot.value); 
-if ((hTop.dataset.manual !== "true" || hTop.value === '') && document.activeElement !== hTop && !isNaN(valBot) && aDiff > 0) {
-    hTop.value = formatDec(valBot + (aDiff / 60));
-    hTop.dataset.manual = 'false';
-}
+    const valBot = parseFloat(hBot.value); 
+    if ((hTop.dataset.manual !== "true" || hTop.value === '') && document.activeElement !== hTop && !isNaN(valBot) && aDiff > 0) {
+        hTop.value = formatDec(valBot + (aDiff / 60));
+        hTop.dataset.manual = 'false';
+    }
 
-const valTop = parseFloat(hTop.value); setVal(`m_t${id}_horo_diff`, !isNaN(valBot) && !isNaN(valTop) ? formatDec(valTop - valBot) : '');
-const tramoRefuel = getLegRefuelTotal(id); globalRefuel += tramoRefuel;
-const fOn = el(`m_t${id}_fuel_on`), fOff = el(`m_t${id}_fuel_off`); fOn.readOnly = false; fOn.classList.remove('readonly-strict');
+    const valTop = parseFloat(hTop.value); setVal(`m_t${id}_horo_diff`, !isNaN(valBot) && !isNaN(valTop) ? formatDec(valTop - valBot) : '');
+    
+    const fOn = el(`m_t${id}_fuel_on`), fOff = el(`m_t${id}_fuel_off`); 
+    // Removida la herencia estática del combustible, todos se inician a mano
+    fOn.readOnly = false; fOn.classList.remove('readonly-strict');
 
-if (i > 0) { 
-    if ((fOn.dataset.manual !== 'true' || fOn.value === '') && document.activeElement !== fOn) { 
-        const prevOff = parseFloat(val(`m_t${legIds[i-1]}_fuel_off`)), prevRefuel = getLegRefuelTotal(legIds[i-1]); 
-        if (!isNaN(prevOff)) { 
-            fOn.value = formatDec(prevOff + prevRefuel); 
-            fOn.dataset.manual = 'false'; 
-        } else { 
-            fOn.value = ''; 
+    const valOn = parseFloat(fOn.value), valOff = parseFloat(fOff.value);
+    let diffF = (!isNaN(valOn) && !isNaN(valOff)) ? Math.max(0, valOn - valOff) : null;
+    setVal(`m_t${id}_fuel_diff`, diffF !== null ? formatDec(diffF) : ''); 
+
+    const bStr = bDiff > 0 ? `${minsToTime(bDiff)} (${formatDec(bDiff/60).replace('.', ',')})` : ''; const aStr = aDiff > 0 ? `${minsToTime(aDiff)} (${formatDec(aDiff/60).replace('.', ',')})` : '';
+    setVal(`m_t${id}_block_diff`, bStr); setVal(`m_t${id}_air_diff`, aStr); setTxt(`ui_t${id}_block_diff`, bStr || '--:--'); setTxt(`ui_t${id}_air_diff`, aStr || '--:--');
+    
+    const lPax = parseInt(val(`m_t${id}_pax`)) || 0;
+    const pfRaw = val(`m_t${id}_pf`).trim().toUpperCase() || "SIN NOMBRE";
+    const pmRaw = val(`m_t${id}_pm`).trim().toUpperCase();
+    const pfArr = pfRaw.split('/').map(s => s.trim()).filter(Boolean);
+    const pmArr = pmRaw.split('/').map(s => s.trim()).filter(Boolean);
+
+    legDetails.push({ id, date: tDate, desde, dest, tOut, tIn, tOff, tOn, bDiff, aDiff, fDiff: diffF||0, fuelOn: valOn, fuelOff: valOff, pax: lPax, pf: pfRaw, pm: pmRaw, pfArr, pmArr, pfCount: pfArr.length||1, pmCount: pmArr.length||1, horoBot: hBot.value, horoTop: hTop.value });
+});
+
+// 2. Cálculo Automático de REFUEL y Consumo Global
+let globalRefuel = 0; let totalFuelUsed = 0;
+legIds.forEach((id, i) => {
+    let fOff = legDetails[i].fuelOff;
+    let refuelEl = el(`m_t${id}_fuel_refuel`);
+    if (i < legIds.length - 1) {
+        let nextFOn = legDetails[i+1].fuelOn;
+        if (refuelEl.dataset.manual !== 'true' || refuelEl.value === '') {
+            if (!isNaN(fOff) && !isNaN(nextFOn)) {
+                let diff = Math.max(0, nextFOn - fOff);
+                refuelEl.value = formatDec(diff);
+                refuelEl.dataset.manual = 'false';
+            } else {
+                refuelEl.value = '';
+            }
+        }
+    }
+    let rVal = parseFloat(refuelEl.value) || 0;
+    legDetails[i].refuel = rVal;
+    globalRefuel += rVal;
+    totalFuelUsed += legDetails[i].fDiff;
+});
+
+// 3. Agrupación por Fecha y Cálculo Estricto de Duty Diario
+let legsByDate = {};
+legDetails.forEach(l => { if(!legsByDate[l.date]) legsByDate[l.date] = []; legsByDate[l.date].push(l); });
+
+let dailyStats = {};
+let globalEndEl = el('duty_end'); 
+let sortedDates = Object.keys(legsByDate).sort();
+sortedDates.forEach((date, i) => {
+    let dLegs = legsByDate[date];
+    let first = dLegs[0], last = dLegs[dLegs.length-1];
+    let dStart = "", dEnd = "";
+    if (i === 0) { 
+        dStart = val('duty_start'); 
+        if (globalEndEl.dataset.manual === "true" && globalEndEl.value.length === 5) { 
+            dEnd = globalEndEl.value; 
+        } else if (last.tIn && document.activeElement !== globalEndEl) { 
+            dEnd = addMins(last.tIn, 30); 
+            globalEndEl.value = dEnd; 
         } 
-    } 
-}
-
-const valOn = parseFloat(fOn.value), valOff = parseFloat(fOff.value);
-let diffF = (!isNaN(valOn) && !isNaN(valOff)) ? Math.max(0, valOn - valOff) : null;
-setVal(`m_t${id}_fuel_diff`, diffF !== null ? formatDec(diffF) : ''); if (diffF) totalFuelUsed += diffF;
-const bStr = bDiff > 0 ? `${minsToTime(bDiff)} (${formatDec(bDiff/60).replace('.', ',')})` : ''; const aStr = aDiff > 0 ? `${minsToTime(aDiff)} (${formatDec(aDiff/60).replace('.', ',')})` : '';
-setVal(`m_t${id}_block_diff`, bStr); setVal(`m_t${id}_air_diff`, aStr); setTxt(`ui_t${id}_block_diff`, bStr || '--:--'); setTxt(`ui_t${id}_air_diff`, aStr || '--:--');
-totalBlockMins += bDiff; totalAirMins += aDiff;
-const lPax = parseInt(val(`m_t${id}_pax`)) || 0; totalPax += lPax; paxArray.push(`(${lPax})`);
-
-const pfRaw = val(`m_t${id}_pf`).trim().toUpperCase() || "SIN NOMBRE";
-const pmRaw = val(`m_t${id}_pm`).trim().toUpperCase();
-
-const pfArr = pfRaw.split('/').map(s => s.trim()).filter(Boolean);
-const pmArr = pmRaw.split('/').map(s => s.trim()).filter(Boolean);
-const pfCount = pfArr.length || 1;
-const pmCount = pmArr.length || 1;
-
-legDetails.push({ id, date: tDate, desde, dest, tOut, tIn, tOff, tOn, bDiff, aDiff, fDiff: diffF||0, pax: lPax, pf: pfRaw, pm: pmRaw, pfArr, pmArr, pfCount, pmCount, horoBot: hBot.value, horoTop: hTop.value, fuelOn: valOn, fuelOff: valOff });
-
-if(!legsByDate[tDate]) legsByDate[tDate] = [];
-legsByDate[tDate].push(legDetails[legDetails.length - 1]);
-
-const initPilot = () => ({ pf_time: 0, pf_air: 0, pm_time: 0, pm_air: 0 });
-
-pfArr.forEach(p => {
-    if (!pilotStats[p]) pilotStats[p] = initPilot();
-    pilotStats[p].pf_time += (bDiff / pfCount);
-    pilotStats[p].pf_air += (aDiff / pfCount);
+    } else { 
+        if (first.tOff) dStart = addMins(first.tOff, -60); 
+        if (last.tIn) dEnd = addMins(last.tIn, 30); 
+    }
+    let dur = (dStart && dEnd) ? timeDiffMins(dStart, dEnd) : 0; 
+    dailyStats[date] = { start: dStart, end: dEnd, duration: dur };
 });
 
-pmArr.forEach(p => {
-    if (!pilotStats[p]) pilotStats[p] = initPilot();
-    pilotStats[p].pm_time += (bDiff / pmCount);
-    pilotStats[p].pm_air += (aDiff / pmCount);
-});
-});
-
-let activeDates = Object.keys(legsByDate).sort(); if(activeDates.length === 0 && gDate) activeDates = [gDate]; if(activeDates.length === 0) activeDates = [new Date().toISOString().split('T')[0]];
-
-// -----------------------------------------------------
-// AGRUPACIÓN POR HOJAS (MÁXIMO 4 TRAMOS) SIN CORTAR POR DÍA
-// -----------------------------------------------------
+// 4. Creación de Folios (Máx 4 tramos)
 let folioGroups = [];
 let currentFolio = null;
-
-legDetails.forEach((leg, idx) => {
+legDetails.forEach((leg) => {
     let needsNewFolio = false;
     if (!currentFolio) needsNewFolio = true;
     else if (currentFolio.legs.length === 4) needsNewFolio = true;
 
     if (needsNewFolio) {
-        currentFolio = {
-            folioNum: folioGroups.length + 1,
-            dates: [leg.date],
-            legs: [],
-            stats: {}
-        };
+        currentFolio = { folioNum: folioGroups.length + 1, dates: [], legs: [], dateStats: [] };
         folioGroups.push(currentFolio);
-    } else {
-        if (!currentFolio.dates.includes(leg.date)) {
-            currentFolio.dates.push(leg.date);
-        }
     }
+    if (!currentFolio.dates.includes(leg.date)) currentFolio.dates.push(leg.date);
     currentFolio.legs.push(leg);
 });
 
 let picIni = val('m_pic_ini').trim().toUpperCase(), sicIni = val('m_sic_ini').trim().toUpperCase(), sic2Ini = val('m_sic2_ini').trim().toUpperCase();
-let globalEndEl = el('duty_end'); 
+let hasSic2 = sic2Ini !== '';
 
-folioGroups.forEach((group, index) => {
-    let startDuty = "", endDuty = "", groupBlock = 0, groupAir = 0, groupFuelUsed = 0, groupRefuel = 0, groupPax = [];
-    let firstLeg = group.legs[0], lastLeg = group.legs[group.legs.length - 1];
-    let p1 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
-        p2 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
-        p3 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 };
+// 5. Estadísticas de Consolidado separados por Fecha y Folio
+let pilotStats = {}; const initPilot = () => ({ pf_time: 0, pf_air: 0, pm_time: 0, pm_air: 0 });
 
-    group.legs.forEach(leg => {
-        groupBlock += (leg.bDiff || 0); groupAir += (leg.aDiff || 0); groupFuelUsed += (leg.fDiff || 0); groupRefuel += getLegRefuelTotal(leg.id); if (leg.pax >= 0) groupPax.push(`(${leg.pax})`);
-        
-        const procesarPilotoFolio = (ini, pObj) => {
-            if (!ini) return;
-            if (leg.pfArr && leg.pfArr.includes(ini)) {
-                let bShare = leg.bDiff / leg.pfCount; let aShare = leg.aDiff / leg.pfCount;
-                pObj.block += bShare; pObj.air += aShare; pObj.pf_block += bShare; pObj.pf_air += aShare;
-                if (leg.bDiff > 0) {
-                    if (leg.pfArr[0] === ini) pObj.dep++;
-                    if (leg.pfArr[leg.pfArr.length - 1] === ini) pObj.arr++;
+folioGroups.forEach(group => {
+    group.dates.forEach(date => {
+        let dLegs = group.legs.filter(l => l.date === date);
+        let first = dLegs[0], last = dLegs[dLegs.length - 1];
+        let block = 0, air = 0, fuelUsed = 0, refuel = 0, paxSum = 0;
+        let p1 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
+            p2 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
+            p3 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 };
+
+        dLegs.forEach(leg => {
+            block += (leg.bDiff || 0); air += (leg.aDiff || 0); fuelUsed += (leg.fDiff || 0); refuel += leg.refuel; paxSum += leg.pax;
+            
+            const procesarPilotoFolio = (ini, pObj) => {
+                if (!ini) return;
+                if (leg.pfArr && leg.pfArr.includes(ini)) {
+                    let bShare = leg.bDiff / leg.pfCount; let aShare = leg.aDiff / leg.pfCount;
+                    pObj.block += bShare; pObj.air += aShare; pObj.pf_block += bShare; pObj.pf_air += aShare;
+                    if (leg.bDiff > 0) { if (leg.pfArr[0] === ini) pObj.dep++; if (leg.pfArr[leg.pfArr.length - 1] === ini) pObj.arr++; }
                 }
-            }
-            if (leg.pmArr && leg.pmArr.includes(ini)) {
-                let bShare = leg.bDiff / leg.pmCount; let aShare = leg.aDiff / leg.pmCount;
-                pObj.block += bShare; pObj.air += aShare;
-            }
-        };
+                if (leg.pmArr && leg.pmArr.includes(ini)) {
+                    let bShare = leg.bDiff / leg.pmCount; let aShare = leg.aDiff / leg.pmCount;
+                    pObj.block += bShare; pObj.air += aShare;
+                }
+            };
+            procesarPilotoFolio(picIni, p1); procesarPilotoFolio(sicIni, p2); procesarPilotoFolio(sic2Ini, p3);
 
-        procesarPilotoFolio(picIni, p1);
-        procesarPilotoFolio(sicIni, p2);
-        procesarPilotoFolio(sic2Ini, p3);
+            // Poblar global de pilotos para el resumen general
+            leg.pfArr.forEach(p => { if (!pilotStats[p]) pilotStats[p] = initPilot(); pilotStats[p].pf_time += (leg.bDiff / leg.pfCount); pilotStats[p].pf_air += (leg.aDiff / leg.pfCount); });
+            leg.pmArr.forEach(p => { if (!pilotStats[p]) pilotStats[p] = initPilot(); pilotStats[p].pm_time += (leg.bDiff / leg.pmCount); pilotStats[p].pm_air += (leg.aDiff / leg.pmCount); });
+        });
+
+        group.dateStats.push({
+            date, block, air, fuelUsed, refuel, paxSum,
+            fuelInit: isNaN(first.fuelOn) ? 0 : first.fuelOn, fuelFinal: isNaN(last.fuelOff) ? 0 : last.fuelOff,
+            hIni: first.horoBot || '--', hFin: last.horoTop || '--',
+            dutyStart: dailyStats[date].start, dutyEnd: dailyStats[date].end, dutyDuration: dailyStats[date].duration,
+            p1, p2, p3
+        });
     });
-
-    if (index === 0) { 
-        startDuty = val('duty_start'); 
-        if (globalEndEl.dataset.manual === "true" && globalEndEl.value.length === 5) { 
-            endDuty = globalEndEl.value; 
-        } else if (lastLeg.tIn && document.activeElement !== globalEndEl) { 
-            endDuty = addMins(lastLeg.tIn, 30); 
-            globalEndEl.value = endDuty; 
-        } 
-    } else { 
-        if (firstLeg.tOff) startDuty = addMins(firstLeg.tOff, -60); 
-        if (lastLeg.tIn) endDuty = addMins(lastLeg.tIn, 30); 
-    }
-
-    let dur = (startDuty && endDuty) ? timeDiffMins(startDuty, endDuty) : 0; 
-    let fIniRaw = firstLeg.fuelOn, fIni = isNaN(fIniRaw) ? 0 : fIniRaw, fFinRaw = lastLeg.fuelOff, fFin = (isNaN(fFinRaw) ? 0 : fFinRaw) + getLegRefuelTotal(lastLeg.id);
-    group.stats = { start: startDuty, end: endDuty, duration: dur, block: groupBlock, air: groupAir, fuelUsed: groupFuelUsed, fuelInit: fIni, fuelFinal: fFin, fuelRefuel: groupRefuel, pax: groupPax.join(' '), p1, p2, p3, hIni: firstLeg.horoBot||'--', hFin: lastLeg.horoTop||'--' };
 });
 
-let hasSic2 = sic2Ini !== '';
-let tramosTableHtml = `<table style="width:100%; min-width: 600px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;"><thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th style="text-align:left; padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PARÁMETRO</th>`;
-legIds.forEach((id, idx) => { tramosTableHtml += `<th style="padding:8px; border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">TRAMO ${idx+1}</th>`; }); tramosTableHtml += `</tr></thead><tbody>`;
-const rowDefs = [
-{ label: "FECHA", get: id => val(`m_t${id}_fecha`) || gDate || '--' }, { label: "CAPITÁN", get: id => picIni || '--' }, { label: "FO", get: id => sicIni || '--' }, ...(hasSic2 ? [{ label: "FO 2", get: id => sic2Ini || '--' }] : []), { label: "DESDE", get: id => val(`m_t${id}_desde`).toUpperCase() || '--' }, { label: "DESTINO", get: id => val(`m_t${id}_dest`).toUpperCase() || '--' }, { label: "AIR ON", get: id => val(`m_t${id}_time_on`) || '--:--' }, { label: "AIR OFF", get: id => val(`m_t${id}_time_off`) || '--:--' }, { label: "AIRTIME", get: id => { let text = el(`ui_t${id}_air_diff`)?.innerText.split(' ')[0]; return (text && text !== '--:--') ? text : '--:--'; } }, { label: "BLOCK IN", get: id => val(`m_t${id}_time_in`) || '--:--' }, { label: "BLOCK OUT", get: id => val(`m_t${id}_time_out`) || '--:--' }, { label: "BLOCKTIME", get: id => { let text = el(`ui_t${id}_block_diff`)?.innerText.split(' ')[0]; return (text && text !== '--:--') ? text : '--:--'; } }
-];
-rowDefs.forEach((r, idx) => { let bBottom = (idx === rowDefs.length - 1) ? '' : 'border-bottom:1px solid rgba(255,255,255,0.05);'; tramosTableHtml += `<tr><td style="text-align:left; padding:6px 8px; font-weight:bold; color:var(--text-muted); border-right:1px solid var(--border-color); ${bBottom}">${r.label}</td>`; legIds.forEach(id => { tramosTableHtml += `<td style="padding:6px 8px; border-right:1px solid rgba(255,255,255,0.05); color:var(--text-main); ${bBottom}">${r.get(id)}</td>`; }); tramosTableHtml += `</tr>`; }); tramosTableHtml += `</tbody></table>`;
-if(el('ui_resumen_tramos')) el('ui_resumen_tramos').innerHTML = tramosTableHtml;
+// 6. Construcción HTML UI para App (Consolidado)
+let pfCols = hasSic2 ? 3 : 2;
+let folioTableHtml = `<table style="width:100%; min-width: 1000px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;">
+<thead>
+<tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);">
+<th rowspan="2" style="padding:8px; text-align:left; border-right:1px solid var(--border-color); color:var(--accent);">FECHA / HOJA</th>
+<th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PAX</th>
+<th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">AIRTIME</th>
+<th colspan="4" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">FUEL</th>
+<th colspan="2" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">HORÓMETRO</th>
+<th colspan="3" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">DUTY</th>
+<th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">BLOCKTIME</th>
+<th colspan="${pfCols}" style="padding:4px; color:var(--text-muted);">PILOT FLYING</th>
+</tr>
+<tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border-color);">
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th>
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">CONSUMO</th>
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th>
+<th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">RECARGA</th>
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th>
+<th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">FINAL</th>
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIO</th>
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FIN</th>
+<th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">TOTAL</th>
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">CAP</th>
+<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FO</th>
+${hasSic2 ? `<th style="padding:4px; font-size:0.65rem; color:var(--text-muted);">FO2</th>` : ''}
+</tr></thead><tbody>`;
 
-let folioTableHtml = `<table style="width:100%; min-width: 800px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;"><thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th rowspan="2" style="padding:8px; text-align:left; border-right:1px solid var(--border-color); color:var(--accent);">HOJA</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PAX POR<br>TRAMO</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">TOTAL<br>AIRTIME</th><th colspan="4" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">FUEL</th><th colspan="2" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">HOROMETRO</th><th colspan="3" style="padding:4px; color:var(--text-muted);">DUTY</th></tr><tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border-color);"><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">USADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">CARGADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; font-size:0.65rem; color:var(--text-muted);">TOTAL</th></tr></thead><tbody>`;
+let gDuty = 0; Object.values(dailyStats).forEach(ds => gDuty += ds.duration);
+let gAir = 0, gBlock = 0, gFuelUsed = 0, gPax = 0;
 
-// Fila base de hojas
-folioGroups.forEach((group, idx) => { 
-    let dp = group.stats; let bBottom = 'border-bottom:1px solid rgba(255,255,255,0.05);'; let fIni = Math.round(dp.fuelInit || 0), fUsed = Math.round(dp.fuelUsed || 0), fRem = Math.round(dp.fuelFinal || 0), fRef = Math.round(dp.fuelRefuel || 0); let aStr = dp.air > 0 ? `${minsToTime(dp.air)} (${formatDec(dp.air/60).replace('.', ',')})` : '--:--'; let dutyTotalStr = dp.duration > 0 ? `${minsToTime(dp.duration)}` : '--:--'; 
-    let datesDisplay = group.dates.join('<br>');
-    folioTableHtml += `<tr><td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">HOJA ${group.folioNum} <span style="font-size:0.65rem; color:var(--text-muted); font-weight:normal;"><br>${datesDisplay}</span></td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.pax || '(0)'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${fIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${fUsed}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">${fRem}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--success);">+${fRef}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.hIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.hFin}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.start || '--:--'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.end || '--:--'}</td><td style="padding:6px 8px; ${bBottom}">${dutyTotalStr}</td></tr>`; 
+folioGroups.forEach(group => { 
+    group.dateStats.forEach(ds => {
+        gAir += ds.air; gBlock += ds.block; gFuelUsed += ds.fuelUsed; gPax += ds.paxSum;
+        let bBottom = 'border-bottom:1px solid rgba(255,255,255,0.05);';
+        let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
+        let dStr = ds.dutyDuration > 0 ? `${minsToTime(ds.dutyDuration)}` : '--:--';
+        let bStr = ds.block > 0 ? `${minsToTime(ds.block)}` : '--:--';
+        
+        let p1Str = (ds.p1.pf_block > 0 || ds.p1.pf_air > 0) ? `AIR: ${formatDec(ds.p1.pf_air/60).replace('.',',')}<br>BLK: ${formatDec(ds.p1.pf_block/60).replace('.',',')}` : '--';
+        let p2Str = (ds.p2.pf_block > 0 || ds.p2.pf_air > 0) ? `AIR: ${formatDec(ds.p2.pf_air/60).replace('.',',')}<br>BLK: ${formatDec(ds.p2.pf_block/60).replace('.',',')}` : '--';
+        let p3Str = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `AIR: ${formatDec(ds.p3.pf_air/60).replace('.',',')}<br>BLK: ${formatDec(ds.p3.pf_block/60).replace('.',',')}` : '--';
+
+        folioTableHtml += `<tr>
+        <td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">HOJA ${group.folioNum}<br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:normal;">${ds.date}</span></td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${ds.paxSum}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${Math.round(ds.fuelInit)}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${Math.round(ds.fuelUsed)}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">${Math.round(ds.fuelFinal)}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--success);">+${Math.round(ds.refuel)}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${ds.hIni}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${ds.hFin}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${ds.dutyStart || '--:--'}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${ds.dutyEnd || '--:--'}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dStr}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${bStr}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${p1Str}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${p2Str}</td>
+        ${hasSic2 ? `<td style="padding:6px 8px; ${bBottom}">${p3Str}</td>` : ''}
+        </tr>`; 
+    });
 }); 
 
-// Fila Consolidado Global en App
-let gDuty = 0, gAir = 0, gFuelUsed = 0, gFuelRef = 0;
-folioGroups.forEach(g => { gDuty += g.stats.duration || 0; gAir += g.stats.air || 0; gFuelUsed += g.stats.fuelUsed || 0; gFuelRef += g.stats.fuelRefuel || 0; });
 let gDutyStr = gDuty > 0 ? `${minsToTime(gDuty)}` : '--:--';
 let gAirStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
-let gFuelInit = folioGroups.length > 0 ? Math.round(folioGroups[0].stats.fuelInit || 0) : 0;
-let gFuelFin = folioGroups.length > 0 ? Math.round(folioGroups[folioGroups.length-1].stats.fuelFinal || 0) : 0;
-
 folioTableHtml += `<tr style="background:rgba(255,255,255,0.08); font-weight:bold; border-top:2px solid var(--accent);">
-<td style="padding:6px 8px; text-align:left; color:var(--accent);">TOTAL GLOBAL</td>
-<td style="padding:6px 8px;"></td>
-<td style="padding:6px 8px; color:var(--accent);">${gAirStr}</td>
-<td style="padding:6px 8px;">${gFuelInit}</td>
-<td style="padding:6px 8px; color:var(--danger);">${gFuelUsed}</td>
-<td style="padding:6px 8px; color:var(--accent);">${gFuelFin}</td>
-<td style="padding:6px 8px; color:var(--success);">+${gFuelRef}</td>
-<td colspan="4"></td>
-<td style="padding:6px 8px; color:var(--accent);">${gDutyStr}</td>
-</tr>`;
-folioTableHtml += `</tbody></table>`;
+<td style="padding:6px 8px; text-align:left; color:var(--accent);">TOTAL GLOBAL</td><td style="padding:6px 8px; color:var(--accent);">${gPax}</td><td style="padding:6px 8px; color:var(--accent);">${gAirStr}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--danger);">${gFuelUsed}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--success);">+${globalRefuel}</td><td colspan="4"></td><td style="padding:6px 8px; color:var(--accent);">${gDutyStr}</td><td colspan="${2 + pfCols}"></td>
+</tr></tbody></table>`;
 if(el('ui_resumen_diario')) el('ui_resumen_diario').innerHTML = folioTableHtml;
 
-// Totales de totales
-let totDutyMins = 0; folioGroups.forEach(g => totDutyMins += (g.stats.duration || 0));
-setTxt('sum_duty_hhmm', minsToTime(totDutyMins)); setTxt('sum_duty_dec', `${formatDec(totDutyMins/60)} hrs`); renderSecurityForms(activeDates, legsByDate);
-const initialFuel = legIds.length > 0 ? parseFloat(val(`m_t${legIds[0]}_fuel_on`)) || 0 : 0; let finalFuel = legIds.length > 0 ? parseFloat(val(`m_t${legIds[legIds.length-1]}_fuel_off`)) || 0 : 0; if (legIds.length > 0) finalFuel += getLegRefuelTotal(legIds[legIds.length-1]); 
-setTxt('sum_fuel_init', formatDec(initialFuel)); setTxt('sum_fuel_final', formatDec(finalFuel)); setTxt('sum_fuel_refuel', `+${formatDec(globalRefuel)}`); setTxt('sum_fuel_used', `-${formatDec(totalFuelUsed)}`);
-setTxt('sum_air_hhmm', minsToTime(totalAirMins)); setTxt('sum_air_dec', `${formatDec(totalAirMins/60)} hrs`); setTxt('sum_block_hhmm', minsToTime(totalBlockMins)); setTxt('sum_block_dec', `${formatDec(totalBlockMins/60)} hrs`);
-setTxt('sum_pax_legs', paxArray.join(' ') || "(0)");
+setTxt('sum_duty_hhmm', minsToTime(gDuty)); setTxt('sum_duty_dec', `${formatDec(gDuty/60)} hrs`); 
+setTxt('sum_air_hhmm', minsToTime(gAir)); setTxt('sum_air_dec', `${formatDec(gAir/60)} hrs`); 
+setTxt('sum_block_hhmm', minsToTime(gBlock)); setTxt('sum_block_dec', `${formatDec(gBlock/60)} hrs`);
+
+renderSecurityForms(sortedDates, legsByDate);
 
 el('sum_pilots_container').innerHTML = Object.entries(pilotStats).filter(([_, d]) => d.pf_time > 0 || d.pm_time > 0).map(([p, d]) => {
     let pfT = minsToTime(d.pf_time), pfTd = formatDec(d.pf_time/60).replace('.',',');
@@ -1031,7 +1062,7 @@ el('sum_pilots_container').innerHTML = Object.entries(pilotStats).filter(([_, d]
     </div></div>`
 }).join('') || "<span style='color:var(--text-muted); font-size:0.8rem;'>Sin horas registradas</span>";
 
-syncPrintData(folioGroups, hasSic2, picIni, sicIni, sic2Ini); 
+syncPrintData(folioGroups, dailyStats, gDuty, gAir, gBlock, gFuelUsed, globalRefuel, gPax, hasSic2, picIni, sicIni, sic2Ini); 
 autoSave(); 
 }
 
@@ -1047,7 +1078,7 @@ let autoOrigen = dayLegs.length > 0 ? dayLegs[0].desde : ''; let autoDestino = d
 let currentHInicio = st.hinicioManual && st.customHInicio !== undefined ? st.customHInicio : autoHInicio; let currentHTermino = st.hterminoManual && st.customHTermino !== undefined ? st.customHTermino : autoHTermino;
 let defaultEst = (autoOrigen.trim().toUpperCase() === 'SCEL') ? 'AEROCARDAL' : ''; let currentEst = st.estacionamiento !== undefined ? st.estacionamiento : defaultEst;
 let currentAlerta = st.alerta !== undefined ? st.alerta : '';
-webHtml += `<details class="card" style="border-color: var(--accent);"><summary style="display:flex; justify-content:space-between; align-items:center;"><span style="flex:1;">🔎 INSPECCIÓN DE SEGURIDAD (${dateKey}) <span class="arrow"></span></span><div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();"><label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sec_sin_obs_${dateKey}" ${st.sinObs ? 'checked' : ''} onchange="toggleSecSinObs('${dateKey}')"> <span>Sin obs</span></label></div></summary><div class="card-content"><div style="margin-bottom: 12px; padding:10px; background:rgba(255,255,255,0.03); border-radius:6px;"><div class="grid-3"><div class="form-group"><label>Origen</label><input type="text" id="m_sec_origen_${dateKey}" value="${autoOrigen}" oninput="triggerUpdate()"></div><div class="form-group"><label>Destino</label><input type="text" id="m_sec_destino_${dateKey}" value="${autoDestino}" oninput="triggerUpdate()"></div><div class="form-group"><label>Estacionamiento</label><input type="text" id="m_sec_est_${dateKey}" value="${currentEst}" oninput="secManualState['${dateKey}'].estacionamiento=this.value; triggerUpdate()"></div></div><div class="grid-3" style="margin-top:5px;"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Inicio (Out)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'hinicio')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_hinicio_${dateKey}" value="${currentHInicio}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hinicioManual=true; secManualState['${dateKey}'].customHInicio=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Término (In)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'htermino')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_htermino_${dateKey}" value="${currentHTermino}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hterminoManual=true; secManualState['${dateKey}'].customHTermino=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label>Alerta</label><input type="text" id="m_sec_alerta_${dateKey}" value="${currentAlerta}" oninput="secManualState['${dateKey}'].alerta=this.value; triggerUpdate()"></div></div></div><div id="sec_form_container_${dateKey}">`;
+webHtml += `<details class="card" style="border-color: var(--accent);"><summary style="display:flex; justify-content:space-between; align-items:center;"><span style="flex:1;">🔎 INSPECCIÓN DE SEGURIDAD (${dateKey})</span><div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();"><label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sec_sin_obs_${dateKey}" ${st.sinObs ? 'checked' : ''} onchange="toggleSecSinObs('${dateKey}')"> <span>Sin obs</span></label><span class="arrow"></span></div></summary><div class="card-content"><div style="margin-bottom: 12px; padding:10px; background:rgba(255,255,255,0.03); border-radius:6px;"><div class="grid-3"><div class="form-group"><label>Origen</label><input type="text" id="m_sec_origen_${dateKey}" value="${autoOrigen}" oninput="triggerUpdate()"></div><div class="form-group"><label>Destino</label><input type="text" id="m_sec_destino_${dateKey}" value="${autoDestino}" oninput="triggerUpdate()"></div><div class="form-group"><label>Estacionamiento</label><input type="text" id="m_sec_est_${dateKey}" value="${currentEst}" oninput="secManualState['${dateKey}'].estacionamiento=this.value; triggerUpdate()"></div></div><div class="grid-3" style="margin-top:5px;"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Inicio (Out)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'hinicio')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_hinicio_${dateKey}" value="${currentHInicio}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hinicioManual=true; secManualState['${dateKey}'].customHInicio=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Término (In)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'htermino')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_htermino_${dateKey}" value="${currentHTermino}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hterminoManual=true; secManualState['${dateKey}'].customHTermino=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label>Alerta</label><input type="text" id="m_sec_alerta_${dateKey}" value="${currentAlerta}" oninput="secManualState['${dateKey}'].alerta=this.value; triggerUpdate()"></div></div></div><div id="sec_form_container_${dateKey}">`;
 secData.forEach(item => { let isChecked = st[item.id] !== undefined ? st[item.id] : st.sinObs; webHtml += `<label class="checkbox-item"><input type="checkbox" id="m_sec_${dateKey}_${item.id}" ${isChecked ? 'checked' : ''} ${st.sinObs ? 'disabled' : ''} onchange="handleSecCheckboxChange('${dateKey}', '${item.id}')"> <span><b>${item.id}.</b> ${item.text}</span></label>`; });
 webHtml += `</div><div class="signature-block"><div>III. COMANDANTE DE LA AERONAVE:</div><div class="grid-3" style="margin-top:8px;"><div>Nombre: <strong id="sec_ui_nombre_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>RUT: <strong id="sec_ui_rut_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>Licencia: <strong id="sec_ui_licencia_${dateKey}" style="color:var(--accent);">______________________</strong></div></div></div></div></details>`;
 
@@ -1091,12 +1122,8 @@ printHtml += pSecHtml;
 container.innerHTML = webHtml; printContainer.innerHTML = printHtml; updateFormFooters();
 }
 
-function syncPrintData(folioGroups, hasSic2, picIni, sicIni, sic2Ini) {
+function syncPrintData(folioGroups, dailyStats, gDuty, gAir, gBlock, gFuelUsed, globalRefuel, gPax, hasSic2, picIni, sicIni, sic2Ini) {
 const pfCols = hasSic2 ? 3 : 2;
-const pfWidth = hasSic2 ? "27%" : "20%";
-const fuelWidth = hasSic2 ? "19%" : "26%";
-
-let totDuty = 0, totBlock = 0, totAir = 0, totFuel = 0, totPax = ""; 
 let totP1Block = 0, totP1Air = 0, totP1Dep = 0, totP1Arr = 0, totP1PFBlock = 0, totP1PFAir = 0; 
 let totP2Block = 0, totP2Air = 0, totP2Dep = 0, totP2Arr = 0, totP2PFBlock = 0, totP2PFAir = 0;
 let totP3Block = 0, totP3Air = 0, totP3Dep = 0, totP3Arr = 0, totP3PFBlock = 0, totP3PFAir = 0;
@@ -1105,15 +1132,7 @@ let foliosHtml = '';
 let absIndex = 1;
 
 folioGroups.forEach(group => {
-    let ds = group.stats;
-    totDuty += ds.duration; totBlock += ds.block; totAir += ds.air; totFuel += ds.fuelUsed;
-    totPax += (totPax && ds.pax ? " " : "") + ds.pax;
-    totP1Block += ds.p1.block; totP1Air += ds.p1.air; totP1Dep += ds.p1.dep; totP1Arr += ds.p1.arr; totP1PFBlock += ds.p1.pf_block; totP1PFAir += ds.p1.pf_air;
-    totP2Block += ds.p2.block; totP2Air += ds.p2.air; totP2Dep += ds.p2.dep; totP2Arr += ds.p2.arr; totP2PFBlock += ds.p2.pf_block; totP2PFAir += ds.p2.pf_air;
-    totP3Block += ds.p3.block; totP3Air += ds.p3.air; totP3Dep += ds.p3.dep; totP3Arr += ds.p3.arr; totP3PFBlock += ds.p3.pf_block; totP3PFAir += ds.p3.pf_air;
-
     let fDate = group.dates.map(formatDatePdf).join(' - ');
-
     let pageHtml = `<div class="pdf-page print-op-page" id="print_folio_${group.folioNum}">`;
     // CABECERA DE LA HOJA
     pageHtml += `<table class="print-table" style="border-bottom: none;">
@@ -1130,111 +1149,86 @@ folioGroups.forEach(group => {
       </tr>
     </table>`;
 
-    // TRAMOS Y PARÁMETROS
     group.legs.forEach((leg, i) => { pageHtml += getPrintLegHTML(leg.id, absIndex + i); });
     pageHtml += `<div style="margin-top: 15px;">`;
     group.legs.forEach((leg, i) => { pageHtml += getPrintParamsHTML(leg.id, absIndex + i); });
     pageHtml += `</div>`;
     absIndex += group.legs.length;
 
-    // CONSOLIDADO INDEPENDIENTE DE LA HOJA
+    // TABLA CONSOLIDADO EXACTO POR HOJA
     let summaryHtml = `<table class="print-table" style="margin-top:0; border-top:none; text-transform:uppercase; table-layout: fixed; width: 100%;">
-        <tr><td colspan="${hasSic2 ? 14 : 13}" class="summary-title-pdf"><b>CONSOLIDADO HOJA ${group.folioNum}</b></td></tr>
+        <tr><td colspan="${13 + (hasSic2 ? 1 : 0)}" class="summary-title-pdf"><b>CONSOLIDADO HOJA ${group.folioNum}</b></td></tr>
         <tr class="gray-bg compact-th">
-        <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>FECHA</b></td>
-        <td colspan="2" style="width:16%;" class="text-center"><b>DUTY</b></td>
-        <td style="width:10%;" class="text-center"><b>HORO</b></td>
-        <td style="width:8%;" class="text-center"><b>AIRTIME</b></td>
-        <td style="width:8%;" class="text-center"><b>BLOCK</b></td>
-        <td colspan="${pfCols}" style="width:${pfWidth};" class="text-center"><b>PILOT FLYING (TO/LD)</b></td>
-        <td colspan="4" style="width:${fuelWidth};" class="text-center"><b>COMBUSTIBLE</b></td>
-        <td rowspan="2" style="width:5%; vertical-align:middle;" class="text-center"><b>PAX</b></td>
+        <td rowspan="2" style="width:9%; vertical-align:middle;" class="text-center"><b>FECHA</b></td>
+        <td rowspan="2" style="width:4%; vertical-align:middle;" class="text-center"><b>PAX</b></td>
+        <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>AIRTIME</b></td>
+        <td colspan="4" style="width:18%;" class="text-center"><b>COMBUSTIBLE</b></td>
+        <td colspan="2" style="width:11%;" class="text-center"><b>HOROMETRO</b></td>
+        <td colspan="3" style="width:16%;" class="text-center"><b>DUTY</b></td>
+        <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>BLOCK</b></td>
+        <td colspan="${pfCols}" style="width:${hasSic2 ? '28%' : '28%'};" class="text-center"><b>PILOT FLYING</b></td>
         </tr>
         <tr class="gray-bg compact-th">
-        <td class="text-center"><b>INICIO-FIN</b></td>
-        <td class="text-center"><b>TOTAL</b></td>
-        <td class="text-center"><b>INICIO-FIN</b></td>
-        <td class="text-center"><b>TOTAL</b></td>
-        <td class="text-center"><b>TOTAL</b></td>
-        <td class="text-center"><b>CAP: ${picIni || 'CAP'}<br>(TO:${ds.p1.dep} LD:${ds.p1.arr})</b></td>
-        <td class="text-center"><b>FO: ${sicIni || 'FO'}<br>(TO:${ds.p2.dep} LD:${ds.p2.arr})</b></td>
-        ${hasSic2 ? `<td class="text-center"><b>FO2: ${sic2Ini || 'FO2'}<br>(TO:${ds.p3.dep} LD:${ds.p3.arr})</b></td>` : ''}
-        <td class="text-center"><b>INICIAL</b></td>
-        <td class="text-center"><b>FINAL</b></td>
-        <td class="text-center"><b>USADO</b></td>
-        <td class="text-center"><b>RECARGA</b></td>
+        <td class="text-center"><b>INICIAL</b></td><td class="text-center"><b>CONS.</b></td><td class="text-center"><b>REMAN.</b></td><td class="text-center"><b>RECARGA</b></td>
+        <td class="text-center"><b>INICIAL</b></td><td class="text-center"><b>FINAL</b></td>
+        <td class="text-center"><b>INICIO</b></td><td class="text-center"><b>FIN</b></td><td class="text-center"><b>TOTAL</b></td>
+        <td class="text-center"><b>CAP: ${picIni || 'CAP'}</b></td>
+        <td class="text-center"><b>FO: ${sicIni || 'FO'}</b></td>
+        ${hasSic2 ? `<td class="text-center"><b>FO2: ${sic2Ini || 'FO2'}</b></td>` : ''}
         </tr>`;
 
-    let dStr = ds.duration > 0 ? `${minsToTime(ds.duration)} (${formatDec(ds.duration/60).replace('.', ',')})` : '--:--';
-    let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
-    let bStr = ds.block > 0 ? `${minsToTime(ds.block)} (${formatDec(ds.block/60).replace('.', ',')})` : '--:--';
+    group.dateStats.forEach(ds => {
+        totP1Block += ds.p1.block; totP1Air += ds.p1.air; totP1Dep += ds.p1.dep; totP1Arr += ds.p1.arr; totP1PFBlock += ds.p1.pf_block; totP1PFAir += ds.p1.pf_air;
+        totP2Block += ds.p2.block; totP2Air += ds.p2.air; totP2Dep += ds.p2.dep; totP2Arr += ds.p2.arr; totP2PFBlock += ds.p2.pf_block; totP2PFAir += ds.p2.pf_air;
+        totP3Block += ds.p3.block; totP3Air += ds.p3.air; totP3Dep += ds.p3.dep; totP3Arr += ds.p3.arr; totP3PFBlock += ds.p3.pf_block; totP3PFAir += ds.p3.pf_air;
 
-    let p1A_dec = ds.p1.pf_air > 0 ? formatDec(ds.p1.pf_air/60).replace('.', ',') : '0,0'; 
-    let p1B_dec = ds.p1.pf_block > 0 ? formatDec(ds.p1.pf_block/60).replace('.', ',') : '0,0';
-    let p1PFStr = (ds.p1.pf_block > 0 || ds.p1.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p1A_dec})<br>BLK: (${p1B_dec})</div>` : '--'; 
-
-    let p2A_dec = ds.p2.pf_air > 0 ? formatDec(ds.p2.pf_air/60).replace('.', ',') : '0,0'; 
-    let p2B_dec = ds.p2.pf_block > 0 ? formatDec(ds.p2.pf_block/60).replace('.', ',') : '0,0';
-    let p2PFStr = (ds.p2.pf_block > 0 || ds.p2.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p2A_dec})<br>BLK: (${p2B_dec})</div>` : '--';
-
-    let p3A_dec = ds.p3.pf_air > 0 ? formatDec(ds.p3.pf_air/60).replace('.', ',') : '0,0'; 
-    let p3B_dec = ds.p3.pf_block > 0 ? formatDec(ds.p3.pf_block/60).replace('.', ',') : '0,0';
-    let p3PFStr = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p3A_dec})<br>BLK: (${p3B_dec})</div>` : '--';
-
-    summaryHtml += `<tr class="compact-td"><td class="text-center bold">${fDate.replace(/ - /g, '<br>')}</td><td class="text-center">${ds.start || '--'} - ${ds.end || '--'}</td><td class="text-center bold">${dStr}</td><td class="text-center">${ds.hIni} - ${ds.hFin}</td><td class="text-center bold">${aStr}</td><td class="text-center bold">${bStr}</td><td class="text-center">${p1PFStr}</td><td class="text-center">${p2PFStr}</td>${hasSic2 ? `<td class="text-center">${p3PFStr}</td>` : ''}<td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center">${Math.round(ds.fuelFinal)}</td><td class="text-center bold">${Math.round(ds.fuelUsed)}</td><td class="text-center">${Math.round(ds.fuelRefuel)}</td><td class="text-center">${ds.pax}</td></tr>`;
-
-    // AGREGAR TOTAL GLOBAL SOLO EN LA ÚLTIMA HOJA Y SI HAY MÁS DE 1
-    if (group.folioNum === folioGroups.length && folioGroups.length > 1) {
-        let p1TotAirDec = totP1PFAir > 0 ? formatDec(totP1PFAir/60).replace('.', ',') : '0,0'; 
-        let p1TotBlkDec = totP1PFBlock > 0 ? formatDec(totP1PFBlock/60).replace('.', ',') : '0,0';
-        let totP1PFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p1TotAirDec})<br>BLK: (${p1TotBlkDec})<br><b style="color:var(--text-main);">TO:${totP1Dep} LD:${totP1Arr}</b></div>` : '--'; 
-
-        let p2TotAirDec = totP2PFAir > 0 ? formatDec(totP2PFAir/60).replace('.', ',') : '0,0'; 
-        let p2TotBlkDec = totP2PFBlock > 0 ? formatDec(totP2PFBlock/60).replace('.', ',') : '0,0';
-        let totP2PFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p2TotAirDec})<br>BLK: (${p2TotBlkDec})<br><b style="color:var(--text-main);">TO:${totP2Dep} LD:${totP2Arr}</b></div>` : '--';
-
-        let p3TotAirDec = totP3PFAir > 0 ? formatDec(totP3PFAir/60).replace('.', ',') : '0,0'; 
-        let p3TotBlkDec = totP3PFBlock > 0 ? formatDec(totP3PFBlock/60).replace('.', ',') : '0,0';
-        let totP3PFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p3TotAirDec})<br>BLK: (${p3TotBlkDec})<br><b style="color:var(--text-main);">TO:${totP3Dep} LD:${totP3Arr}</b></div>` : '--';
-
-        let totDStr = totDuty > 0 ? `${minsToTime(totDuty)} (${formatDec(totDuty/60).replace('.', ',')})` : '--:--';
-        let totAStr = totAir > 0 ? `${minsToTime(totAir)} (${formatDec(totAir/60).replace('.', ',')})` : '--:--';
-        let totBStr = totBlock > 0 ? `${minsToTime(totBlock)} (${formatDec(totBlock/60).replace('.', ',')})` : '--:--';
+        let dStr = ds.dutyDuration > 0 ? `${minsToTime(ds.dutyDuration)}` : '--:--';
+        let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
+        let bStr = ds.block > 0 ? `${minsToTime(ds.block)}` : '--:--';
+        let p1PFStr = (ds.p1.pf_block > 0 || ds.p1.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(ds.p1.pf_air/60).replace('.', ',')})<br>BLK: (${formatDec(ds.p1.pf_block/60).replace('.', ',')})<br>T:${ds.p1.dep} L:${ds.p1.arr}</div>` : '--'; 
+        let p2PFStr = (ds.p2.pf_block > 0 || ds.p2.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(ds.p2.pf_air/60).replace('.', ',')})<br>BLK: (${formatDec(ds.p2.pf_block/60).replace('.', ',')})<br>T:${ds.p2.dep} L:${ds.p2.arr}</div>` : '--';
+        let p3PFStr = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(ds.p3.pf_air/60).replace('.', ',')})<br>BLK: (${formatDec(ds.p3.pf_block/60).replace('.', ',')})<br>T:${ds.p3.dep} L:${ds.p3.arr}</div>` : '--';
 
         summaryHtml += `<tr class="compact-td">
-        <td class="text-center summary-total-bg" colspan="2"><b>TOTALES GLOBAL P.O.V.</b></td>
-        <td class="text-center summary-total-bg"><b>${totDStr}</b></td>
-        <td class="text-center summary-total-bg"></td>
-        <td class="text-center summary-total-bg"><b>${totAStr}</b></td>
+        <td class="text-center bold">${formatDatePdf(ds.date)}</td><td class="text-center">${ds.paxSum}</td><td class="text-center bold">${aStr}</td>
+        <td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center color-danger">${Math.round(ds.fuelUsed)}</td><td class="text-center color-accent">${Math.round(ds.fuelFinal)}</td><td class="text-center color-success">+${Math.round(ds.refuel)}</td>
+        <td class="text-center">${ds.hIni}</td><td class="text-center">${ds.hFin}</td>
+        <td class="text-center">${ds.dutyStart || '--:--'}</td><td class="text-center">${ds.dutyEnd || '--:--'}</td><td class="text-center bold">${dStr}</td>
+        <td class="text-center bold">${bStr}</td>
+        <td class="text-center">${p1PFStr}</td><td class="text-center">${p2PFStr}</td>${hasSic2 ? `<td class="text-center">${p3PFStr}</td>` : ''}
+        </tr>`;
+    });
+
+    if (group.folioNum === folioGroups.length && folioGroups.length > 0) {
+        let p1TotPFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP1PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP1PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP1Dep} L:${totP1Arr}</b></div>` : '--'; 
+        let p2TotPFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP2PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP2PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP2Dep} L:${totP2Arr}</b></div>` : '--';
+        let p3TotPFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP3PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP3PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP3Dep} L:${totP3Arr}</b></div>` : '--';
+
+        let totDStr = gDuty > 0 ? `${minsToTime(gDuty)} (${formatDec(gDuty/60).replace('.', ',')})` : '--:--';
+        let totAStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
+        let totBStr = gBlock > 0 ? `${minsToTime(gBlock)} (${formatDec(gBlock/60).replace('.', ',')})` : '--:--';
+
+        summaryHtml += `<tr class="compact-td">
+        <td class="text-center summary-total-bg"><b>GLOBAL POV</b></td><td class="text-center summary-total-bg"><b>${gPax}</b></td><td class="text-center summary-total-bg"><b>${totAStr}</b></td>
+        <td class="text-center summary-total-bg"></td><td class="text-center summary-total-bg color-danger"><b>${Math.round(gFuelUsed)}</b></td><td class="text-center summary-total-bg"></td><td class="text-center summary-total-bg color-success"><b>+${Math.round(globalRefuel)}</b></td>
+        <td colspan="2" class="text-center summary-total-bg"></td><td colspan="2" class="text-center summary-total-bg"></td><td class="text-center summary-total-bg"><b>${totDStr}</b></td>
         <td class="text-center summary-total-bg"><b>${totBStr}</b></td>
-        <td class="text-center summary-total-bg"><b>${totP1PFStr}</b></td>
-        <td class="text-center summary-total-bg"><b>${totP2PFStr}</b></td>
-        ${hasSic2 ? `<td class="text-center summary-total-bg"><b>${totP3PFStr}</b></td>` : ''}
-        <td class="text-center summary-total-bg"></td>
-        <td class="text-center summary-total-bg"></td>
-        <td class="text-center summary-total-bg"><b>${Math.round(totFuel)}</b></td>
-        <td class="text-center summary-total-bg"></td>
-        <td class="text-center summary-total-bg"></td>
+        <td class="text-center summary-total-bg"><b>${p1TotPFStr}</b></td><td class="text-center summary-total-bg"><b>${p2TotPFStr}</b></td>${hasSic2 ? `<td class="text-center summary-total-bg"><b>${p3TotPFStr}</b></td>` : ''}
         </tr>`;
     }
-
     summaryHtml += `</table>`;
-    pageHtml += `<div style="margin-top: 10px;">${summaryHtml}</div>`;
-    pageHtml += `</div>`; 
-
+    pageHtml += `<div style="margin-top: 10px;">${summaryHtml}</div></div>`; 
     foliosHtml += pageHtml;
 });
 
 el('print-folios-wrapper').innerHTML = foliosHtml;
 
-// LLenar dinámicamente forzando a MAYÚSCULAS en el PDF
 const stdFields = ['folio','dest','desde','dist','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
 const prmFields = ['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'];
 const wpfFields = ['wp1','wp2','wp3','wp4','cp1','cp2','cp3','cp4','cr1','cr2','cr3','cr4'];
 
 legIds.forEach(id => {
     stdFields.forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
-
     const fUsedVal = val(`m_t${id}_fuel_diff`);
     setTxtUpper(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
     setTxtUpper(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
@@ -1253,11 +1247,9 @@ legIds.forEach(id => {
     setTxtUpper(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
 });
 
-// Sincronizar SMS
 const sinObs = el('m_sms_sin_obs')?.checked; setTxtUpper('sms_p_fecha', formatDatePdf(val('m_fecha_gen'))); setTxtUpper('sms_p_pov', val('m_pov')); setTxtUpper('sms_p_matricula', val('m_matricula')); setTxtUpper('sms_p_material', val('m_material'));
 for(let i=1; i<=47; i++) { const cell = el(`p_sms_${i}`); if(cell) { if(sinObs) { cell.innerHTML = ""; cell.classList.add('strike-cell'); } else { cell.classList.remove('strike-cell'); setTxtUpper(`p_sms_${i}`, el(`m_sms_${i}`)?.checked ? '✓' : ''); } } } setTxtUpper('p_sms_obs', val('m_sms_obs'));
 
-// Sincronizar SEC FORMS
 let activeDatesKeys = Object.keys(secManualState).sort();
 activeDatesKeys.forEach(dateKey => {
 setTxtUpper(`sec_p_vuelo_${dateKey}`, val('m_pov')); setTxtUpper(`sec_p_material_${dateKey}`, val('m_material')); setTxtUpper(`sec_p_matricula_${dateKey}`, val('m_matricula')); setTxtUpper(`sec_p_estacionamiento_${dateKey}`, val(`m_sec_est_${dateKey}`)); setTxtUpper(`sec_p_origen_${dateKey}`, val(`m_sec_origen_${dateKey}`)); setTxtUpper(`sec_p_destino_${dateKey}`, val(`m_sec_destino_${dateKey}`)); setTxtUpper(`sec_p_alerta_${dateKey}`, val(`m_sec_alerta_${dateKey}`));
@@ -1267,7 +1259,7 @@ setTxtUpper(`sec_p_nombre_${dateKey}`, capitanActual.nombre || ""); setTxtUpper(
 }
 
 function getAllData() {
-let data = { globals: {}, legs: legIds.length, legData: {}, refuelData: refuelData, secManualState: secManualState };
+let data = { globals: {}, legs: legIds.length, legData: {}, secManualState: secManualState };
 let globalFields = ['duty_start', 'duty_end', 'm_fecha_gen', 'm_pov', 'm_material', 'm_matricula', 'm_matricula_suffix', 'm_pic_ini', 'm_sic_ini', 'm_sic2_ini', 'm_sms_obs', 'm_sms_sin_obs'];
 for(let i=1; i<=47; i++) globalFields.push(`m_sms_${i}`);
 globalFields.forEach(id => { let element = el(id); if (element) { if(element.type === 'checkbox') data.globals[id] = element.checked; else data.globals[id] = element.value; } });
@@ -1294,12 +1286,11 @@ function loadDataIntoApp(data) {
 if (!data) return;
 if (data.globals) { for (let key in data.globals) { let element = el(key); if (element) { if(element.type === 'checkbox') element.checked = (data.globals[key] === true || data.globals[key] === "true"); else setVal(key, data.globals[key]); } } }
 if(data.secManualState) secManualState = data.secManualState;
-el('tramos-container').innerHTML = ''; el('print-folios-wrapper').innerHTML = ''; legIds = []; nextLegId = 1; refuelData = data.refuelData || {};
+el('tramos-container').innerHTML = ''; el('print-folios-wrapper').innerHTML = ''; legIds = []; nextLegId = 1; 
 let legCount = data.legs || 1;
 for(let i=0; i<legCount; i++) {
 let newId = nextLegId++; legIds.push(newId); let index = legIds.length;
 el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(newId, index, i === 0 ? 'SCEL' : ''));
-renderRefuels(newId);
 }
 if (data.legData) {
 let savedIds = Object.keys(data.legData);
