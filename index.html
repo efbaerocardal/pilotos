@@ -109,7 +109,8 @@ ESTILOS DE IMPRESIÓN NATIVA Y PDF
 }
 
 #print-layout { display: none; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; line-height: 1.35; background: white; color: black; width: 100%; max-width: 800px; margin: 0 auto; }
-#print-layout * { color: #000000 !important; -webkit-text-fill-color: #000000 !important; -webkit-font-smoothing: none !important; text-rendering: geometricPrecision !important; opacity: 1 !important; }
+/* FORZAR MAYÚSCULAS EN EL PDF */
+#print-layout * { color: #000000 !important; -webkit-text-fill-color: #000000 !important; -webkit-font-smoothing: none !important; text-rendering: geometricPrecision !important; opacity: 1 !important; text-transform: uppercase !important; }
 #print-layout table, #print-layout td, #print-layout th { border-color: black !important; box-sizing: border-box; }
 
 .pdf-page { background: white; width: 100%; box-sizing: border-box; }
@@ -156,7 +157,7 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 1.3 (PERSISTENCIA DE SESIÓN ACTIVA)</div>
+<div class="subtitle">VERSIÓN 1.4 (PAGINACIÓN POR HOJAS Y MULTIDÍA)</div>
 </header>
 <main id="mobile-ui" class="container">
 <!-- CABECERA GENERAL -->
@@ -164,12 +165,12 @@ Volver a la app
 <div class="card-header"><span>📋 DATOS DEL VUELO</span></div>
 <div class="card-content">
 <div class="grid-header">
-<div class="form-group"><label style="color:var(--accent);">Fecha del Vuelo</label><input type="date" id="m_fecha_gen" onchange="triggerUpdate()"></div>
+<div class="form-group"><label style="color:var(--accent);">Fecha Inicial Vuelo</label><input type="date" id="m_fecha_gen" onchange="triggerUpdate()"></div>
 <div class="form-group"><label style="color:#4285F4; text-shadow: 0 0 5px rgba(66,133,244,0.5);">P.O.V. N°</label><input type="text" id="m_pov" oninput="triggerUpdate()" placeholder="Ej: 1234"></div>
 </div>
 <div class="grid-3">
 <div class="form-group">
-<label style="color:var(--accent);">Matrícula (3 últimas letras)</label>
+<label style="color:var(--accent);">Matrícula (3 letras)</label>
 <div style="display:flex; gap:5px; align-items:center;">
 <span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">CC-</span>
 <input type="text" id="m_matricula_suffix" placeholder="Ej: DLI" maxlength="3" oninput="lookupAircraft()" style="text-transform: uppercase;">
@@ -189,7 +190,7 @@ Volver a la app
 <div id="ui_sic_name" style="font-size:0.65rem; color:var(--text-muted); margin-top:4px; height:12px;"></div>
 </div>
 <div class="form-group">
-<label>TRIP. REFORZADA (Opcional)</label>
+<label>TRIP. REFORZADA</label>
 <input type="text" id="m_sic2_ini" placeholder="Ej: ZZ" oninput="lookupPilots()" style="text-transform: uppercase;">
 <div id="ui_sic2_name" style="font-size:0.65rem; color:var(--text-muted); margin-top:4px; height:12px;"></div>
 </div>
@@ -235,7 +236,7 @@ Volver a la app
 <div class="card-content">
   <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📝 DETALLE POR TRAMO</div>
   <div style="overflow-x: auto; margin-bottom: 15px; border-radius:8px; border:1px solid var(--border-color);" id="ui_resumen_tramos"></div>
-  <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📅 CONSOLIDADO POR FOLIO (MÁX 4 TRAMOS)</div>
+  <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📅 CONSOLIDADO POR HOJA (MÁX 4 TRAMOS)</div>
   <div style="overflow-x: auto; margin-bottom: 15px; border-radius:8px; border:1px solid var(--border-color);" id="ui_resumen_diario"></div>
   <details class="param-section" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px;">
     <summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;">
@@ -243,9 +244,9 @@ Volver a la app
     </summary>
     <div style="padding: 0 12px 12px 12px;">
       <div class="grid-3" style="margin-bottom:12px;">
-        <div class="summary-box summary-duty"><div class="summary-title">🏁 DUTY TOTAL</div><div class="summary-value" id="sum_duty_hhmm">00:00</div><div class="summary-sub" id="sum_duty_dec">0.0 hrs</div></div>
-        <div class="summary-box"><div class="summary-title">✈️ TOTAL VUELO (AIR)</div><div class="summary-value" id="sum_air_hhmm">00:00</div><div class="summary-sub" id="sum_air_dec">0.0 hrs</div></div>
-        <div class="summary-box"><div class="summary-title">🛑 TOTAL BLOQUE</div><div class="summary-value" id="sum_block_hhmm">00:00</div><div class="summary-sub" id="sum_block_dec">0.0 hrs</div></div>
+        <div class="summary-box summary-duty"><div class="summary-title">🏁 DUTY TOTAL</div><div class="summary-value" id="sum_duty_hhmm">00:00</div><div class="summary-sub" id="sum_duty_dec">0,0 hrs</div></div>
+        <div class="summary-box"><div class="summary-title">✈️ TOTAL VUELO (AIR)</div><div class="summary-value" id="sum_air_hhmm">00:00</div><div class="summary-sub" id="sum_air_dec">0,0 hrs</div></div>
+        <div class="summary-box"><div class="summary-title">🛑 TOTAL BLOQUE</div><div class="summary-value" id="sum_block_hhmm">00:00</div><div class="summary-sub" id="sum_block_dec">0,0 hrs</div></div>
       </div>
       <div style="display:none;" id="sum_fuel_init"></div><div style="display:none;" id="sum_fuel_final"></div><div style="display:none;" id="sum_fuel_refuel"></div><div style="display:none;" id="sum_fuel_used"></div><div style="display:none;" id="sum_pax_legs"></div>
       <div class="summary-title" style="color: var(--text-main); border-top:1px dashed var(--border-color); padding-top:12px;">👨‍✈️ TOTAL HORAS POR PILOTO</div>
@@ -260,13 +261,13 @@ Volver a la app
 <button class="btn btn-danger" style="padding: 10px 14px;" onclick="clearAllData()">🗑️ Limpiar</button>
 <button class="btn btn-outline" style="border-color:var(--warning); color:var(--warning); padding: 10px 14px;" onclick="ensureAuth(accionLeer)">📂 Cargar</button>
 <button class="btn btn-outline" style="border-color:var(--success); color:var(--success); padding: 10px 14px;" onclick="ensureAuth(accionGuardar)">💾 Guardar</button>
-<button class="btn-print" style="background:#4285F4; color:white; padding: 10px 14px;" onclick="ensureAuth(accionGenerarPDF)">☁️ GenerarPDF (IPAD)</button>
-<button class="btn-print" style="background:var(--accent); color:black; padding: 10px 14px;" onclick="prepararImpresionNativa()">🖨️ Imprimir (PC)</button>
+<button class="btn-print" style="background:#4285F4; color:white; padding: 10px 14px;" onclick="ensureAuth(accionGenerarPDF)">☁️ GenerarPDF</button>
+<button class="btn-print" style="background:var(--accent); color:black; padding: 10px 14px;" onclick="prepararImpresionNativa()">🖨️ Imprimir</button>
 </div>
 
 <!-- LAYOUT DE IMPRESIÓN (PDF) -->
 <div id="print-layout">
-  <!-- PÁGINAS DINÁMICAS DE OPERACIÓN (FOLIOS) -->
+  <!-- PÁGINAS DINÁMICAS DE OPERACIÓN (HOJAS) -->
   <div id="print-folios-wrapper"></div>
 
   <!-- PÁGINA: SMS -->
@@ -280,7 +281,7 @@ Volver a la app
 <script>
 const GOOGLE_CLIENT_ID = '564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com'; 
 const DRIVE_API_URL = 'https://www.googleapis.com/drive/v3/files';
-const SHARED_FOLDER_ID = '1uFFBWEPcFGrbP6lYBX0x5I3mSEPTjBR9'; // <--- REEMPLAZA CON EL ID DE DRIVE DE LA CARPETA COMPARTIDA
+const SHARED_FOLDER_ID = '1uFFBWEPcFGrbP6lYBX0x5I3mSEPTjBR9';
 let tokenClient;
 let accessToken = null;
 let pendingAction = null;
@@ -293,19 +294,14 @@ function initDrive() {
         callback: (tokenResponse) => { 
             if (tokenResponse && tokenResponse.access_token) { 
                 accessToken = tokenResponse.access_token; 
-                let expiresAt = Date.now() + (tokenResponse.expires_in * 1000) - 60000; // 1 minuto de margen
+                let expiresAt = Date.now() + (tokenResponse.expires_in * 1000) - 60000;
                 localStorage.setItem('gdrive_token', accessToken);
                 localStorage.setItem('gdrive_expires', expiresAt.toString());
-                
-                if (pendingAction) { 
-                    pendingAction(); 
-                    pendingAction = null; 
-                } 
+                if (pendingAction) { pendingAction(); pendingAction = null; } 
             } 
         }
     });
 
-    // Recuperar token persistente si aún es válido
     let savedToken = localStorage.getItem('gdrive_token');
     let savedExpires = localStorage.getItem('gdrive_expires');
     if(savedToken && savedExpires && Date.now() < parseInt(savedExpires)) {
@@ -317,7 +313,6 @@ function ensureAuth(actionCallback) {
     if (!GOOGLE_CLIENT_ID) { alert("⚠️ Falta el CLIENT_ID."); return; }
     if (!val('m_pov')) { alert("⚠️ Por favor, ingresa el P.O.V. N° en la cabecera antes de operar en la nube."); return; }
     
-    // Validar expiración justo antes de actuar
     let savedExpires = localStorage.getItem('gdrive_expires');
     if(savedExpires && Date.now() >= parseInt(savedExpires)) {
         accessToken = null;
@@ -327,13 +322,12 @@ function ensureAuth(actionCallback) {
 
     if (!accessToken) { 
         pendingAction = actionCallback; 
-        tokenClient.requestAccessToken({prompt: ''}); // prompt vacío permite auto-resolución si la sesión Safari está activa
+        tokenClient.requestAccessToken({prompt: ''}); 
     } else { 
         actionCallback(); 
     }
 }
 
-// Wrapper para inyectar token y detectar caducidad temprana (401)
 async function fetchWithAuth(url, options = {}) {
     if (!options.headers) options.headers = {};
     options.headers['Authorization'] = 'Bearer ' + accessToken;
@@ -416,7 +410,7 @@ async function accionLeer() {
 function prepararImpresionNativa() { updateAll(); setTimeout(() => { window.print(); }, 300); }
 
 async function accionGenerarPDF() {
-    mostrarCargando("Ensamblando PDF por páginas...\n(Calidad Alta & Texto Negro)");
+    mostrarCargando("Ensamblando PDF por páginas...\n(Normalizando texto a Mayúsculas)");
     setTimeout(async () => {
     try {
         let pov = val('m_pov'); let pdfBlob = await generarBlobPDF();
@@ -430,7 +424,7 @@ async function accionGenerarPDF() {
         let finalData = await finalRes.json();
         mostrarModalPDF(finalData.webViewLink);
     } catch(e) { 
-        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad (1 hora). Presiona el botón de 'Generar PDF' nuevamente para reactivarla de forma transparente.");
+        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión ha caducado por seguridad. Presiona de nuevo para reactivar.");
         else alert("❌ Error al procesar PDF en Drive: " + e.message); 
         ocultarCargando(); 
     }
@@ -484,7 +478,8 @@ if(mainUi) mainUi.style.display = ''; if(header) header.style.display = ''; if(f
 const el = id => document.getElementById(id);
 const val = id => el(id)?.value || '';
 const setVal = (id, v) => { if(el(id)) el(id).value = v; };
-const setTxt = (id, t) => { if(el(id)) el(id).innerHTML = t; };
+const setTxt = (id, t) => { if(el(id)) el(id).innerHTML = t !== null && t !== undefined ? String(t) : ''; };
+const setTxtUpper = (id, t) => { if(el(id)) el(id).innerHTML = t !== null && t !== undefined ? String(t).toUpperCase() : ''; };
 let legIds = [], nextLegId = 1, refuelData = {}; let updateRAF = null; let secManualState = {}; 
 const ordinals = ["", "PRIMER", "SEGUNDO", "TERCER", "CUARTO", "QUINTO", "SEXTO", "SÉPTIMO", "OCTAVO", "NOVENO", "DÉCIMO", "UNDÉCIMO", "DUODÉCIMO"];
 const formatDec = val => Number(val || 0).toFixed(1);
@@ -709,7 +704,7 @@ return `<div class="card" id="leg_card_${id}">
 <input type="hidden" id="m_t${id}_horo_diff"><input type="hidden" id="m_t${id}_block_diff"><input type="hidden" id="m_t${id}_air_diff"><input type="hidden" id="m_t${id}_fuel_diff">
 <hr class="divider">
 <div class="grid-3">
-    <div class="form-group"><label>Folio BIT</label><input type="text" id="m_t${id}_folio" placeholder="Folio Único..." oninput="this.dataset.manual='true'; syncFolioDown(${id}); triggerUpdate();"></div>
+    <div class="form-group"><label>Hoja BIT</label><input type="text" id="m_t${id}_folio" placeholder="Hoja Única..." oninput="this.dataset.manual='true'; syncFolioDown(${id}); triggerUpdate();"></div>
     <div class="form-group"><label>Vientos</label><input type="text" id="m_t${id}_winds" oninput="triggerUpdate()"></div>
     <div class="form-group"><label>Aterrizaje / APP</label>
         <div style="display:flex; gap:10px; margin-top:2px;">
@@ -731,7 +726,7 @@ function getPrintLegHTML(id, index) {
 return `<table class="print-table" id="print_leg_${id}">
 <tr><td colspan="6" class="tramo-title-darkgray"><b>${ordinals[index] || index + '°'} TRAMO</b></td></tr>
 <tr class="header-cell">
-<td class="col-fecha" style="color:#000000!important;"><b style="color:#000000!important;">FECHA</b> <span id="p_t${id}_fecha" style="font-weight:bold; color:#000000!important;"></span><br><span class="text-xs" style="color:#000000!important;"><b style="color:#000000!important;">FOLIO:</b> <span id="p_t${id}_folio" style="font-weight:bold; color:#000000!important;"></span></span></td>
+<td class="col-fecha" style="color:#000000!important;"><b style="color:#000000!important;">FECHA</b> <span id="p_t${id}_fecha" style="font-weight:bold; color:#000000!important;"></span><br><span class="text-xs" style="color:#000000!important;"><b style="color:#000000!important;">HOJA BIT:</b> <span id="p_t${id}_folio" style="font-weight:bold; color:#000000!important;"></span></span></td>
 <td class="col-horo" style="color:#000000!important;"><b style="color:#000000!important;">HOROMETRO</b></td>
 <td class="col-block" style="color:#000000!important;"><b style="color:#000000!important;">BLOCK TIME</b></td>
 <td class="col-air" style="color:#000000!important;"><b style="color:#000000!important;">AIR TIME</b></td>
@@ -860,7 +855,7 @@ if (i > 0) {
 const valOn = parseFloat(fOn.value), valOff = parseFloat(fOff.value);
 let diffF = (!isNaN(valOn) && !isNaN(valOff)) ? Math.max(0, valOn - valOff) : null;
 setVal(`m_t${id}_fuel_diff`, diffF !== null ? formatDec(diffF) : ''); if (diffF) totalFuelUsed += diffF;
-const bStr = bDiff > 0 ? `${minsToTime(bDiff)} (${formatDec(bDiff/60)})` : ''; const aStr = aDiff > 0 ? `${minsToTime(aDiff)} (${formatDec(aDiff/60)})` : '';
+const bStr = bDiff > 0 ? `${minsToTime(bDiff)} (${formatDec(bDiff/60).replace('.', ',')})` : ''; const aStr = aDiff > 0 ? `${minsToTime(aDiff)} (${formatDec(aDiff/60).replace('.', ',')})` : '';
 setVal(`m_t${id}_block_diff`, bStr); setVal(`m_t${id}_air_diff`, aStr); setTxt(`ui_t${id}_block_diff`, bStr || '--:--'); setTxt(`ui_t${id}_air_diff`, aStr || '--:--');
 totalBlockMins += bDiff; totalAirMins += aDiff;
 const lPax = parseInt(val(`m_t${id}_pax`)) || 0; totalPax += lPax; paxArray.push(`(${lPax})`);
@@ -896,7 +891,7 @@ pmArr.forEach(p => {
 let activeDates = Object.keys(legsByDate).sort(); if(activeDates.length === 0 && gDate) activeDates = [gDate]; if(activeDates.length === 0) activeDates = [new Date().toISOString().split('T')[0]];
 
 // -----------------------------------------------------
-// AGRUPACIÓN POR FOLIOS (MÁXIMO 4 TRAMOS O CAMBIO DE DÍA)
+// AGRUPACIÓN POR HOJAS (MÁXIMO 4 TRAMOS) SIN CORTAR POR DÍA
 // -----------------------------------------------------
 let folioGroups = [];
 let currentFolio = null;
@@ -904,17 +899,20 @@ let currentFolio = null;
 legDetails.forEach((leg, idx) => {
     let needsNewFolio = false;
     if (!currentFolio) needsNewFolio = true;
-    else if (currentFolio.date !== leg.date) needsNewFolio = true;
     else if (currentFolio.legs.length === 4) needsNewFolio = true;
 
     if (needsNewFolio) {
         currentFolio = {
             folioNum: folioGroups.length + 1,
-            date: leg.date,
+            dates: [leg.date],
             legs: [],
             stats: {}
         };
         folioGroups.push(currentFolio);
+    } else {
+        if (!currentFolio.dates.includes(leg.date)) {
+            currentFolio.dates.push(leg.date);
+        }
     }
     currentFolio.legs.push(leg);
 });
@@ -980,8 +978,35 @@ const rowDefs = [
 rowDefs.forEach((r, idx) => { let bBottom = (idx === rowDefs.length - 1) ? '' : 'border-bottom:1px solid rgba(255,255,255,0.05);'; tramosTableHtml += `<tr><td style="text-align:left; padding:6px 8px; font-weight:bold; color:var(--text-muted); border-right:1px solid var(--border-color); ${bBottom}">${r.label}</td>`; legIds.forEach(id => { tramosTableHtml += `<td style="padding:6px 8px; border-right:1px solid rgba(255,255,255,0.05); color:var(--text-main); ${bBottom}">${r.get(id)}</td>`; }); tramosTableHtml += `</tr>`; }); tramosTableHtml += `</tbody></table>`;
 if(el('ui_resumen_tramos')) el('ui_resumen_tramos').innerHTML = tramosTableHtml;
 
-let folioTableHtml = `<table style="width:100%; min-width: 800px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;"><thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th rowspan="2" style="padding:8px; text-align:left; border-right:1px solid var(--border-color); color:var(--accent);">FOLIO</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PAX POR<br>TRAMO</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">TOTAL<br>AIRTIME</th><th colspan="4" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">FUEL</th><th colspan="2" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">HOROMETRO</th><th colspan="3" style="padding:4px; color:var(--text-muted);">DUTY</th></tr><tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border-color);"><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">USADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">CARGADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; font-size:0.65rem; color:var(--text-muted);">TOTAL</th></tr></thead><tbody>`;
-folioGroups.forEach((group, idx) => { let dp = group.stats; let bBottom = (idx === folioGroups.length - 1) ? '' : 'border-bottom:1px solid rgba(255,255,255,0.05);'; let fIni = Math.round(dp.fuelInit || 0), fUsed = Math.round(dp.fuelUsed || 0), fRem = Math.round(dp.fuelFinal || 0), fRef = Math.round(dp.fuelRefuel || 0); let aStr = dp.air > 0 ? `${minsToTime(dp.air)} (${formatDec(dp.air/60).replace('.', ',')})` : '--:--'; let dutyTotalStr = dp.duration > 0 ? `${minsToTime(dp.duration)}` : '--:--'; folioTableHtml += `<tr><td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">FOLIO ${group.folioNum} <span style="font-size:0.65rem; color:var(--text-muted); font-weight:normal;"><br>${group.date}</span></td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.pax || '(0)'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${fIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${fUsed}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">${fRem}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--success);">+${fRef}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.hIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.hFin}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.start || '--:--'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.end || '--:--'}</td><td style="padding:6px 8px; ${bBottom}">${dutyTotalStr}</td></tr>`; }); folioTableHtml += `</tbody></table>`;
+let folioTableHtml = `<table style="width:100%; min-width: 800px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;"><thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th rowspan="2" style="padding:8px; text-align:left; border-right:1px solid var(--border-color); color:var(--accent);">HOJA</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PAX POR<br>TRAMO</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">TOTAL<br>AIRTIME</th><th colspan="4" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">FUEL</th><th colspan="2" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">HOROMETRO</th><th colspan="3" style="padding:4px; color:var(--text-muted);">DUTY</th></tr><tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border-color);"><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">USADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">CARGADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; font-size:0.65rem; color:var(--text-muted);">TOTAL</th></tr></thead><tbody>`;
+
+// Fila base de hojas
+folioGroups.forEach((group, idx) => { 
+    let dp = group.stats; let bBottom = 'border-bottom:1px solid rgba(255,255,255,0.05);'; let fIni = Math.round(dp.fuelInit || 0), fUsed = Math.round(dp.fuelUsed || 0), fRem = Math.round(dp.fuelFinal || 0), fRef = Math.round(dp.fuelRefuel || 0); let aStr = dp.air > 0 ? `${minsToTime(dp.air)} (${formatDec(dp.air/60).replace('.', ',')})` : '--:--'; let dutyTotalStr = dp.duration > 0 ? `${minsToTime(dp.duration)}` : '--:--'; 
+    let datesDisplay = group.dates.join('<br>');
+    folioTableHtml += `<tr><td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">HOJA ${group.folioNum} <span style="font-size:0.65rem; color:var(--text-muted); font-weight:normal;"><br>${datesDisplay}</span></td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.pax || '(0)'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${fIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${fUsed}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">${fRem}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--success);">+${fRef}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.hIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.hFin}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.start || '--:--'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.end || '--:--'}</td><td style="padding:6px 8px; ${bBottom}">${dutyTotalStr}</td></tr>`; 
+}); 
+
+// Fila Consolidado Global en App
+let gDuty = 0, gAir = 0, gFuelUsed = 0, gFuelRef = 0;
+folioGroups.forEach(g => { gDuty += g.stats.duration || 0; gAir += g.stats.air || 0; gFuelUsed += g.stats.fuelUsed || 0; gFuelRef += g.stats.fuelRefuel || 0; });
+let gDutyStr = gDuty > 0 ? `${minsToTime(gDuty)}` : '--:--';
+let gAirStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
+let gFuelInit = folioGroups.length > 0 ? Math.round(folioGroups[0].stats.fuelInit || 0) : 0;
+let gFuelFin = folioGroups.length > 0 ? Math.round(folioGroups[folioGroups.length-1].stats.fuelFinal || 0) : 0;
+
+folioTableHtml += `<tr style="background:rgba(255,255,255,0.08); font-weight:bold; border-top:2px solid var(--accent);">
+<td style="padding:6px 8px; text-align:left; color:var(--accent);">TOTAL GLOBAL</td>
+<td style="padding:6px 8px;"></td>
+<td style="padding:6px 8px; color:var(--accent);">${gAirStr}</td>
+<td style="padding:6px 8px;">${gFuelInit}</td>
+<td style="padding:6px 8px; color:var(--danger);">${gFuelUsed}</td>
+<td style="padding:6px 8px; color:var(--accent);">${gFuelFin}</td>
+<td style="padding:6px 8px; color:var(--success);">+${gFuelRef}</td>
+<td colspan="4"></td>
+<td style="padding:6px 8px; color:var(--accent);">${gDutyStr}</td>
+</tr>`;
+folioTableHtml += `</tbody></table>`;
 if(el('ui_resumen_diario')) el('ui_resumen_diario').innerHTML = folioTableHtml;
 
 // Totales de totales
@@ -991,7 +1016,20 @@ const initialFuel = legIds.length > 0 ? parseFloat(val(`m_t${legIds[0]}_fuel_on`
 setTxt('sum_fuel_init', formatDec(initialFuel)); setTxt('sum_fuel_final', formatDec(finalFuel)); setTxt('sum_fuel_refuel', `+${formatDec(globalRefuel)}`); setTxt('sum_fuel_used', `-${formatDec(totalFuelUsed)}`);
 setTxt('sum_air_hhmm', minsToTime(totalAirMins)); setTxt('sum_air_dec', `${formatDec(totalAirMins/60)} hrs`); setTxt('sum_block_hhmm', minsToTime(totalBlockMins)); setTxt('sum_block_dec', `${formatDec(totalBlockMins/60)} hrs`);
 setTxt('sum_pax_legs', paxArray.join(' ') || "(0)");
-el('sum_pilots_container').innerHTML = Object.entries(pilotStats).filter(([_, d]) => d.pf_time > 0 || d.pm_time > 0).map(([p, d]) => `<div style="background:rgba(255,255,255,0.05); border:1px solid var(--accent); padding:6px 10px; border-radius:6px; flex:1; min-width:160px; text-align:center;"><span style="display:block; font-size:0.75rem; font-weight:bold; color:var(--text-main); border-bottom:1px solid var(--border-color); padding-bottom:3px; margin-bottom:4px;">${p}</span><div style="display:flex; justify-content:space-between; font-size:0.65rem;"><span style="color:var(--text-muted); text-align:left;">PF: ${minsToTime(d.pf_time)}<br><span style="color:var(--accent); font-size:0.6rem;">(Air: ${minsToTime(d.pf_air)})</span></span><span style="color:var(--text-muted); text-align:right;">PM: ${minsToTime(d.pm_time)}<br><span style="color:var(--accent); font-size:0.6rem;">(Air: ${minsToTime(d.pm_air)})</span></span></div></div>`).join('') || "<span style='color:var(--text-muted); font-size:0.8rem;'>Sin horas registradas</span>";
+
+el('sum_pilots_container').innerHTML = Object.entries(pilotStats).filter(([_, d]) => d.pf_time > 0 || d.pm_time > 0).map(([p, d]) => {
+    let pfT = minsToTime(d.pf_time), pfTd = formatDec(d.pf_time/60).replace('.',',');
+    let pfA = minsToTime(d.pf_air), pfAd = formatDec(d.pf_air/60).replace('.',',');
+    let pmT = minsToTime(d.pm_time), pmTd = formatDec(d.pm_time/60).replace('.',',');
+    let pmA = minsToTime(d.pm_air), pmAd = formatDec(d.pm_air/60).replace('.',',');
+
+    return `<div style="background:rgba(255,255,255,0.05); border:1px solid var(--accent); padding:6px 10px; border-radius:6px; flex:1; min-width:160px; text-align:center;">
+    <span style="display:block; font-size:0.75rem; font-weight:bold; color:var(--text-main); border-bottom:1px solid var(--border-color); padding-bottom:3px; margin-bottom:4px;">${p}</span>
+    <div style="display:flex; justify-content:space-between; font-size:0.65rem;">
+    <span style="color:var(--text-muted); text-align:left;">PF: ${pfT} (${pfTd})<br><span style="color:var(--accent); font-size:0.6rem;">(Air: ${pfA} (${pfAd}))</span></span>
+    <span style="color:var(--text-muted); text-align:right;">PM: ${pmT} (${pmTd})<br><span style="color:var(--accent); font-size:0.6rem;">(Air: ${pmA} (${pmAd}))</span></span>
+    </div></div>`
+}).join('') || "<span style='color:var(--text-muted); font-size:0.8rem;'>Sin horas registradas</span>";
 
 syncPrintData(folioGroups, hasSic2, picIni, sicIni, sic2Ini); 
 autoSave(); 
@@ -1067,7 +1105,6 @@ let foliosHtml = '';
 let absIndex = 1;
 
 folioGroups.forEach(group => {
-    // Calcular totales globales en paralelo
     let ds = group.stats;
     totDuty += ds.duration; totBlock += ds.block; totAir += ds.air; totFuel += ds.fuelUsed;
     totPax += (totPax && ds.pax ? " " : "") + ds.pax;
@@ -1075,19 +1112,21 @@ folioGroups.forEach(group => {
     totP2Block += ds.p2.block; totP2Air += ds.p2.air; totP2Dep += ds.p2.dep; totP2Arr += ds.p2.arr; totP2PFBlock += ds.p2.pf_block; totP2PFAir += ds.p2.pf_air;
     totP3Block += ds.p3.block; totP3Air += ds.p3.air; totP3Dep += ds.p3.dep; totP3Arr += ds.p3.arr; totP3PFBlock += ds.p3.pf_block; totP3PFAir += ds.p3.pf_air;
 
+    let fDate = group.dates.map(formatDatePdf).join(' - ');
+
     let pageHtml = `<div class="pdf-page print-op-page" id="print_folio_${group.folioNum}">`;
-    // CABECERA DEL FOLIO
+    // CABECERA DE LA HOJA
     pageHtml += `<table class="print-table" style="border-bottom: none;">
       <tr>
         <td colspan="2" class="no-border-x" style="width: 30%;"><div class="logo-text">AEROCARDAL</div></td>
-        <td colspan="2" class="no-border-x" style="vertical-align: bottom; padding-bottom: 4px;"><div class="main-title">PLANIFICACIÓN OPERACIONAL - FOLIO ${group.folioNum}</div></td>
+        <td colspan="2" class="no-border-x" style="vertical-align: bottom; padding-bottom: 4px;"><div class="main-title">PLANIFICACIÓN OPERACIONAL - HOJA ${group.folioNum}</div></td>
         <td colspan="1" style="border-left: none; width: 20%;"></td>
       </tr>
       <tr>
-        <td style="width: 25%;"><b style="color: #000000 !important;">FECHA:</b> <span class="bold" style="color:#000000!important;">${formatDatePdf(group.date)}</span></td>
-        <td style="width: 20%;"><b style="color: #000000 !important;">P.O.V.: N°</b> <span class="bold" style="color:#000000!important;">${val('m_pov')}</span></td>
-        <td style="width: 25%;"><b style="color: #000000 !important;">MATERIAL:</b> <span class="bold" style="color:#000000!important;">${val('m_material')}</span></td>
-        <td colspan="2"><b style="color: #000000 !important;">MATRICULA:</b> <span class="bold" style="color:#000000!important;">${val('m_matricula')}</span></td>
+        <td style="width: 25%;"><b style="color: #000000 !important;">FECHA:</b> <span class="bold" style="color:#000000!important;">${fDate}</span></td>
+        <td style="width: 20%;"><b style="color: #000000 !important;">P.O.V.: N°</b> <span class="bold" style="color:#000000!important;">${val('m_pov').toUpperCase()}</span></td>
+        <td style="width: 25%;"><b style="color: #000000 !important;">MATERIAL:</b> <span class="bold" style="color:#000000!important;">${val('m_material').toUpperCase()}</span></td>
+        <td colspan="2"><b style="color: #000000 !important;">MATRICULA:</b> <span class="bold" style="color:#000000!important;">${val('m_matricula').toUpperCase()}</span></td>
       </tr>
     </table>`;
 
@@ -1098,9 +1137,9 @@ folioGroups.forEach(group => {
     pageHtml += `</div>`;
     absIndex += group.legs.length;
 
-    // CONSOLIDADO INDEPENDIENTE DEL FOLIO
+    // CONSOLIDADO INDEPENDIENTE DE LA HOJA
     let summaryHtml = `<table class="print-table" style="margin-top:0; border-top:none; text-transform:uppercase; table-layout: fixed; width: 100%;">
-        <tr><td colspan="${hasSic2 ? 14 : 13}" class="summary-title-pdf"><b>CONSOLIDADO FOLIO ${group.folioNum}</b></td></tr>
+        <tr><td colspan="${hasSic2 ? 14 : 13}" class="summary-title-pdf"><b>CONSOLIDADO HOJA ${group.folioNum}</b></td></tr>
         <tr class="gray-bg compact-th">
         <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>FECHA</b></td>
         <td colspan="2" style="width:16%;" class="text-center"><b>DUTY</b></td>
@@ -1126,7 +1165,6 @@ folioGroups.forEach(group => {
         <td class="text-center"><b>RECARGA</b></td>
         </tr>`;
 
-    let fDate = formatDatePdf(group.date);
     let dStr = ds.duration > 0 ? `${minsToTime(ds.duration)} (${formatDec(ds.duration/60).replace('.', ',')})` : '--:--';
     let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
     let bStr = ds.block > 0 ? `${minsToTime(ds.block)} (${formatDec(ds.block/60).replace('.', ',')})` : '--:--';
@@ -1143,9 +1181,9 @@ folioGroups.forEach(group => {
     let p3B_dec = ds.p3.pf_block > 0 ? formatDec(ds.p3.pf_block/60).replace('.', ',') : '0,0';
     let p3PFStr = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p3A_dec})<br>BLK: (${p3B_dec})</div>` : '--';
 
-    summaryHtml += `<tr class="compact-td"><td class="text-center bold">${fDate}</td><td class="text-center">${ds.start || '--'} - ${ds.end || '--'}</td><td class="text-center bold">${dStr}</td><td class="text-center">${ds.hIni} - ${ds.hFin}</td><td class="text-center bold">${aStr}</td><td class="text-center bold">${bStr}</td><td class="text-center">${p1PFStr}</td><td class="text-center">${p2PFStr}</td>${hasSic2 ? `<td class="text-center">${p3PFStr}</td>` : ''}<td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center">${Math.round(ds.fuelFinal)}</td><td class="text-center bold">${Math.round(ds.fuelUsed)}</td><td class="text-center">${Math.round(ds.fuelRefuel)}</td><td class="text-center">${ds.pax}</td></tr>`;
+    summaryHtml += `<tr class="compact-td"><td class="text-center bold">${fDate.replace(/ - /g, '<br>')}</td><td class="text-center">${ds.start || '--'} - ${ds.end || '--'}</td><td class="text-center bold">${dStr}</td><td class="text-center">${ds.hIni} - ${ds.hFin}</td><td class="text-center bold">${aStr}</td><td class="text-center bold">${bStr}</td><td class="text-center">${p1PFStr}</td><td class="text-center">${p2PFStr}</td>${hasSic2 ? `<td class="text-center">${p3PFStr}</td>` : ''}<td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center">${Math.round(ds.fuelFinal)}</td><td class="text-center bold">${Math.round(ds.fuelUsed)}</td><td class="text-center">${Math.round(ds.fuelRefuel)}</td><td class="text-center">${ds.pax}</td></tr>`;
 
-    // AGREGAR TOTAL GLOBAL SOLO EN EL ÚLTIMO FOLIO Y SI HAY MÁS DE 1
+    // AGREGAR TOTAL GLOBAL SOLO EN LA ÚLTIMA HOJA Y SI HAY MÁS DE 1
     if (group.folioNum === folioGroups.length && folioGroups.length > 1) {
         let p1TotAirDec = totP1PFAir > 0 ? formatDec(totP1PFAir/60).replace('.', ',') : '0,0'; 
         let p1TotBlkDec = totP1PFBlock > 0 ? formatDec(totP1PFBlock/60).replace('.', ',') : '0,0';
@@ -1182,48 +1220,49 @@ folioGroups.forEach(group => {
 
     summaryHtml += `</table>`;
     pageHtml += `<div style="margin-top: 10px;">${summaryHtml}</div>`;
-    pageHtml += `</div>`; // Cierra .pdf-page
+    pageHtml += `</div>`; 
 
     foliosHtml += pageHtml;
 });
 
-// Reemplazar la estructura base del PDF
 el('print-folios-wrapper').innerHTML = foliosHtml;
 
-// LLenar dinámicamente los campos de tramos usando SetTxt
+// LLenar dinámicamente forzando a MAYÚSCULAS en el PDF
 const stdFields = ['folio','dest','desde','dist','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
 const prmFields = ['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'];
 const wpfFields = ['wp1','wp2','wp3','wp4','cp1','cp2','cp3','cp4','cr1','cr2','cr3','cr4'];
 
 legIds.forEach(id => {
-    stdFields.forEach(f => setTxt(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
+    stdFields.forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
 
     const fUsedVal = val(`m_t${id}_fuel_diff`);
-    setTxt(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
-    setTxt(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
+    setTxtUpper(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
+    setTxtUpper(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
     const windsVal = val(`m_t${id}_winds`).trim(); if(el(`p_t${id}_winds_wrapper`)) el(`p_t${id}_winds_wrapper`).style.display = windsVal ? "inline-block" : "none";
     
     const hasPrm = prmFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasFuel = wpfFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasMet = val(`m_t${id}_meteo`).trim() !== "", hasAtc = val(`m_t${id}_atc`).trim() !== "";
-    prmFields.concat(wpfFields).forEach(f => setTxt(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); setTxt(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); setTxt(`p_t${id}_atc`, val(`m_t${id}_atc`));
+    prmFields.concat(wpfFields).forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); 
+    setTxtUpper(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); 
+    setTxtUpper(`p_t${id}_atc`, val(`m_t${id}_atc`));
     
     if(el(`p_t${id}_tbl_params`)) el(`p_t${id}_tbl_params`).style.display = hasPrm ? "table" : "none"; if(el(`p_t${id}_tbl_fuel`)) el(`p_t${id}_tbl_fuel`).style.display = hasFuel ? "table" : "none"; if(el(`p_t${id}_tbl_meteo`)) el(`p_t${id}_tbl_meteo`).style.display = hasMet ? "table" : "none"; if(el(`p_t${id}_tbl_atc`)) el(`p_t${id}_tbl_atc`).style.display = hasAtc ? "table" : "none"; if(el(`p_t${id}_params_wrapper`)) el(`p_t${id}_params_wrapper`).style.display = (hasPrm||hasFuel||hasMet||hasAtc) ? "block" : "none";
 
     const dnVal = document.querySelector(`input[name="dn_${id}"]:checked`)?.value || '';
     const pnpVal = document.querySelector(`input[name="pnp_${id}"]:checked`)?.value || '';
-    setTxt(`p_t${id}_dn_text`, dnVal === 'D' ? 'DIURNO' : (dnVal === 'N' ? 'NOCTURNO' : '')); 
-    setTxt(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
+    setTxtUpper(`p_t${id}_dn_text`, dnVal === 'D' ? 'DIURNO' : (dnVal === 'N' ? 'NOCTURNO' : '')); 
+    setTxtUpper(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
 });
 
 // Sincronizar SMS
-const sinObs = el('m_sms_sin_obs')?.checked; setTxt('sms_p_fecha', formatDatePdf(val('m_fecha_gen'))); setTxt('sms_p_pov', val('m_pov')); setTxt('sms_p_matricula', val('m_matricula')); setTxt('sms_p_material', val('m_material'));
-for(let i=1; i<=47; i++) { const cell = el(`p_sms_${i}`); if(cell) { if(sinObs) { cell.innerHTML = ""; cell.classList.add('strike-cell'); } else { cell.classList.remove('strike-cell'); setTxt(`p_sms_${i}`, el(`m_sms_${i}`)?.checked ? '✓' : ''); } } } setTxt('p_sms_obs', val('m_sms_obs'));
+const sinObs = el('m_sms_sin_obs')?.checked; setTxtUpper('sms_p_fecha', formatDatePdf(val('m_fecha_gen'))); setTxtUpper('sms_p_pov', val('m_pov')); setTxtUpper('sms_p_matricula', val('m_matricula')); setTxtUpper('sms_p_material', val('m_material'));
+for(let i=1; i<=47; i++) { const cell = el(`p_sms_${i}`); if(cell) { if(sinObs) { cell.innerHTML = ""; cell.classList.add('strike-cell'); } else { cell.classList.remove('strike-cell'); setTxtUpper(`p_sms_${i}`, el(`m_sms_${i}`)?.checked ? '✓' : ''); } } } setTxtUpper('p_sms_obs', val('m_sms_obs'));
 
 // Sincronizar SEC FORMS
-let activeDates = Object.keys(secManualState).sort(); // Traemos las fechas del state que calculó renderSecurityForms
-activeDates.forEach(dateKey => {
-setTxt(`sec_p_vuelo_${dateKey}`, val('m_pov')); setTxt(`sec_p_material_${dateKey}`, val('m_material')); setTxt(`sec_p_matricula_${dateKey}`, val('m_matricula')); setTxt(`sec_p_estacionamiento_${dateKey}`, val(`m_sec_est_${dateKey}`)); setTxt(`sec_p_origen_${dateKey}`, val(`m_sec_origen_${dateKey}`)); setTxt(`sec_p_destino_${dateKey}`, val(`m_sec_destino_${dateKey}`)); setTxt(`sec_p_alerta_${dateKey}`, val(`m_sec_alerta_${dateKey}`));
-['A','B','C','D','E','F','G','H','I','J','K'].forEach(id => { const cb = el(`m_sec_${dateKey}_${id}`); setTxt(`p_sec_${dateKey}_${id}`, cb?.checked ? '✓' : ''); });
-setTxt(`sec_p_nombre_${dateKey}`, capitanActual.nombre || ""); setTxt(`sec_p_rut_${dateKey}`, capitanActual.rut || ""); setTxt(`sec_p_licencia_${dateKey}`, capitanActual.licencia || "");
+let activeDatesKeys = Object.keys(secManualState).sort();
+activeDatesKeys.forEach(dateKey => {
+setTxtUpper(`sec_p_vuelo_${dateKey}`, val('m_pov')); setTxtUpper(`sec_p_material_${dateKey}`, val('m_material')); setTxtUpper(`sec_p_matricula_${dateKey}`, val('m_matricula')); setTxtUpper(`sec_p_estacionamiento_${dateKey}`, val(`m_sec_est_${dateKey}`)); setTxtUpper(`sec_p_origen_${dateKey}`, val(`m_sec_origen_${dateKey}`)); setTxtUpper(`sec_p_destino_${dateKey}`, val(`m_sec_destino_${dateKey}`)); setTxtUpper(`sec_p_alerta_${dateKey}`, val(`m_sec_alerta_${dateKey}`));
+['A','B','C','D','E','F','G','H','I','J','K'].forEach(id => { const cb = el(`m_sec_${dateKey}_${id}`); setTxtUpper(`p_sec_${dateKey}_${id}`, cb?.checked ? '✓' : ''); });
+setTxtUpper(`sec_p_nombre_${dateKey}`, capitanActual.nombre || ""); setTxtUpper(`sec_p_rut_${dateKey}`, capitanActual.rut || ""); setTxtUpper(`sec_p_licencia_${dateKey}`, capitanActual.licencia || "");
 });
 }
 
