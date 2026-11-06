@@ -1,9 +1,18 @@
-<index>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Planificación Operacional - Aerocardal</title>
+
+<!-- CONFIGURACIÓN PWA Y OPTIMIZACIÓN iPAD -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PlanOp Cardal">
+<link rel="apple-touch-icon" href="icon-192x192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512x512.png">
+
 <!-- Librerías Externas Requeridas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer onload="initDrive()"></script>
@@ -146,7 +155,7 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 1.1 (MARCHA BLANCA TRIPULACIONES)</div>
+<div class="subtitle">VERSIÓN 1.3 (PERSISTENCIA DE SESIÓN ACTIVA)</div>
 </header>
 <main id="mobile-ui" class="container">
 <!-- CABECERA GENERAL -->
@@ -225,7 +234,7 @@ Volver a la app
 <div class="card-content">
   <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📝 DETALLE POR TRAMO</div>
   <div style="overflow-x: auto; margin-bottom: 15px; border-radius:8px; border:1px solid var(--border-color);" id="ui_resumen_tramos"></div>
-  <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📅 CONSOLIDADO POR DIA</div>
+  <div class="summary-title" style="color: var(--accent); margin-bottom: 4px;">📅 CONSOLIDADO POR FOLIO (MÁX 4 TRAMOS)</div>
   <div style="overflow-x: auto; margin-bottom: 15px; border-radius:8px; border:1px solid var(--border-color);" id="ui_resumen_diario"></div>
   <details class="param-section" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px;">
     <summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;">
@@ -256,30 +265,13 @@ Volver a la app
 
 <!-- LAYOUT DE IMPRESIÓN (PDF) -->
 <div id="print-layout">
-  <!-- PÁGINA 1: CONSOLIDADO -->
-  <div class="pdf-page" id="print_op_container" style="text-transform: uppercase;">
-    <table class="print-table" style="border-bottom: none;">
-      <tr>
-        <td colspan="2" class="no-border-x" style="width: 30%;"><div class="logo-text">AEROCARDAL</div></td>
-        <td colspan="2" class="no-border-x" style="vertical-align: bottom; padding-bottom: 4px;"><div class="main-title">PLANIFICACIÓN OPERACIONAL</div></td>
-        <td colspan="1" style="border-left: none; width: 20%;"></td>
-      </tr>
-      <tr>
-        <td style="width: 25%; color: #000000 !important;"><b style="color: #000000 !important;">FECHA:</b> <span id="p_fecha_gen" style="color: #000000 !important; font-weight: bold;"></span></td>
-        <td style="width: 20%; color: #000000 !important;"><b style="color: #000000 !important;">P.O.V.: N°</b> <span id="p_pov" style="color: #000000 !important; font-weight: bold;"></span></td>
-        <td style="width: 25%; color: #000000 !important;"><b style="color: #000000 !important;">MATERIAL:</b> <span id="p_material" style="color: #000000 !important; font-weight: bold;"></span></td>
-        <td colspan="2" style="color: #000000 !important;"><b style="color: #000000 !important;">MATRICULA:</b> <span id="p_matricula" style="color: #000000 !important; font-weight: bold;"></span></td>
-      </tr>
-    </table>
-    <div id="print-tramos-container"></div>
-    <div id="print-params-container" style="margin-top: 15px;"></div>
-    <div id="p_resumen_operacional_container"></div>
-  </div>
+  <!-- PÁGINAS DINÁMICAS DE OPERACIÓN (FOLIOS) -->
+  <div id="print-folios-wrapper"></div>
 
-  <!-- PÁGINA 2: SMS -->
+  <!-- PÁGINA: SMS -->
   <div id="print-sms-wrapper"></div>
   
-  <!-- PÁGINAS 3+: SEC FORMS -->
+  <!-- PÁGINAS: SEC FORMS -->
   <div id="print-sec-forms-wrapper"></div>
 </div>
 
@@ -293,90 +285,155 @@ let accessToken = null;
 let pendingAction = null;
 
 function initDrive() {
-if (!window.google) return;
-tokenClient = google.accounts.oauth2.initTokenClient({
-client_id: GOOGLE_CLIENT_ID,
-scope: 'https://www.googleapis.com/auth/drive', // MODIFICADO PARA VER CARPETAS COMPARTIDAS
-callback: (tokenResponse) => { if (tokenResponse && tokenResponse.access_token) { accessToken = tokenResponse.access_token; if (pendingAction) { pendingAction(); pendingAction = null; } } }
-});
+    if (!window.google) return;
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive',
+        callback: (tokenResponse) => { 
+            if (tokenResponse && tokenResponse.access_token) { 
+                accessToken = tokenResponse.access_token; 
+                let expiresAt = Date.now() + (tokenResponse.expires_in * 1000) - 60000; // 1 minuto de margen
+                localStorage.setItem('gdrive_token', accessToken);
+                localStorage.setItem('gdrive_expires', expiresAt.toString());
+                
+                if (pendingAction) { 
+                    pendingAction(); 
+                    pendingAction = null; 
+                } 
+            } 
+        }
+    });
+
+    // Recuperar token persistente si aún es válido
+    let savedToken = localStorage.getItem('gdrive_token');
+    let savedExpires = localStorage.getItem('gdrive_expires');
+    if(savedToken && savedExpires && Date.now() < parseInt(savedExpires)) {
+        accessToken = savedToken;
+    }
 }
+
 function ensureAuth(actionCallback) {
-if (!GOOGLE_CLIENT_ID) { alert("⚠️ Falta el CLIENT_ID."); return; }
-if (!val('m_pov')) { alert("⚠️ Por favor, ingresa el P.O.V. N° en la cabecera antes de operar en la nube."); return; }
-if (!accessToken) { pendingAction = actionCallback; tokenClient.requestAccessToken({prompt: ''}); } else { actionCallback(); }
+    if (!GOOGLE_CLIENT_ID) { alert("⚠️ Falta el CLIENT_ID."); return; }
+    if (!val('m_pov')) { alert("⚠️ Por favor, ingresa el P.O.V. N° en la cabecera antes de operar en la nube."); return; }
+    
+    // Validar expiración justo antes de actuar
+    let savedExpires = localStorage.getItem('gdrive_expires');
+    if(savedExpires && Date.now() >= parseInt(savedExpires)) {
+        accessToken = null;
+        localStorage.removeItem('gdrive_token');
+        localStorage.removeItem('gdrive_expires');
+    }
+
+    if (!accessToken) { 
+        pendingAction = actionCallback; 
+        tokenClient.requestAccessToken({prompt: ''}); // prompt vacío permite auto-resolución si la sesión Safari está activa
+    } else { 
+        actionCallback(); 
+    }
 }
+
+// Wrapper para inyectar token y detectar caducidad temprana (401)
+async function fetchWithAuth(url, options = {}) {
+    if (!options.headers) options.headers = {};
+    options.headers['Authorization'] = 'Bearer ' + accessToken;
+    let res = await fetch(url, options);
+    if (res.status === 401) {
+        accessToken = null;
+        localStorage.removeItem('gdrive_token');
+        localStorage.removeItem('gdrive_expires');
+        throw new Error("SESIÓN_EXPIRADA");
+    }
+    return res;
+}
+
 function mostrarCargando(texto) { el('loading-spinner').style.display = 'block'; el('btn-open-pdf').style.display = 'none'; el('btn-close-overlay').style.display = 'none'; el('loading-text').innerText = texto; el('loading-overlay').style.display = 'flex'; }
 function ocultarCargando() { el('loading-overlay').style.display = 'none'; }
 function cerrarOverlay() { ocultarCargando(); }
 function mostrarModalPDF(link) { el('loading-spinner').style.display = 'none'; el('loading-text').innerText = "✅ ¡Documento listo en Google Drive!"; const btn = el('btn-open-pdf'); btn.style.display = 'block'; btn.onclick = () => window.open(link, '_blank'); el('btn-close-overlay').style.display = 'block'; }
 
 async function getOrCreateFolder(povName) {
-const folderName = `POV_${povName}`;
-// Busca la subcarpeta dentro de la carpeta compartida maestra
-const query = encodeURIComponent(`name='${folderName}' and '${SHARED_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
-let res = await fetch(`${DRIVE_API_URL}?q=${query}&fields=files(id, name)`, { headers: { 'Authorization': 'Bearer ' + accessToken } });
-let data = await res.json();
-if (data.files && data.files.length > 0) return data.files[0].id;
+    const folderName = `POV_${povName}`;
+    const query = encodeURIComponent(`name='${folderName}' and '${SHARED_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+    let res = await fetchWithAuth(`${DRIVE_API_URL}?q=${query}&fields=files(id, name)`);
+    let data = await res.json();
+    if (data.files && data.files.length > 0) return data.files[0].id;
+    let createRes = await fetchWithAuth(DRIVE_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: folderName, mimeType: 'application/vnd.google-apps.folder', parents: [SHARED_FOLDER_ID] }) });
+    let createData = await createRes.json(); return createData.id;
+}
 
-// Si no existe, la crea asignando la carpeta maestra como "parent"
-let createRes = await fetch(DRIVE_API_URL, { 
-    method: 'POST', 
-    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, 
-    body: JSON.stringify({ 
-        name: folderName, 
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: [SHARED_FOLDER_ID] 
-    }) 
-});
-let createData = await createRes.json(); return createData.id;
-}
 async function findFileInFolder(filename, folderId) {
-const query = encodeURIComponent(`name='${filename}' and '${folderId}' in parents and trashed=false`);
-let res = await fetch(`${DRIVE_API_URL}?q=${query}&fields=files(id, name, webViewLink)`, { headers: { 'Authorization': 'Bearer ' + accessToken } });
-let data = await res.json(); return (data.files && data.files.length > 0) ? data.files[0] : null;
+    const query = encodeURIComponent(`name='${filename}' and '${folderId}' in parents and trashed=false`);
+    let res = await fetchWithAuth(`${DRIVE_API_URL}?q=${query}&fields=files(id, name, webViewLink)`);
+    let data = await res.json(); return (data.files && data.files.length > 0) ? data.files[0] : null;
 }
+
 async function uploadFileRaw(blob, filename, folderId, existingFileId = null) {
-const metadata = { name: filename }; if (!existingFileId) metadata.parents = [folderId];
-const boundary = '-------314159265358979323846'; const delimiter = "\r\n--" + boundary + "\r\n"; const close_delim = "\r\n--" + boundary + "--";
-const reader = new FileReader();
-return new Promise((resolve, reject) => {
-reader.onload = async function() {
-const base64Data = reader.result.split(',')[1];
-const multipartRequestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: ' + blob.type + '\r\nContent-Transfer-Encoding: base64\r\n\r\n' + base64Data + close_delim;
-const url = existingFileId ? `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart` : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
-try { let res = await fetch(url, { method: existingFileId ? 'PATCH' : 'POST', headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'multipart/related; boundary=' + boundary }, body: multipartRequestBody }); if (!res.ok) throw new Error("Error en la subida a Drive"); resolve(await res.json()); } catch(e) { reject(e); }
-};
-reader.onerror = () => reject(new Error("Error leyendo el archivo")); reader.readAsDataURL(blob);
-});
+    const metadata = { name: filename }; if (!existingFileId) metadata.parents = [folderId];
+    const boundary = '-------314159265358979323846'; const delimiter = "\r\n--" + boundary + "\r\n"; const close_delim = "\r\n--" + boundary + "--";
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+        reader.onload = async function() {
+            const base64Data = reader.result.split(',')[1];
+            const multipartRequestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: ' + blob.type + '\r\nContent-Transfer-Encoding: base64\r\n\r\n' + base64Data + close_delim;
+            const url = existingFileId ? `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart` : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+            try { 
+                let res = await fetch(url, { method: existingFileId ? 'PATCH' : 'POST', headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'multipart/related; boundary=' + boundary }, body: multipartRequestBody }); 
+                if (res.status === 401) { accessToken = null; localStorage.removeItem('gdrive_token'); localStorage.removeItem('gdrive_expires'); throw new Error("SESIÓN_EXPIRADA"); }
+                if (!res.ok) throw new Error("Error en la subida a Drive"); 
+                resolve(await res.json()); 
+            } catch(e) { reject(e); }
+        };
+        reader.onerror = () => reject(new Error("Error leyendo el archivo")); reader.readAsDataURL(blob);
+    });
 }
 
 async function accionGuardar() {
-mostrarCargando("Guardando progreso en Drive...");
-try { let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); let dataBlob = new Blob([getAllData()], { type: "application/json" }); await uploadFileRaw(dataBlob, 'Progreso.json', folderId, file ? file.id : null); alert("✅ Progreso guardado exitosamente en la carpeta de Drive."); } catch(e) { alert("❌ Error: " + e.message); accessToken = null; } finally { ocultarCargando(); }
+    mostrarCargando("Guardando progreso en Drive...");
+    try { 
+        let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); 
+        let dataBlob = new Blob([getAllData()], { type: "application/json" }); await uploadFileRaw(dataBlob, 'Progreso.json', folderId, file ? file.id : null); 
+        alert("✅ Progreso guardado exitosamente en la carpeta de Drive."); 
+    } catch(e) { 
+        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad (1 hora). Presiona el botón nuevamente para reactivarla sin pedir contraseña.");
+        else alert("❌ Error: " + e.message); 
+    } finally { ocultarCargando(); }
 }
+
 async function accionLeer() {
-mostrarCargando("Buscando progreso en Drive...");
-try { let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); if (!file) { alert("⚠️ No se encontró ningún progreso guardado para este POV."); ocultarCargando(); return; } let res = await fetch(`${DRIVE_API_URL}/${file.id}?alt=media`, { headers: { 'Authorization': 'Bearer ' + accessToken } }); let content = await res.json(); loadDataIntoApp(content); alert("✅ Progreso recuperado."); } catch(e) { alert("❌ Error: " + e.message); accessToken = null; } finally { ocultarCargando(); }
+    mostrarCargando("Buscando progreso en Drive...");
+    try { 
+        let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); 
+        if (!file) { alert("⚠️ No se encontró ningún progreso guardado para este POV."); ocultarCargando(); return; } 
+        let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media`); let content = await res.json(); 
+        loadDataIntoApp(content); alert("✅ Progreso recuperado."); 
+    } catch(e) { 
+        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad (1 hora). Presiona el botón nuevamente para reactivarla sin pedir contraseña.");
+        else alert("❌ Error: " + e.message); 
+    } finally { ocultarCargando(); }
 }
 
 function prepararImpresionNativa() { updateAll(); setTimeout(() => { window.print(); }, 300); }
 
 async function accionGenerarPDF() {
-mostrarCargando("Ensamblando PDF por páginas...\n(Calidad Alta & Texto Negro)");
-setTimeout(async () => {
-try {
-let pov = val('m_pov'); let pdfBlob = await generarBlobPDF();
-mostrarCargando("Subiendo a Google Drive...");
-let folderId = await getOrCreateFolder(pov);
-let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
-let filename = `Planificacion_POV_${pov}_${dateStr}.pdf`;
-let existingFile = await findFileInFolder(filename, folderId);
-let uploadRes = await uploadFileRaw(pdfBlob, filename, folderId, existingFile ? existingFile.id : null);
-let finalRes = await fetch(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`, { headers: { 'Authorization': 'Bearer ' + accessToken } });
-let finalData = await finalRes.json();
-mostrarModalPDF(finalData.webViewLink);
-} catch(e) { alert("❌ Error al procesar PDF en Drive: " + e.message); accessToken = null; ocultarCargando(); }
-}, 300);
+    mostrarCargando("Ensamblando PDF por páginas...\n(Calidad Alta & Texto Negro)");
+    setTimeout(async () => {
+    try {
+        let pov = val('m_pov'); let pdfBlob = await generarBlobPDF();
+        mostrarCargando("Subiendo a Google Drive...");
+        let folderId = await getOrCreateFolder(pov);
+        let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
+        let filename = `Planificacion_POV_${pov}_${dateStr}.pdf`;
+        let existingFile = await findFileInFolder(filename, folderId);
+        let uploadRes = await uploadFileRaw(pdfBlob, filename, folderId, existingFile ? existingFile.id : null);
+        let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`);
+        let finalData = await finalRes.json();
+        mostrarModalPDF(finalData.webViewLink);
+    } catch(e) { 
+        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad (1 hora). Presiona el botón de 'Generar PDF' nuevamente para reactivarla de forma transparente.");
+        else alert("❌ Error al procesar PDF en Drive: " + e.message); 
+        ocultarCargando(); 
+    }
+    }, 300);
 }
 
 async function generarBlobPDF() {
@@ -428,10 +485,9 @@ const val = id => el(id)?.value || '';
 const setVal = (id, v) => { if(el(id)) el(id).value = v; };
 const setTxt = (id, t) => { if(el(id)) el(id).innerHTML = t; };
 let legIds = [], nextLegId = 1, refuelData = {}; let updateRAF = null; let secManualState = {}; 
-const ordinals = ["", "PRIMER", "SEGUNDO", "TERCER", "CUARTO", "QUINTO", "SEXTO", "SÉPTIMO", "OCTAVO"];
+const ordinals = ["", "PRIMER", "SEGUNDO", "TERCER", "CUARTO", "QUINTO", "SEXTO", "SÉPTIMO", "OCTAVO", "NOVENO", "DÉCIMO", "UNDÉCIMO", "DUODÉCIMO"];
 const formatDec = val => Number(val || 0).toFixed(1);
 
-// FUNCIÓN DE FORMATEO ESTRICTO DE FECHA PDF (DD/MM/AA)
 function formatDatePdf(dateStr) {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
@@ -631,13 +687,13 @@ return `<div class="card" id="leg_card_${id}">
 <div style="margin-top:8px; padding:6px; background:rgba(255,255,255,0.05); border-radius:6px; font-size:0.75rem; text-align:center; border: 1px dashed rgba(255,255,255,0.2);"><span style="color:var(--text-muted);">BLOCK TIME:</span> <strong id="ui_t${id}_block_diff" style="color:var(--text-main);">--:--</strong> &nbsp;|&nbsp; <span style="color:var(--text-muted);">AIR TIME:</span> <strong id="ui_t${id}_air_diff" style="color:var(--text-main);">--:--</strong></div>
 </div>
 <div class="grid-2">
-<div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;">HORÓMETRO</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" step="0.1" id="m_t${id}_horo_bot" placeholder="Inicial" oninput="triggerUpdate()"><input type="number" step="0.1" id="m_t${id}_horo_top" placeholder="Final" oninput="this.dataset.manual = (this.value !== '') ? 'true' : 'false'; triggerUpdate()"></div></div>
+<div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;">HORÓMETRO</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" step="0.1" id="m_t${id}_horo_bot" placeholder="Inicial" oninput="triggerUpdate()"><input type="number" step="0.1" id="m_t${id}_horo_top" placeholder="Final" oninput="this.dataset.manual = (this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div></div>
 <div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;"># PASAJEROS</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" id="m_t${id}_pax" placeholder="PAX" oninput="triggerUpdate()"><input type="text" id="m_t${id}_dist" placeholder="DISTANCIA" oninput="triggerUpdate()"></div></div>
 </div>
 <div style="margin-top:12px; padding:10px; border:1px solid var(--border-color); border-radius:8px; background:rgba(0,0,0,0.2);">
 <label style="font-size:0.75rem; color:var(--text-main); font-weight:bold; margin-bottom:8px; display:block;">COMBUSTIBLE</label>
 <div class="grid-3">
-<div><label style="font-size:0.65rem; color:var(--text-muted);">FUEL ON</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()"></div>
+<div><label style="font-size:0.65rem; color:var(--text-muted);">FUEL ON</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
 <div><label style="font-size:0.65rem; color:var(--text-muted);">2. FUEL OFF</label><input type="number" step="0.1" id="m_t${id}_fuel_off" oninput="triggerUpdate()"></div>
 <div style="background:rgba(255,255,255,0.03); padding:6px; border-radius:6px; border: 1px dashed var(--border-color);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;"><span style="font-size:0.65rem; color:var(--success);">3. REFUEL</span><button class="btn btn-success" onclick="addRefuelRecord(${id})">+ Añadir</button></div><div id="refuel_container_${id}" style="display:flex; flex-direction:column; gap:4px;"></div></div>
 </div>
@@ -721,7 +777,6 @@ return `<div id="p_t${id}_params_wrapper" style="display:none;">
 function addLeg(defaultOrigin = '') {
 const id = nextLegId++, index = legIds.push(id);
 el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(id, index, defaultOrigin));
-el('print-tramos-container').insertAdjacentHTML('beforeend', getPrintLegHTML(id, index)); el('print-params-container').insertAdjacentHTML('beforeend', getPrintParamsHTML(id, index));
 
 if(index === 1) { 
     const dLink = el(`m_t${id}_desde`), dBtn = el(`lbtn_desde_${id}`); 
@@ -748,10 +803,7 @@ triggerUpdate();
 function removeLeg(id) {
 if (!confirm("¿Eliminar tramo? Actualizará continuidad.")) return;
 legIds = legIds.filter(l => l !== id); el(`leg_card_${id}`).remove();
-const pContLegs = el('print-tramos-container'), pContParams = el('print-params-container'); pContLegs.innerHTML = ""; pContParams.innerHTML = "";
 legIds.forEach((lId, i) => { 
-    pContLegs.insertAdjacentHTML('beforeend', getPrintLegHTML(lId, i + 1)); 
-    pContParams.insertAdjacentHTML('beforeend', getPrintParamsHTML(lId, i + 1)); 
     el(`leg_card_${lId}`).querySelector('.card-header > span').innerHTML = `🛫 ${ordinals[i + 1] || (i+1) + '°'} TRAMO (Leg #${i+1})`; 
 });
 if(legIds.length > 0) { 
@@ -781,11 +833,29 @@ const bDiff = tOut && tIn ? timeDiffMins(tOut, tIn) : 0; const aDiff = tOff && t
 const hBot = el(`m_t${id}_horo_bot`), hTop = el(`m_t${id}_horo_top`);
 if (i === 0) { hBot.readOnly = false; hBot.classList.remove('readonly-strict'); } 
 else { const prevTop = parseFloat(val(`m_t${legIds[i-1]}_horo_top`)); hBot.readOnly = true; hBot.classList.add('readonly-strict'); hBot.value = !isNaN(prevTop) ? formatDec(prevTop) : ''; }
-const valBot = parseFloat(hBot.value); if (hTop.dataset.manual !== "true" && !isNaN(valBot) && aDiff > 0) hTop.value = formatDec(valBot + (aDiff / 60));
+
+const valBot = parseFloat(hBot.value); 
+if ((hTop.dataset.manual !== "true" || hTop.value === '') && document.activeElement !== hTop && !isNaN(valBot) && aDiff > 0) {
+    hTop.value = formatDec(valBot + (aDiff / 60));
+    hTop.dataset.manual = 'false';
+}
+
 const valTop = parseFloat(hTop.value); setVal(`m_t${id}_horo_diff`, !isNaN(valBot) && !isNaN(valTop) ? formatDec(valTop - valBot) : '');
 const tramoRefuel = getLegRefuelTotal(id); globalRefuel += tramoRefuel;
 const fOn = el(`m_t${id}_fuel_on`), fOff = el(`m_t${id}_fuel_off`); fOn.readOnly = false; fOn.classList.remove('readonly-strict');
-if (i > 0) { if (fOn.dataset.manual !== 'true' || fOn.value === '') { const prevOff = parseFloat(val(`m_t${legIds[i-1]}_fuel_off`)), prevRefuel = getLegRefuelTotal(legIds[i-1]); if (!isNaN(prevOff)) { fOn.value = formatDec(prevOff + prevRefuel); fOn.dataset.manual = 'false'; } else { fOn.value = ''; } } }
+
+if (i > 0) { 
+    if ((fOn.dataset.manual !== 'true' || fOn.value === '') && document.activeElement !== fOn) { 
+        const prevOff = parseFloat(val(`m_t${legIds[i-1]}_fuel_off`)), prevRefuel = getLegRefuelTotal(legIds[i-1]); 
+        if (!isNaN(prevOff)) { 
+            fOn.value = formatDec(prevOff + prevRefuel); 
+            fOn.dataset.manual = 'false'; 
+        } else { 
+            fOn.value = ''; 
+        } 
+    } 
+}
+
 const valOn = parseFloat(fOn.value), valOff = parseFloat(fOff.value);
 let diffF = (!isNaN(valOn) && !isNaN(valOff)) ? Math.max(0, valOn - valOff) : null;
 setVal(`m_t${id}_fuel_diff`, diffF !== null ? formatDec(diffF) : ''); if (diffF) totalFuelUsed += diffF;
@@ -802,13 +872,10 @@ const pmArr = pmRaw.split('/').map(s => s.trim()).filter(Boolean);
 const pfCount = pfArr.length || 1;
 const pmCount = pmArr.length || 1;
 
-legDetails.push({ id, date: tDate, desde, dest, tOut, tIn });
+legDetails.push({ id, date: tDate, desde, dest, tOut, tIn, tOff, tOn, bDiff, aDiff, fDiff: diffF||0, pax: lPax, pf: pfRaw, pm: pmRaw, pfArr, pmArr, pfCount, pmCount, horoBot: hBot.value, horoTop: hTop.value, fuelOn: valOn, fuelOff: valOff });
+
 if(!legsByDate[tDate]) legsByDate[tDate] = [];
-legsByDate[tDate].push({ 
-    id, desde, dest, tOut, tOff, tOn, tIn, bDiff, aDiff, fDiff: diffF||0, pax: lPax, 
-    pf: pfRaw, pm: pmRaw, pfArr, pmArr, pfCount, pmCount,
-    horoBot: hBot.value, horoTop: hTop.value, fuelOn: valOn, fuelOff: valOff 
-});
+legsByDate[tDate].push(legDetails[legDetails.length - 1]);
 
 const initPilot = () => ({ pf_time: 0, pf_air: 0, pm_time: 0, pm_air: 0 });
 
@@ -824,49 +891,83 @@ pmArr.forEach(p => {
     pilotStats[p].pm_air += (aDiff / pmCount);
 });
 });
-if(legDetails.length > 1) { for(let idx = 0; idx < legDetails.length - 1; idx++) { let curr = legDetails[idx], next = legDetails[idx+1]; if(curr.date !== next.date && curr.dest && curr.dest !== 'SCEL' && next.desde === curr.dest) { if(!legsByDate[next.date]) legsByDate[next.date] = []; } } }
+
 let activeDates = Object.keys(legsByDate).sort(); if(activeDates.length === 0 && gDate) activeDates = [gDate]; if(activeDates.length === 0) activeDates = [new Date().toISOString().split('T')[0]];
-let dailyStats = []; let totalDutyMinsAllDays = 0; let globalEndEl = el('duty_end'); 
-let picIni = val('m_pic_ini').trim().toUpperCase(), sicIni = val('m_sic_ini').trim().toUpperCase(), sic2Ini = val('m_sic2_ini').trim().toUpperCase();
-activeDates.forEach((dateKey, index) => {
-let dayLegs = legsByDate[dateKey] || []; if(dayLegs.length === 0) return;
-let startDuty = "", endDuty = "", dayBlock = 0, dayAir = 0, dayFuelUsed = 0, dayRefuel = 0, dayPax = [];
-let firstLeg = dayLegs[0], lastLeg = dayLegs[dayLegs.length - 1];
-let p1 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
-    p2 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
-    p3 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 };
 
-dayLegs.forEach(leg => {
-    dayBlock += (leg.bDiff || 0); dayAir += (leg.aDiff || 0); dayFuelUsed += (leg.fDiff || 0); dayRefuel += getLegRefuelTotal(leg.id); if (leg.pax >= 0) dayPax.push(`(${leg.pax})`);
-    
-    const procesarPilotoDia = (ini, pObj) => {
-        if (!ini) return;
-        if (leg.pfArr && leg.pfArr.includes(ini)) {
-            let bShare = leg.bDiff / leg.pfCount; let aShare = leg.aDiff / leg.pfCount;
-            pObj.block += bShare; pObj.air += aShare; pObj.pf_block += bShare; pObj.pf_air += aShare;
-            
-            // Lógica cronológica para separar DEP y AT
-            if (leg.bDiff > 0) {
-                if (leg.pfArr[0] === ini) pObj.dep++;
-                if (leg.pfArr[leg.pfArr.length - 1] === ini) pObj.arr++;
-            }
-        }
-        if (leg.pmArr && leg.pmArr.includes(ini)) {
-            let bShare = leg.bDiff / leg.pmCount; let aShare = leg.aDiff / leg.pmCount;
-            pObj.block += bShare; pObj.air += aShare;
-        }
-    };
+// -----------------------------------------------------
+// AGRUPACIÓN POR FOLIOS (MÁXIMO 4 TRAMOS O CAMBIO DE DÍA)
+// -----------------------------------------------------
+let folioGroups = [];
+let currentFolio = null;
 
-    procesarPilotoDia(picIni, p1);
-    procesarPilotoDia(sicIni, p2);
-    procesarPilotoDia(sic2Ini, p3);
+legDetails.forEach((leg, idx) => {
+    let needsNewFolio = false;
+    if (!currentFolio) needsNewFolio = true;
+    else if (currentFolio.date !== leg.date) needsNewFolio = true;
+    else if (currentFolio.legs.length === 4) needsNewFolio = true;
+
+    if (needsNewFolio) {
+        currentFolio = {
+            folioNum: folioGroups.length + 1,
+            date: leg.date,
+            legs: [],
+            stats: {}
+        };
+        folioGroups.push(currentFolio);
+    }
+    currentFolio.legs.push(leg);
 });
 
-if (index === 0) { startDuty = val('duty_start'); if (globalEndEl.dataset.manual === "true" && globalEndEl.value.length === 5) { endDuty = globalEndEl.value; } else if (lastLeg.tIn) { endDuty = addMins(lastLeg.tIn, 30); globalEndEl.value = endDuty; } } 
-else { if (firstLeg.tOff) startDuty = addMins(firstLeg.tOff, -60); if (lastLeg.tIn) endDuty = addMins(lastLeg.tIn, 30); }
-let dur = (startDuty && endDuty) ? timeDiffMins(startDuty, endDuty) : 0; totalDutyMinsAllDays += dur;
-let fIniRaw = firstLeg.fuelOn, fIni = isNaN(fIniRaw) ? 0 : fIniRaw, fFinRaw = lastLeg.fuelOff, fFin = (isNaN(fFinRaw) ? 0 : fFinRaw) + getLegRefuelTotal(lastLeg.id);
-dailyStats.push({ date: dateKey, start: startDuty, end: endDuty, duration: dur, block: dayBlock, air: dayAir, fuelUsed: dayFuelUsed, fuelInit: fIni, fuelFinal: fFin, fuelRefuel: dayRefuel, pax: dayPax.join(' '), p1, p2, p3, hIni: firstLeg.horoBot||'--', hFin: lastLeg.horoTop||'--' });
+let picIni = val('m_pic_ini').trim().toUpperCase(), sicIni = val('m_sic_ini').trim().toUpperCase(), sic2Ini = val('m_sic2_ini').trim().toUpperCase();
+let globalEndEl = el('duty_end'); 
+
+folioGroups.forEach((group, index) => {
+    let startDuty = "", endDuty = "", groupBlock = 0, groupAir = 0, groupFuelUsed = 0, groupRefuel = 0, groupPax = [];
+    let firstLeg = group.legs[0], lastLeg = group.legs[group.legs.length - 1];
+    let p1 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
+        p2 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 }, 
+        p3 = { block: 0, air: 0, dep: 0, arr: 0, pf_block: 0, pf_air: 0 };
+
+    group.legs.forEach(leg => {
+        groupBlock += (leg.bDiff || 0); groupAir += (leg.aDiff || 0); groupFuelUsed += (leg.fDiff || 0); groupRefuel += getLegRefuelTotal(leg.id); if (leg.pax >= 0) groupPax.push(`(${leg.pax})`);
+        
+        const procesarPilotoFolio = (ini, pObj) => {
+            if (!ini) return;
+            if (leg.pfArr && leg.pfArr.includes(ini)) {
+                let bShare = leg.bDiff / leg.pfCount; let aShare = leg.aDiff / leg.pfCount;
+                pObj.block += bShare; pObj.air += aShare; pObj.pf_block += bShare; pObj.pf_air += aShare;
+                if (leg.bDiff > 0) {
+                    if (leg.pfArr[0] === ini) pObj.dep++;
+                    if (leg.pfArr[leg.pfArr.length - 1] === ini) pObj.arr++;
+                }
+            }
+            if (leg.pmArr && leg.pmArr.includes(ini)) {
+                let bShare = leg.bDiff / leg.pmCount; let aShare = leg.aDiff / leg.pmCount;
+                pObj.block += bShare; pObj.air += aShare;
+            }
+        };
+
+        procesarPilotoFolio(picIni, p1);
+        procesarPilotoFolio(sicIni, p2);
+        procesarPilotoFolio(sic2Ini, p3);
+    });
+
+    if (index === 0) { 
+        startDuty = val('duty_start'); 
+        if (globalEndEl.dataset.manual === "true" && globalEndEl.value.length === 5) { 
+            endDuty = globalEndEl.value; 
+        } else if (lastLeg.tIn && document.activeElement !== globalEndEl) { 
+            endDuty = addMins(lastLeg.tIn, 30); 
+            globalEndEl.value = endDuty; 
+        } 
+    } else { 
+        if (firstLeg.tOff) startDuty = addMins(firstLeg.tOff, -60); 
+        if (lastLeg.tIn) endDuty = addMins(lastLeg.tIn, 30); 
+    }
+
+    let dur = (startDuty && endDuty) ? timeDiffMins(startDuty, endDuty) : 0; 
+    let fIniRaw = firstLeg.fuelOn, fIni = isNaN(fIniRaw) ? 0 : fIniRaw, fFinRaw = lastLeg.fuelOff, fFin = (isNaN(fFinRaw) ? 0 : fFinRaw) + getLegRefuelTotal(lastLeg.id);
+    group.stats = { start: startDuty, end: endDuty, duration: dur, block: groupBlock, air: groupAir, fuelUsed: groupFuelUsed, fuelInit: fIni, fuelFinal: fFin, fuelRefuel: groupRefuel, pax: groupPax.join(' '), p1, p2, p3, hIni: firstLeg.horoBot||'--', hFin: lastLeg.horoTop||'--' };
 });
 
 let hasSic2 = sic2Ini !== '';
@@ -878,17 +979,21 @@ const rowDefs = [
 rowDefs.forEach((r, idx) => { let bBottom = (idx === rowDefs.length - 1) ? '' : 'border-bottom:1px solid rgba(255,255,255,0.05);'; tramosTableHtml += `<tr><td style="text-align:left; padding:6px 8px; font-weight:bold; color:var(--text-muted); border-right:1px solid var(--border-color); ${bBottom}">${r.label}</td>`; legIds.forEach(id => { tramosTableHtml += `<td style="padding:6px 8px; border-right:1px solid rgba(255,255,255,0.05); color:var(--text-main); ${bBottom}">${r.get(id)}</td>`; }); tramosTableHtml += `</tr>`; }); tramosTableHtml += `</tbody></table>`;
 if(el('ui_resumen_tramos')) el('ui_resumen_tramos').innerHTML = tramosTableHtml;
 
-let dailyTableHtml = `<table style="width:100%; min-width: 800px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;"><thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th rowspan="2" style="padding:8px; text-align:left; border-right:1px solid var(--border-color); color:var(--accent);">FECHA</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PAX POR<br>TRAMO</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">TOTAL<br>AIRTIME</th><th colspan="4" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">FUEL</th><th colspan="2" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">HOROMETRO</th><th colspan="3" style="padding:4px; color:var(--text-muted);">DUTY</th></tr><tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border-color);"><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">USADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">CARGADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; font-size:0.65rem; color:var(--text-muted);">TOTAL</th></tr></thead><tbody>`;
-dailyStats.forEach((dp, idx) => { let bBottom = (idx === dailyStats.length - 1) ? '' : 'border-bottom:1px solid rgba(255,255,255,0.05);'; let fIni = Math.round(dp.fuelInit || 0), fUsed = Math.round(dp.fuelUsed || 0), fRem = Math.round(dp.fuelFinal || 0), fRef = Math.round(dp.fuelRefuel || 0); let aStr = dp.air > 0 ? `${minsToTime(dp.air)} (${formatDec(dp.air/60).replace('.', ',')})` : '--:--'; let dutyTotalStr = dp.duration > 0 ? `${minsToTime(dp.duration)}` : '--:--'; dailyTableHtml += `<tr><td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">${dp.date}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.pax || '(0)'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${fIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${fUsed}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">${fRem}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--success);">+${fRef}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.hIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.hFin}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.start || '--:--'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.end || '--:--'}</td><td style="padding:6px 8px; ${bBottom}">${dutyTotalStr}</td></tr>`; }); dailyTableHtml += `</tbody></table>`;
-if(el('ui_resumen_diario')) el('ui_resumen_diario').innerHTML = dailyTableHtml;
+let folioTableHtml = `<table style="width:100%; min-width: 800px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;"><thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th rowspan="2" style="padding:8px; text-align:left; border-right:1px solid var(--border-color); color:var(--accent);">FOLIO</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PAX POR<br>TRAMO</th><th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">TOTAL<br>AIRTIME</th><th colspan="4" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">FUEL</th><th colspan="2" style="padding:4px; border-right:1px solid var(--border-color); color:var(--text-muted);">HOROMETRO</th><th colspan="3" style="padding:4px; color:var(--text-muted);">DUTY</th></tr><tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border-color);"><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">USADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">CARGADO</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th><th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FINAL</th><th style="padding:4px; font-size:0.65rem; color:var(--text-muted);">TOTAL</th></tr></thead><tbody>`;
+folioGroups.forEach((group, idx) => { let dp = group.stats; let bBottom = (idx === folioGroups.length - 1) ? '' : 'border-bottom:1px solid rgba(255,255,255,0.05);'; let fIni = Math.round(dp.fuelInit || 0), fUsed = Math.round(dp.fuelUsed || 0), fRem = Math.round(dp.fuelFinal || 0), fRef = Math.round(dp.fuelRefuel || 0); let aStr = dp.air > 0 ? `${minsToTime(dp.air)} (${formatDec(dp.air/60).replace('.', ',')})` : '--:--'; let dutyTotalStr = dp.duration > 0 ? `${minsToTime(dp.duration)}` : '--:--'; folioTableHtml += `<tr><td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">FOLIO ${group.folioNum} <span style="font-size:0.65rem; color:var(--text-muted); font-weight:normal;"><br>${group.date}</span></td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.pax || '(0)'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${fIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${fUsed}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">${fRem}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--success);">+${fRef}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.hIni}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dp.hFin}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.start || '--:--'}</td><td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${dp.end || '--:--'}</td><td style="padding:6px 8px; ${bBottom}">${dutyTotalStr}</td></tr>`; }); folioTableHtml += `</tbody></table>`;
+if(el('ui_resumen_diario')) el('ui_resumen_diario').innerHTML = folioTableHtml;
 
-setTxt('sum_duty_hhmm', minsToTime(totalDutyMinsAllDays)); setTxt('sum_duty_dec', `${formatDec(totalDutyMinsAllDays/60)} hrs`); renderSecurityForms(activeDates, legsByDate);
+// Totales de totales
+let totDutyMins = 0; folioGroups.forEach(g => totDutyMins += (g.stats.duration || 0));
+setTxt('sum_duty_hhmm', minsToTime(totDutyMins)); setTxt('sum_duty_dec', `${formatDec(totDutyMins/60)} hrs`); renderSecurityForms(activeDates, legsByDate);
 const initialFuel = legIds.length > 0 ? parseFloat(val(`m_t${legIds[0]}_fuel_on`)) || 0 : 0; let finalFuel = legIds.length > 0 ? parseFloat(val(`m_t${legIds[legIds.length-1]}_fuel_off`)) || 0 : 0; if (legIds.length > 0) finalFuel += getLegRefuelTotal(legIds[legIds.length-1]); 
 setTxt('sum_fuel_init', formatDec(initialFuel)); setTxt('sum_fuel_final', formatDec(finalFuel)); setTxt('sum_fuel_refuel', `+${formatDec(globalRefuel)}`); setTxt('sum_fuel_used', `-${formatDec(totalFuelUsed)}`);
 setTxt('sum_air_hhmm', minsToTime(totalAirMins)); setTxt('sum_air_dec', `${formatDec(totalAirMins/60)} hrs`); setTxt('sum_block_hhmm', minsToTime(totalBlockMins)); setTxt('sum_block_dec', `${formatDec(totalBlockMins/60)} hrs`);
 setTxt('sum_pax_legs', paxArray.join(' ') || "(0)");
 el('sum_pilots_container').innerHTML = Object.entries(pilotStats).filter(([_, d]) => d.pf_time > 0 || d.pm_time > 0).map(([p, d]) => `<div style="background:rgba(255,255,255,0.05); border:1px solid var(--accent); padding:6px 10px; border-radius:6px; flex:1; min-width:160px; text-align:center;"><span style="display:block; font-size:0.75rem; font-weight:bold; color:var(--text-main); border-bottom:1px solid var(--border-color); padding-bottom:3px; margin-bottom:4px;">${p}</span><div style="display:flex; justify-content:space-between; font-size:0.65rem;"><span style="color:var(--text-muted); text-align:left;">PF: ${minsToTime(d.pf_time)}<br><span style="color:var(--accent); font-size:0.6rem;">(Air: ${minsToTime(d.pf_air)})</span></span><span style="color:var(--text-muted); text-align:right;">PM: ${minsToTime(d.pm_time)}<br><span style="color:var(--accent); font-size:0.6rem;">(Air: ${minsToTime(d.pm_air)})</span></span></div></div>`).join('') || "<span style='color:var(--text-muted); font-size:0.8rem;'>Sin horas registradas</span>";
-syncPrintData(totalAirMins, totalBlockMins, initialFuel, globalRefuel, totalFuelUsed, finalFuel, paxArray.join(' '), activeDates, dailyStats); autoSave(); 
+
+syncPrintData(folioGroups, hasSic2, picIni, sicIni, sic2Ini); 
+autoSave(); 
 }
 
 function renderSecurityForms(activeDates, legsByDate) {
@@ -947,145 +1052,173 @@ printHtml += pSecHtml;
 container.innerHTML = webHtml; printContainer.innerHTML = printHtml; updateFormFooters();
 }
 
-function syncPrintData(air, block, initF, refF, usedF, finF, strPax, activeDates, dailyStats) {
-['pov', 'material', 'matricula'].forEach(f => setTxt(`p_${f}`, val(`m_${f}`)));
-setTxt('p_fecha_gen', formatDatePdf(val('m_fecha_gen')));
-const stdFields = ['folio','dest','desde','dist','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
-const prmFields = ['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'];
-const wpfFields = ['wp1','wp2','wp3','wp4','cp1','cp2','cp3','cp4','cr1','cr2','cr3','cr4'];
-legIds.forEach(id => {
-stdFields.forEach(f => setTxt(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
-
-// Aplicar formato sin decimales a "Combustible Used"
-const fUsedVal = val(`m_t${id}_fuel_diff`);
-setTxt(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
-
-setTxt(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
-const windsVal = val(`m_t${id}_winds`).trim(); if(el(`p_t${id}_winds_wrapper`)) el(`p_t${id}_winds_wrapper`).style.display = windsVal ? "inline-block" : "none";
-const hasPrm = prmFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasFuel = wpfFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasMet = val(`m_t${id}_meteo`).trim() !== "", hasAtc = val(`m_t${id}_atc`).trim() !== "";
-prmFields.concat(wpfFields).forEach(f => setTxt(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); setTxt(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); setTxt(`p_t${id}_atc`, val(`m_t${id}_atc`));
-if(el(`p_t${id}_tbl_params`)) el(`p_t${id}_tbl_params`).style.display = hasPrm ? "table" : "none"; if(el(`p_t${id}_tbl_fuel`)) el(`p_t${id}_tbl_fuel`).style.display = hasFuel ? "table" : "none"; if(el(`p_t${id}_tbl_meteo`)) el(`p_t${id}_tbl_meteo`).style.display = hasMet ? "table" : "none"; if(el(`p_t${id}_tbl_atc`)) el(`p_t${id}_tbl_atc`).style.display = hasAtc ? "table" : "none"; if(el(`p_t${id}_params_wrapper`)) el(`p_t${id}_params_wrapper`).style.display = (hasPrm||hasFuel||hasMet||hasAtc) ? "block" : "none";
-
-const dnVal = document.querySelector(`input[name="dn_${id}"]:checked`)?.value || '';
-const pnpVal = document.querySelector(`input[name="pnp_${id}"]:checked`)?.value || '';
-setTxt(`p_t${id}_dn_text`, dnVal === 'D' ? 'DIURNO' : (dnVal === 'N' ? 'NOCTURNO' : '')); 
-setTxt(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
-});
-
-let picIni = val('m_pic_ini').trim().toUpperCase() || 'CAP'; 
-let sicIni = val('m_sic_ini').trim().toUpperCase() || 'FO';
-let sic2Ini = val('m_sic2_ini').trim().toUpperCase() || 'FO2';
-
-let hasSic2 = val('m_sic2_ini').trim() !== '';
+function syncPrintData(folioGroups, hasSic2, picIni, sicIni, sic2Ini) {
+const pfCols = hasSic2 ? 3 : 2;
+const pfWidth = hasSic2 ? "27%" : "20%";
+const fuelWidth = hasSic2 ? "19%" : "26%";
 
 let totDuty = 0, totBlock = 0, totAir = 0, totFuel = 0, totPax = ""; 
 let totP1Block = 0, totP1Air = 0, totP1Dep = 0, totP1Arr = 0, totP1PFBlock = 0, totP1PFAir = 0; 
 let totP2Block = 0, totP2Air = 0, totP2Dep = 0, totP2Arr = 0, totP2PFBlock = 0, totP2PFAir = 0;
 let totP3Block = 0, totP3Air = 0, totP3Dep = 0, totP3Arr = 0, totP3PFBlock = 0, totP3PFAir = 0;
 
-dailyStats.forEach(ds => {
+let foliosHtml = '';
+let absIndex = 1;
+
+folioGroups.forEach(group => {
+    // Calcular totales globales en paralelo
+    let ds = group.stats;
     totDuty += ds.duration; totBlock += ds.block; totAir += ds.air; totFuel += ds.fuelUsed;
     totPax += (totPax && ds.pax ? " " : "") + ds.pax;
-    
-    totP1Block += ds.p1.block; totP1Air += ds.p1.air; totP1Dep += ds.p1.dep; totP1Arr += ds.p1.arr;
-    totP1PFBlock += ds.p1.pf_block; totP1PFAir += ds.p1.pf_air;
-    
-    totP2Block += ds.p2.block; totP2Air += ds.p2.air; totP2Dep += ds.p2.dep; totP2Arr += ds.p2.arr;
-    totP2PFBlock += ds.p2.pf_block; totP2PFAir += ds.p2.pf_air;
-    
-    totP3Block += ds.p3.block; totP3Air += ds.p3.air; totP3Dep += ds.p3.dep; totP3Arr += ds.p3.arr;
-    totP3PFBlock += ds.p3.pf_block; totP3PFAir += ds.p3.pf_air;
+    totP1Block += ds.p1.block; totP1Air += ds.p1.air; totP1Dep += ds.p1.dep; totP1Arr += ds.p1.arr; totP1PFBlock += ds.p1.pf_block; totP1PFAir += ds.p1.pf_air;
+    totP2Block += ds.p2.block; totP2Air += ds.p2.air; totP2Dep += ds.p2.dep; totP2Arr += ds.p2.arr; totP2PFBlock += ds.p2.pf_block; totP2PFAir += ds.p2.pf_air;
+    totP3Block += ds.p3.block; totP3Air += ds.p3.air; totP3Dep += ds.p3.dep; totP3Arr += ds.p3.arr; totP3PFBlock += ds.p3.pf_block; totP3PFAir += ds.p3.pf_air;
+
+    let pageHtml = `<div class="pdf-page print-op-page" id="print_folio_${group.folioNum}">`;
+    // CABECERA DEL FOLIO
+    pageHtml += `<table class="print-table" style="border-bottom: none;">
+      <tr>
+        <td colspan="2" class="no-border-x" style="width: 30%;"><div class="logo-text">AEROCARDAL</div></td>
+        <td colspan="2" class="no-border-x" style="vertical-align: bottom; padding-bottom: 4px;"><div class="main-title">PLANIFICACIÓN OPERACIONAL - FOLIO ${group.folioNum}</div></td>
+        <td colspan="1" style="border-left: none; width: 20%;"></td>
+      </tr>
+      <tr>
+        <td style="width: 25%;"><b style="color: #000000 !important;">FECHA:</b> <span class="bold" style="color:#000000!important;">${formatDatePdf(group.date)}</span></td>
+        <td style="width: 20%;"><b style="color: #000000 !important;">P.O.V.: N°</b> <span class="bold" style="color:#000000!important;">${val('m_pov')}</span></td>
+        <td style="width: 25%;"><b style="color: #000000 !important;">MATERIAL:</b> <span class="bold" style="color:#000000!important;">${val('m_material')}</span></td>
+        <td colspan="2"><b style="color: #000000 !important;">MATRICULA:</b> <span class="bold" style="color:#000000!important;">${val('m_matricula')}</span></td>
+      </tr>
+    </table>`;
+
+    // TRAMOS Y PARÁMETROS
+    group.legs.forEach((leg, i) => { pageHtml += getPrintLegHTML(leg.id, absIndex + i); });
+    pageHtml += `<div style="margin-top: 15px;">`;
+    group.legs.forEach((leg, i) => { pageHtml += getPrintParamsHTML(leg.id, absIndex + i); });
+    pageHtml += `</div>`;
+    absIndex += group.legs.length;
+
+    // CONSOLIDADO INDEPENDIENTE DEL FOLIO
+    let summaryHtml = `<table class="print-table" style="margin-top:0; border-top:none; text-transform:uppercase; table-layout: fixed; width: 100%;">
+        <tr><td colspan="${hasSic2 ? 14 : 13}" class="summary-title-pdf"><b>CONSOLIDADO FOLIO ${group.folioNum}</b></td></tr>
+        <tr class="gray-bg compact-th">
+        <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>FECHA</b></td>
+        <td colspan="2" style="width:16%;" class="text-center"><b>DUTY</b></td>
+        <td style="width:10%;" class="text-center"><b>HORO</b></td>
+        <td style="width:8%;" class="text-center"><b>AIRTIME</b></td>
+        <td style="width:8%;" class="text-center"><b>BLOCK</b></td>
+        <td colspan="${pfCols}" style="width:${pfWidth};" class="text-center"><b>PILOT FLYING (TO/LD)</b></td>
+        <td colspan="4" style="width:${fuelWidth};" class="text-center"><b>COMBUSTIBLE</b></td>
+        <td rowspan="2" style="width:5%; vertical-align:middle;" class="text-center"><b>PAX</b></td>
+        </tr>
+        <tr class="gray-bg compact-th">
+        <td class="text-center"><b>INICIO-FIN</b></td>
+        <td class="text-center"><b>TOTAL</b></td>
+        <td class="text-center"><b>INICIO-FIN</b></td>
+        <td class="text-center"><b>TOTAL</b></td>
+        <td class="text-center"><b>TOTAL</b></td>
+        <td class="text-center"><b>CAP: ${picIni || 'CAP'}<br>(TO:${ds.p1.dep} LD:${ds.p1.arr})</b></td>
+        <td class="text-center"><b>FO: ${sicIni || 'FO'}<br>(TO:${ds.p2.dep} LD:${ds.p2.arr})</b></td>
+        ${hasSic2 ? `<td class="text-center"><b>FO2: ${sic2Ini || 'FO2'}<br>(TO:${ds.p3.dep} LD:${ds.p3.arr})</b></td>` : ''}
+        <td class="text-center"><b>INICIAL</b></td>
+        <td class="text-center"><b>FINAL</b></td>
+        <td class="text-center"><b>USADO</b></td>
+        <td class="text-center"><b>RECARGA</b></td>
+        </tr>`;
+
+    let fDate = formatDatePdf(group.date);
+    let dStr = ds.duration > 0 ? `${minsToTime(ds.duration)} (${formatDec(ds.duration/60).replace('.', ',')})` : '--:--';
+    let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
+    let bStr = ds.block > 0 ? `${minsToTime(ds.block)} (${formatDec(ds.block/60).replace('.', ',')})` : '--:--';
+
+    let p1A_dec = ds.p1.pf_air > 0 ? formatDec(ds.p1.pf_air/60).replace('.', ',') : '0,0'; 
+    let p1B_dec = ds.p1.pf_block > 0 ? formatDec(ds.p1.pf_block/60).replace('.', ',') : '0,0';
+    let p1PFStr = (ds.p1.pf_block > 0 || ds.p1.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p1A_dec})<br>BLK: (${p1B_dec})</div>` : '--'; 
+
+    let p2A_dec = ds.p2.pf_air > 0 ? formatDec(ds.p2.pf_air/60).replace('.', ',') : '0,0'; 
+    let p2B_dec = ds.p2.pf_block > 0 ? formatDec(ds.p2.pf_block/60).replace('.', ',') : '0,0';
+    let p2PFStr = (ds.p2.pf_block > 0 || ds.p2.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p2A_dec})<br>BLK: (${p2B_dec})</div>` : '--';
+
+    let p3A_dec = ds.p3.pf_air > 0 ? formatDec(ds.p3.pf_air/60).replace('.', ',') : '0,0'; 
+    let p3B_dec = ds.p3.pf_block > 0 ? formatDec(ds.p3.pf_block/60).replace('.', ',') : '0,0';
+    let p3PFStr = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p3A_dec})<br>BLK: (${p3B_dec})</div>` : '--';
+
+    summaryHtml += `<tr class="compact-td"><td class="text-center bold">${fDate}</td><td class="text-center">${ds.start || '--'} - ${ds.end || '--'}</td><td class="text-center bold">${dStr}</td><td class="text-center">${ds.hIni} - ${ds.hFin}</td><td class="text-center bold">${aStr}</td><td class="text-center bold">${bStr}</td><td class="text-center">${p1PFStr}</td><td class="text-center">${p2PFStr}</td>${hasSic2 ? `<td class="text-center">${p3PFStr}</td>` : ''}<td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center">${Math.round(ds.fuelFinal)}</td><td class="text-center bold">${Math.round(ds.fuelUsed)}</td><td class="text-center">${Math.round(ds.fuelRefuel)}</td><td class="text-center">${ds.pax}</td></tr>`;
+
+    // AGREGAR TOTAL GLOBAL SOLO EN EL ÚLTIMO FOLIO Y SI HAY MÁS DE 1
+    if (group.folioNum === folioGroups.length && folioGroups.length > 1) {
+        let p1TotAirDec = totP1PFAir > 0 ? formatDec(totP1PFAir/60).replace('.', ',') : '0,0'; 
+        let p1TotBlkDec = totP1PFBlock > 0 ? formatDec(totP1PFBlock/60).replace('.', ',') : '0,0';
+        let totP1PFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p1TotAirDec})<br>BLK: (${p1TotBlkDec})<br><b style="color:var(--text-main);">TO:${totP1Dep} LD:${totP1Arr}</b></div>` : '--'; 
+
+        let p2TotAirDec = totP2PFAir > 0 ? formatDec(totP2PFAir/60).replace('.', ',') : '0,0'; 
+        let p2TotBlkDec = totP2PFBlock > 0 ? formatDec(totP2PFBlock/60).replace('.', ',') : '0,0';
+        let totP2PFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p2TotAirDec})<br>BLK: (${p2TotBlkDec})<br><b style="color:var(--text-main);">TO:${totP2Dep} LD:${totP2Arr}</b></div>` : '--';
+
+        let p3TotAirDec = totP3PFAir > 0 ? formatDec(totP3PFAir/60).replace('.', ',') : '0,0'; 
+        let p3TotBlkDec = totP3PFBlock > 0 ? formatDec(totP3PFBlock/60).replace('.', ',') : '0,0';
+        let totP3PFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p3TotAirDec})<br>BLK: (${p3TotBlkDec})<br><b style="color:var(--text-main);">TO:${totP3Dep} LD:${totP3Arr}</b></div>` : '--';
+
+        let totDStr = totDuty > 0 ? `${minsToTime(totDuty)} (${formatDec(totDuty/60).replace('.', ',')})` : '--:--';
+        let totAStr = totAir > 0 ? `${minsToTime(totAir)} (${formatDec(totAir/60).replace('.', ',')})` : '--:--';
+        let totBStr = totBlock > 0 ? `${minsToTime(totBlock)} (${formatDec(totBlock/60).replace('.', ',')})` : '--:--';
+
+        summaryHtml += `<tr class="compact-td">
+        <td class="text-center summary-total-bg" colspan="2"><b>TOTALES GLOBAL P.O.V.</b></td>
+        <td class="text-center summary-total-bg"><b>${totDStr}</b></td>
+        <td class="text-center summary-total-bg"></td>
+        <td class="text-center summary-total-bg"><b>${totAStr}</b></td>
+        <td class="text-center summary-total-bg"><b>${totBStr}</b></td>
+        <td class="text-center summary-total-bg"><b>${totP1PFStr}</b></td>
+        <td class="text-center summary-total-bg"><b>${totP2PFStr}</b></td>
+        ${hasSic2 ? `<td class="text-center summary-total-bg"><b>${totP3PFStr}</b></td>` : ''}
+        <td class="text-center summary-total-bg"></td>
+        <td class="text-center summary-total-bg"></td>
+        <td class="text-center summary-total-bg"><b>${Math.round(totFuel)}</b></td>
+        <td class="text-center summary-total-bg"></td>
+        <td class="text-center summary-total-bg"></td>
+        </tr>`;
+    }
+
+    summaryHtml += `</table>`;
+    pageHtml += `<div style="margin-top: 10px;">${summaryHtml}</div>`;
+    pageHtml += `</div>`; // Cierra .pdf-page
+
+    foliosHtml += pageHtml;
 });
 
-let pfCols = hasSic2 ? 3 : 2;
-let pfWidth = hasSic2 ? "27%" : "20%";
-let fuelWidth = hasSic2 ? "19%" : "26%";
+// Reemplazar la estructura base del PDF
+el('print-folios-wrapper').innerHTML = foliosHtml;
 
-let t1Html = `<table class="print-table" style="margin-top:0; border-top:none; text-transform:uppercase; table-layout: fixed; width: 100%;">
-<tr><td colspan="${hasSic2 ? 14 : 13}" class="summary-title-pdf"><b>CONSOLIDADO POR DIA</b></td></tr>
-<tr class="gray-bg compact-th">
-<td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>FECHA</b></td>
-<td colspan="2" style="width:16%;" class="text-center"><b>DUTY</b></td>
-<td style="width:10%;" class="text-center"><b>HORO</b></td>
-<td style="width:8%;" class="text-center"><b>AIRTIME</b></td>
-<td style="width:8%;" class="text-center"><b>BLOCK</b></td>
-<td colspan="${pfCols}" style="width:${pfWidth};" class="text-center"><b>PILOT FLYING (TO/LD)</b></td>
-<td colspan="4" style="width:${fuelWidth};" class="text-center"><b>COMBUSTIBLE</b></td>
-<td rowspan="2" style="width:5%; vertical-align:middle;" class="text-center"><b>PAX</b></td>
-</tr>
-<tr class="gray-bg compact-th">
-<td class="text-center"><b>INICIO-FIN</b></td>
-<td class="text-center"><b>TOTAL</b></td>
-<td class="text-center"><b>INICIO-FIN</b></td>
-<td class="text-center"><b>TOTAL</b></td>
-<td class="text-center"><b>TOTAL</b></td>
-<td class="text-center"><b>CAP: ${picIni}<br>(TO:${totP1Dep} LD:${totP1Arr})</b></td>
-<td class="text-center"><b>FO: ${sicIni}<br>(TO:${totP2Dep} LD:${totP2Arr})</b></td>
-${hasSic2 ? `<td class="text-center"><b>FO2: ${sic2Ini}<br>(TO:${totP3Dep} LD:${totP3Arr})</b></td>` : ''}
-<td class="text-center"><b>INICIAL</b></td>
-<td class="text-center"><b>FINAL</b></td>
-<td class="text-center"><b>USADO</b></td>
-<td class="text-center"><b>RECARGA</b></td>
-</tr>`;
+// LLenar dinámicamente los campos de tramos usando SetTxt
+const stdFields = ['folio','dest','desde','dist','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
+const prmFields = ['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'];
+const wpfFields = ['wp1','wp2','wp3','wp4','cp1','cp2','cp3','cp4','cr1','cr2','cr3','cr4'];
 
-dailyStats.forEach(ds => {
-let fDate = formatDatePdf(ds.date);
-let dStr = ds.duration > 0 ? `${minsToTime(ds.duration)} (${formatDec(ds.duration/60).replace('.', ',')})` : '--:--';
-let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
-let bStr = ds.block > 0 ? `${minsToTime(ds.block)} (${formatDec(ds.block/60).replace('.', ',')})` : '--:--';
+legIds.forEach(id => {
+    stdFields.forEach(f => setTxt(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
 
-let p1A_dec = ds.p1.pf_air > 0 ? formatDec(ds.p1.pf_air/60).replace('.', ',') : '0,0'; 
-let p1B_dec = ds.p1.pf_block > 0 ? formatDec(ds.p1.pf_block/60).replace('.', ',') : '0,0';
-let p1PFStr = (ds.p1.pf_block > 0 || ds.p1.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p1A_dec})<br>BLK: (${p1B_dec})</div>` : '--'; 
+    const fUsedVal = val(`m_t${id}_fuel_diff`);
+    setTxt(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
+    setTxt(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
+    const windsVal = val(`m_t${id}_winds`).trim(); if(el(`p_t${id}_winds_wrapper`)) el(`p_t${id}_winds_wrapper`).style.display = windsVal ? "inline-block" : "none";
+    
+    const hasPrm = prmFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasFuel = wpfFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasMet = val(`m_t${id}_meteo`).trim() !== "", hasAtc = val(`m_t${id}_atc`).trim() !== "";
+    prmFields.concat(wpfFields).forEach(f => setTxt(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); setTxt(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); setTxt(`p_t${id}_atc`, val(`m_t${id}_atc`));
+    
+    if(el(`p_t${id}_tbl_params`)) el(`p_t${id}_tbl_params`).style.display = hasPrm ? "table" : "none"; if(el(`p_t${id}_tbl_fuel`)) el(`p_t${id}_tbl_fuel`).style.display = hasFuel ? "table" : "none"; if(el(`p_t${id}_tbl_meteo`)) el(`p_t${id}_tbl_meteo`).style.display = hasMet ? "table" : "none"; if(el(`p_t${id}_tbl_atc`)) el(`p_t${id}_tbl_atc`).style.display = hasAtc ? "table" : "none"; if(el(`p_t${id}_params_wrapper`)) el(`p_t${id}_params_wrapper`).style.display = (hasPrm||hasFuel||hasMet||hasAtc) ? "block" : "none";
 
-let p2A_dec = ds.p2.pf_air > 0 ? formatDec(ds.p2.pf_air/60).replace('.', ',') : '0,0'; 
-let p2B_dec = ds.p2.pf_block > 0 ? formatDec(ds.p2.pf_block/60).replace('.', ',') : '0,0';
-let p2PFStr = (ds.p2.pf_block > 0 || ds.p2.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p2A_dec})<br>BLK: (${p2B_dec})</div>` : '--';
-
-let p3A_dec = ds.p3.pf_air > 0 ? formatDec(ds.p3.pf_air/60).replace('.', ',') : '0,0'; 
-let p3B_dec = ds.p3.pf_block > 0 ? formatDec(ds.p3.pf_block/60).replace('.', ',') : '0,0';
-let p3PFStr = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p3A_dec})<br>BLK: (${p3B_dec})</div>` : '--';
-
-t1Html += `<tr class="compact-td"><td class="text-center bold">${fDate}</td><td class="text-center">${ds.start || '--'} - ${ds.end || '--'}</td><td class="text-center bold">${dStr}</td><td class="text-center">${ds.hIni} - ${ds.hFin}</td><td class="text-center bold">${aStr}</td><td class="text-center bold">${bStr}</td><td class="text-center">${p1PFStr}</td><td class="text-center">${p2PFStr}</td>${hasSic2 ? `<td class="text-center">${p3PFStr}</td>` : ''}<td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center">${Math.round(ds.fuelFinal)}</td><td class="text-center bold">${Math.round(ds.fuelUsed)}</td><td class="text-center">${Math.round(ds.fuelRefuel)}</td><td class="text-center">${ds.pax}</td></tr>`;
+    const dnVal = document.querySelector(`input[name="dn_${id}"]:checked`)?.value || '';
+    const pnpVal = document.querySelector(`input[name="pnp_${id}"]:checked`)?.value || '';
+    setTxt(`p_t${id}_dn_text`, dnVal === 'D' ? 'DIURNO' : (dnVal === 'N' ? 'NOCTURNO' : '')); 
+    setTxt(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
 });
 
-if (dailyStats.length > 1) { 
-let p1TotAirDec = totP1PFAir > 0 ? formatDec(totP1PFAir/60).replace('.', ',') : '0,0'; 
-let p1TotBlkDec = totP1PFBlock > 0 ? formatDec(totP1PFBlock/60).replace('.', ',') : '0,0';
-let totP1PFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p1TotAirDec})<br>BLK: (${p1TotBlkDec})</div>` : '--'; 
-
-let p2TotAirDec = totP2PFAir > 0 ? formatDec(totP2PFAir/60).replace('.', ',') : '0,0'; 
-let p2TotBlkDec = totP2PFBlock > 0 ? formatDec(totP2PFBlock/60).replace('.', ',') : '0,0';
-let totP2PFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p2TotAirDec})<br>BLK: (${p2TotBlkDec})</div>` : '--';
-
-let p3TotAirDec = totP3PFAir > 0 ? formatDec(totP3PFAir/60).replace('.', ',') : '0,0'; 
-let p3TotBlkDec = totP3PFBlock > 0 ? formatDec(totP3PFBlock/60).replace('.', ',') : '0,0';
-let totP3PFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${p3TotAirDec})<br>BLK: (${p3TotBlkDec})</div>` : '--';
-
-let totDStr = totDuty > 0 ? `${minsToTime(totDuty)} (${formatDec(totDuty/60).replace('.', ',')})` : '--:--';
-let totAStr = totAir > 0 ? `${minsToTime(totAir)} (${formatDec(totAir/60).replace('.', ',')})` : '--:--';
-let totBStr = totBlock > 0 ? `${minsToTime(totBlock)} (${formatDec(totBlock/60).replace('.', ',')})` : '--:--';
-
-t1Html += `<tr class="compact-td">
-<td class="text-center summary-total-bg" colspan="2"><b>TOTALES ACUMULADOS</b></td>
-<td class="text-center summary-total-bg"><b>${totDStr}</b></td>
-<td class="text-center summary-total-bg"></td>
-<td class="text-center summary-total-bg"><b>${totAStr}</b></td>
-<td class="text-center summary-total-bg"><b>${totBStr}</b></td>
-<td class="text-center summary-total-bg"><b>${totP1PFStr}</b></td>
-<td class="text-center summary-total-bg"><b>${totP2PFStr}</b></td>
-${hasSic2 ? `<td class="text-center summary-total-bg"><b>${totP3PFStr}</b></td>` : ''}
-<td class="text-center summary-total-bg"></td>
-<td class="text-center summary-total-bg"></td>
-<td class="text-center summary-total-bg"></td>
-<td class="text-center summary-total-bg"></td>
-<td class="text-center summary-total-bg"></td>
-</tr>`;
-}
-t1Html += `</table>`; el('p_resumen_operacional_container').innerHTML = t1Html;
-
+// Sincronizar SMS
 const sinObs = el('m_sms_sin_obs')?.checked; setTxt('sms_p_fecha', formatDatePdf(val('m_fecha_gen'))); setTxt('sms_p_pov', val('m_pov')); setTxt('sms_p_matricula', val('m_matricula')); setTxt('sms_p_material', val('m_material'));
 for(let i=1; i<=47; i++) { const cell = el(`p_sms_${i}`); if(cell) { if(sinObs) { cell.innerHTML = ""; cell.classList.add('strike-cell'); } else { cell.classList.remove('strike-cell'); setTxt(`p_sms_${i}`, el(`m_sms_${i}`)?.checked ? '✓' : ''); } } } setTxt('p_sms_obs', val('m_sms_obs'));
+
+// Sincronizar SEC FORMS
+let activeDates = Object.keys(secManualState).sort(); // Traemos las fechas del state que calculó renderSecurityForms
 activeDates.forEach(dateKey => {
 setTxt(`sec_p_vuelo_${dateKey}`, val('m_pov')); setTxt(`sec_p_material_${dateKey}`, val('m_material')); setTxt(`sec_p_matricula_${dateKey}`, val('m_matricula')); setTxt(`sec_p_estacionamiento_${dateKey}`, val(`m_sec_est_${dateKey}`)); setTxt(`sec_p_origen_${dateKey}`, val(`m_sec_origen_${dateKey}`)); setTxt(`sec_p_destino_${dateKey}`, val(`m_sec_destino_${dateKey}`)); setTxt(`sec_p_alerta_${dateKey}`, val(`m_sec_alerta_${dateKey}`));
 ['A','B','C','D','E','F','G','H','I','J','K'].forEach(id => { const cb = el(`m_sec_${dateKey}_${id}`); setTxt(`p_sec_${dateKey}_${id}`, cb?.checked ? '✓' : ''); });
@@ -1121,12 +1254,11 @@ function loadDataIntoApp(data) {
 if (!data) return;
 if (data.globals) { for (let key in data.globals) { let element = el(key); if (element) { if(element.type === 'checkbox') element.checked = (data.globals[key] === true || data.globals[key] === "true"); else setVal(key, data.globals[key]); } } }
 if(data.secManualState) secManualState = data.secManualState;
-el('tramos-container').innerHTML = ''; el('print-tramos-container').innerHTML = ''; el('print-params-container').innerHTML = ''; legIds = []; nextLegId = 1; refuelData = data.refuelData || {};
+el('tramos-container').innerHTML = ''; el('print-folios-wrapper').innerHTML = ''; legIds = []; nextLegId = 1; refuelData = data.refuelData || {};
 let legCount = data.legs || 1;
 for(let i=0; i<legCount; i++) {
 let newId = nextLegId++; legIds.push(newId); let index = legIds.length;
 el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(newId, index, i === 0 ? 'SCEL' : ''));
-el('print-tramos-container').insertAdjacentHTML('beforeend', getPrintLegHTML(newId, index)); el('print-params-container').insertAdjacentHTML('beforeend', getPrintParamsHTML(newId, index));
 renderRefuels(newId);
 }
 if (data.legData) {
@@ -1163,5 +1295,28 @@ if (element) {
 lookupAircraft(); toggleSinObservaciones(); lookupPilots(); 
 }
 
-window.onload = () => { buildForms(); let saved = localStorage.getItem('aerocardal_flight_data'); if (saved) { if(confirm("Se encontró un vuelo en progreso guardado localmente en este iPad. ¿Deseas recuperarlo?")) { loadDataIntoApp(JSON.parse(saved)); } else { localStorage.removeItem('aerocardal_flight_data'); addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); } } else { addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); } };
+window.onload = () => { 
+    buildForms(); 
+    let saved = localStorage.getItem('aerocardal_flight_data'); 
+    if (saved) { 
+        if(confirm("Se encontró un vuelo en progreso guardado localmente en este iPad. ¿Deseas recuperarlo?")) { 
+            loadDataIntoApp(JSON.parse(saved)); 
+        } else { 
+            localStorage.removeItem('aerocardal_flight_data'); 
+            addLeg('SCEL'); 
+            toggleSinObservaciones(); 
+            lookupPilots(); 
+        } 
+    } else { 
+        addLeg('SCEL'); 
+        toggleSinObservaciones(); 
+        lookupPilots(); 
+    } 
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('✅ Service Worker registrado (Scope:', reg.scope, ')'))
+            .catch(err => console.error('❌ Error Service Worker:', err));
+    }
+};
 </script></body></html>
