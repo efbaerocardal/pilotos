@@ -1,4 +1,3 @@
-<index>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -30,8 +29,8 @@ VARIABLES Y ESTILOS TEMA OSCURO (PANTALLA)
 }
 * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
 body { margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-main); -webkit-font-smoothing: antialiased; }
-header { background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 0.8rem 1rem; text-align: center; position: sticky; top: 0; z-index: 10; }
-h1 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 1px;}
+header { background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 0.8rem 1rem; text-align: center; position: sticky; top: 0; z-index: 10; transition: background-color 0.3s;}
+h1 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; transition: color 0.3s;}
 .subtitle { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; font-weight: bold; }
 .container { padding: 1rem 1rem 150px 1rem; max-width: 1000px; margin: 0 auto; }
 .card { background: var(--bg-card); margin-bottom: 1.2rem; border-radius: 10px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -62,6 +61,7 @@ width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 1rem; color:
 border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-input);
 transition: all 0.2s;
 }
+input:disabled, textarea:disabled, select:disabled { background-color: rgba(255,255,255,0.05); color: #666; cursor: not-allowed; border-color: #222; }
 input:focus, select:focus, textarea:focus { border-color: var(--border-focus); outline: none; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2); }
 textarea { resize: vertical; min-height: 60px; font-family: inherit; }
 .time-input { text-align: center; font-family: monospace; font-size: 1.2rem !important; font-weight: bold; color: var(--accent) !important; letter-spacing: 2px;}
@@ -75,6 +75,7 @@ textarea { resize: vertical; min-height: 60px; font-family: inherit; }
 .time-step label { font-size: 0.7rem; color: var(--accent); display: block; margin-bottom: 3px; }
 .time-step span { font-size: 0.62rem; color: var(--text-muted); display: block; margin-bottom: 6px; }
 .btn { border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-danger { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 5px 10px; font-size: 0.75rem;}
 .btn-success { background-color: rgba(255, 255, 255, 0.1); border: 1px solid var(--success); color: var(--success); padding: 4px 8px; font-size: 0.75rem;}
 .btn-outline { background-color: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 16px; font-size: 0.9rem;}
@@ -90,6 +91,11 @@ hr.divider { border: 0; border-top: 1px solid var(--border-color); margin: 12px 
 .radio-group input[type="radio"] { accent-color: #4285F4; cursor: pointer; width: 16px; height: 16px; margin: 0; }
 .form-category-title { font-size: 0.75rem; font-weight: bold; color: var(--accent); margin: 15px 0 8px 0; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 4px; border-left: 3px solid var(--accent);}
 .signature-block { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 0.85rem; color: var(--text-muted); }
+
+/* ESTILOS DE FIRMA DIGITAL */
+.signature-pad { border: 2px dashed #444; background-color: #FFFFFF; border-radius: 8px; width: 100%; max-width: 500px; height: 150px; touch-action: none; cursor: crosshair; margin: 0 auto; display: block; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+.signature-pad-locked { opacity: 0.4; cursor: not-allowed; border: 2px solid #222; }
+.firma-img-print { max-height: 45px; max-width: 180px; display: block; margin: 0 auto; object-fit: contain; mix-blend-mode: multiply; }
 
 /* Pantalla de Carga */
 #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; color: var(--accent); backdrop-filter: blur(4px); }
@@ -160,7 +166,7 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 1.7 (RESUMEN BITÁCORA Y PDF INTELIGENTE)</div>
+<div class="subtitle">VERSIÓN 2.1 (FIRMA DIGITAL CERTIFICADA)</div>
 </header>
 <main id="mobile-ui" class="container">
 
@@ -213,7 +219,7 @@ Volver a la app
 
 <!-- TRAMOS DINÁMICOS -->
 <div id="tramos-container"></div>
-<button class="btn btn-outline" style="width: 100%; border-style: dashed; margin-bottom: 20px;" onclick="addLeg()">+ AGREGAR TRAMO</button>
+<button id="btn_add_leg" class="btn btn-outline" style="width: 100%; border-style: dashed; margin-bottom: 20px;" onclick="addLeg()">+ AGREGAR TRAMO</button>
 
 <!-- FORMULARIOS ADJUNTOS -->
 <hr class="divider" style="margin: 20px 0;">
@@ -261,42 +267,66 @@ Volver a la app
   </details>
 </div>
 </details>
+
+<!-- FIRMA DIGITAL -->
+<details class="card" open style="border-color: #4285F4; margin-top: 1.2rem;">
+    <summary><span style="color:#4285F4;">✍️ FIRMA DIGITAL DEL COMANDANTE</span><span class="arrow"></span></summary>
+    <div class="card-content" style="text-align: center; padding-bottom: 20px;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Firma en el recuadro usando tu dedo o Apple Pencil. Esta rúbrica certificará los formularios SMS y de Seguridad Operacional enviados por correo.</div>
+        <canvas id="firma-canvas" class="signature-pad" width="600" height="200"></canvas>
+        <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
+            <button id="btn_limpiar_firma" class="btn btn-outline" style="padding: 6px 20px; font-size: 0.8rem; border-color: var(--text-muted); color: var(--text-main);" onclick="limpiarFirma()">🧹 Borrar Firma</button>
+        </div>
+        <input type="hidden" id="m_firma_data">
+    </div>
+</details>
+
 </main>
 
 <div class="fab-container">
 <button class="btn btn-danger" style="padding: 10px 14px;" onclick="clearAllData()">🗑️ Limpiar</button>
+<button id="btn_cerrar_vuelo" class="btn btn-danger" style="padding: 10px 14px;" onclick="toggleCerrarVuelo()">🔒 Cerrar Vuelo</button>
 <button class="btn btn-outline" style="border-color:var(--warning); color:var(--warning); padding: 10px 14px;" onclick="ensureAuth(accionLeer)">📂 Cargar</button>
 <button class="btn btn-outline" style="border-color:var(--success); color:var(--success); padding: 10px 14px;" onclick="ensureAuth(accionGuardar)">💾 Guardar</button>
-<button class="btn-print" style="background:#4285F4; color:white; padding: 10px 14px;" onclick="ensureAuth(accionGenerarPDF)">☁️ GenerarPDF</button>
+<button class="btn-print" style="background:#4285F4; color:white; padding: 10px 14px;" onclick="ensureAuth(accionGenerarPDF)">☁️ PDF</button>
 <button class="btn-print" style="background:var(--accent); color:black; padding: 10px 14px;" onclick="prepararImpresionNativa()">🖨️ Imprimir</button>
 </div>
 
 <!-- LAYOUT DE IMPRESIÓN (PDF) -->
 <div id="print-layout">
-  <!-- PÁGINAS DINÁMICAS DE OPERACIÓN (HOJAS) -->
   <div id="print-folios-wrapper"></div>
-
-  <!-- PÁGINA: SMS -->
   <div id="print-sms-wrapper"></div>
-  
-  <!-- PÁGINAS: SEC FORMS -->
   <div id="print-sec-forms-wrapper"></div>
 </div>
 
 <!-- SCRIPT PRINCIPAL -->
 <script>
+// ==========================================
+// VARIABLES DE ESTADO Y CONFIGURACIÓN
+// ==========================================
+let vueloCerrado = false;
+const PASSWORD_REAPERTURA = "aerocardal"; 
+
 const GOOGLE_CLIENT_ID = '564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com'; 
 const DRIVE_API_URL = 'https://www.googleapis.com/drive/v3/files';
 const SHARED_FOLDER_ID = '1uFFBWEPcFGrbP6lYBX0x5I3mSEPTjBR9';
+
 let tokenClient;
 let accessToken = null;
 let pendingAction = null;
+
+const SCOPE_VERSION = "v2_gmail";
+if (localStorage.getItem('scope_version') !== SCOPE_VERSION) {
+    localStorage.removeItem('gdrive_token');
+    localStorage.removeItem('gdrive_expires');
+    localStorage.setItem('scope_version', SCOPE_VERSION);
+}
 
 function initDrive() {
     if (!window.google) return;
     tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: GOOGLE_CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/drive',
+        scope: 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/gmail.send',
         callback: (tokenResponse) => { 
             if (tokenResponse && tokenResponse.access_token) { 
                 accessToken = tokenResponse.access_token; 
@@ -338,11 +368,15 @@ async function fetchWithAuth(url, options = {}) {
     if (!options.headers) options.headers = {};
     options.headers['Authorization'] = 'Bearer ' + accessToken;
     let res = await fetch(url, options);
-    if (res.status === 401) {
-        accessToken = null;
-        localStorage.removeItem('gdrive_token');
-        localStorage.removeItem('gdrive_expires');
-        throw new Error("SESIÓN_EXPIRADA");
+    if (res.status === 401 || res.status === 403) {
+        if(res.status === 403 && url.includes('gmail')) {
+            alert("❌ ERROR 403: La API de Gmail no está habilitada en tu Google Cloud Console. Por favor ingresa a tu proyecto, busca 'Gmail API' y presiona Habilitar.");
+        } else if (res.status === 401) {
+            accessToken = null;
+            localStorage.removeItem('gdrive_token');
+            localStorage.removeItem('gdrive_expires');
+            throw new Error("SESIÓN_EXPIRADA");
+        }
     }
     return res;
 }
@@ -350,7 +384,7 @@ async function fetchWithAuth(url, options = {}) {
 function mostrarCargando(texto) { el('loading-spinner').style.display = 'block'; el('btn-open-pdf').style.display = 'none'; el('btn-close-overlay').style.display = 'none'; el('loading-text').innerText = texto; el('loading-overlay').style.display = 'flex'; }
 function ocultarCargando() { el('loading-overlay').style.display = 'none'; }
 function cerrarOverlay() { ocultarCargando(); }
-function mostrarModalPDF(link) { el('loading-spinner').style.display = 'none'; el('loading-text').innerText = "✅ ¡Documento listo en Google Drive!"; const btn = el('btn-open-pdf'); btn.style.display = 'block'; btn.onclick = () => window.open(link, '_blank'); el('btn-close-overlay').style.display = 'block'; }
+function mostrarModalPDF(link) { el('loading-spinner').style.display = 'none'; el('loading-text').innerText = "✅ ¡Proceso finalizado con éxito!"; const btn = el('btn-open-pdf'); btn.style.display = 'block'; btn.onclick = () => window.open(link, '_blank'); el('btn-close-overlay').style.display = 'block'; }
 
 async function getOrCreateFolder(povName) {
     const folderName = `POV_${povName}`;
@@ -388,6 +422,280 @@ async function uploadFileRaw(blob, filename, folderId, existingFileId = null) {
     });
 }
 
+// ==========================================
+// MÓDULO GMAIL - DESPACHO DE CORREOS
+// ==========================================
+async function createMimeMessage(to, subject, body, pdfBlob, filename) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function() {
+            try {
+                const base64Pdf = reader.result.split(',')[1];
+                const boundary = "boundary_string_" + Date.now().toString(16);
+                const utf8Subject = "=?utf-8?B?" + btoa(unescape(encodeURIComponent(subject))) + "?=";
+
+                const headerAndBody = [
+                    `To: ${to}`,
+                    `Subject: ${utf8Subject}`,
+                    "MIME-Version: 1.0",
+                    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+                    "",
+                    `--${boundary}`,
+                    "Content-Type: text/plain; charset=utf-8",
+                    "",
+                    body,
+                    "",
+                    `--${boundary}`,
+                    `Content-Type: application/pdf; name="${filename}"`,
+                    "Content-Transfer-Encoding: base64",
+                    `Content-Disposition: attachment; filename="${filename}"`,
+                    ""
+                ].join("\r\n");
+
+                let rawMessage = headerAndBody + "\r\n\r\n" + base64Pdf + "\r\n" + `--${boundary}--`;
+                let encoder = new TextEncoder();
+                let bytes = encoder.encode(rawMessage);
+                let binary = '';
+                let chunk = 8192;
+                for (let i = 0; i < bytes.length; i += chunk) {
+                    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+                }
+                let base64 = btoa(binary);
+                let base64url = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                resolve(base64url);
+            } catch(e) { reject(e); }
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+    });
+}
+
+async function sendGmailEmail(to, subject, body, pdfBlob, filename) {
+    const rawMessage = await createMimeMessage(to, subject, body, pdfBlob, filename);
+    const res = await fetchWithAuth('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw: rawMessage })
+    });
+    if(!res.ok) {
+        const err = await res.text();
+        throw new Error(`Fallo enviando correo a ${to}: ${err}`);
+    }
+}
+
+// ==========================================
+// FUNCIÓN CIERRE Y DESPACHO AUTOMATIZADO
+// ==========================================
+function toggleCerrarVuelo() {
+    if (!vueloCerrado) {
+        if (!val('m_firma_data')) {
+            if(!confirm("⚠️ Aún no has firmado el documento. ¿Deseas cerrarlo y enviarlo sin firma digital?")) return;
+        }
+
+        if(confirm("🔒 ¿Estás seguro de CERRAR este vuelo?\n\nAl confirmar:\n1. Se bloqueará la edición y firma.\n2. Se respaldarán los datos en Drive.\n3. SE ENVIARÁN AUTOMÁTICAMENTE por correo las hojas de planificación, SMS y Seguridad a los responsables respectivos.")) {
+            ensureAuth(async () => {
+                vueloCerrado = true;
+                aplicarEstadoCierre();
+                autoSave();
+                await despacharVueloCerrado();
+            });
+        }
+    } else {
+        let pwd = prompt("🔓 Ingresa la contraseña para reabrir el vuelo:");
+        if (pwd === PASSWORD_REAPERTURA) {
+            vueloCerrado = false;
+            aplicarEstadoCierre();
+            autoSave();
+            alert("✅ Vuelo reabierto exitosamente. Ahora puedes editar los campos.");
+        } else if (pwd !== null && pwd !== "") {
+            alert("❌ Contraseña incorrecta.");
+        }
+    }
+}
+
+async function despacharVueloCerrado() {
+    try {
+        let pov = val('m_pov') || "SIN_POV";
+        let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
+        let filename = `POV_${pov}_${dateStr}.pdf`;
+
+        mostrarCargando("Ensamblando PDF maestro (puede tardar unos segundos)...");
+        let pdfBlob = await generarBlobPDF(true);
+
+        mostrarCargando("Guardando respaldos en Google Drive...");
+        let folderId = await getOrCreateFolder(pov);
+        let dataBlob = new Blob([getAllData()], { type: "application/json" });
+        let backupFile = await findFileInFolder('Progreso.json', folderId);
+        await uploadFileRaw(dataBlob, 'Progreso.json', folderId, backupFile ? backupFile.id : null);
+        
+        let existingPdf = await findFileInFolder(filename, folderId);
+        let uploadRes = await uploadFileRaw(pdfBlob, filename, folderId, existingPdf ? existingPdf.id : null);
+        let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`);
+        let driveData = await finalRes.json();
+        let driveLink = driveData.webViewLink;
+
+        let smsSinObs = el('m_sms_sin_obs')?.checked;
+        let secSinObs = true;
+        Object.values(secManualState).forEach(st => { if (st.sinObs === false) secSinObs = false; });
+
+        let subjPlan = `POV_${pov} - PLANIFICACIÓN OPERACIONAL`;
+        let subjSms = smsSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SMS CON OBSERVACIONES)`;
+        let subjSec = secSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SEGURIDAD CON OBSERVACIONES)`;
+
+        let bodyText = `Se adjunta documento PDF consolidado con los registros del vuelo y firmas electrónicas integradas.\nLink respaldo Drive: ${driveLink}`;
+
+        mostrarCargando("Enviando correo a Operaciones...");
+        await sendGmailEmail('jose.oyarzun@aerocardal.com', subjPlan, bodyText, pdfBlob, filename);
+
+        mostrarCargando("Enviando correo SMS...");
+        await sendGmailEmail('516jom@gmail.com', subjSms, bodyText, pdfBlob, filename);
+
+        mostrarCargando("Enviando correo a Seguridad...");
+        await sendGmailEmail('academics.viper@gmail.com', subjSec, bodyText, pdfBlob, filename);
+
+        mostrarModalPDF(driveLink);
+
+    } catch(e) {
+        console.error(e);
+        alert("❌ Ocurrió un error en el despacho automatizado:\n\n" + e.message + "\n\nLos datos han sido protegidos de todos modos.");
+        ocultarCargando();
+    } finally {
+        vpMeta.setAttribute('content', originalVp); 
+        el('print-layout').style.display = 'none'; el('print-layout').style.width = '';
+        el('mobile-ui').style.display = ''; document.querySelector('header').style.display = ''; document.querySelector('.fab-container').style.display = 'flex'; 
+        window.scrollTo(0, 0);
+    }
+}
+
+function aplicarEstadoCierre() {
+    const uiContainer = el('mobile-ui');
+    if (!uiContainer) return;
+    
+    // Bloquear inputs
+    const elementsToDisable = uiContainer.querySelectorAll('input:not([type="hidden"]), textarea, select');
+    elementsToDisable.forEach(element => { element.disabled = vueloCerrado; });
+
+    // Bloquear botones operativos (eliminar, añadir)
+    const actionButtons = uiContainer.querySelectorAll('button:not(.btn-print)');
+    actionButtons.forEach(btn => { if (btn.id !== 'btn_cerrar_vuelo') { btn.disabled = vueloCerrado; } });
+
+    // Enlaces de herencia
+    const linkBtns = uiContainer.querySelectorAll('.link-btn');
+    linkBtns.forEach(btn => {
+        btn.style.opacity = vueloCerrado ? "0.3" : "1";
+        btn.style.cursor = vueloCerrado ? "not-allowed" : "pointer";
+    });
+
+    // Bloqueo visual de Pad de Firma
+    const canvasEl = el('firma-canvas');
+    if (canvasEl) {
+        if (vueloCerrado) canvasEl.classList.add('signature-pad-locked');
+        else canvasEl.classList.remove('signature-pad-locked');
+    }
+
+    // Header UI
+    const header = document.querySelector('header');
+    if (header) {
+        header.style.backgroundColor = vueloCerrado ? "#4A0000" : "var(--bg-card)";
+        const title = header.querySelector('h1');
+        if(title) {
+            if (vueloCerrado) {
+                title.innerText = "🔒 VUELO CERRADO Y DESPACHADO";
+                title.style.color = "#FF4444";
+            } else {
+                title.innerText = "AEROCARDAL - PLANIFICACIÓN OPERACIONAL";
+                title.style.color = "var(--accent)";
+            }
+        }
+    }
+
+    const btnCerrar = el('btn_cerrar_vuelo');
+    if (btnCerrar) {
+        btnCerrar.innerHTML = vueloCerrado ? "🔓 Reabrir Vuelo" : "🔒 Cerrar Vuelo";
+        btnCerrar.style.backgroundColor = vueloCerrado ? "var(--warning)" : "var(--danger)";
+        btnCerrar.style.color = vueloCerrado ? "black" : "white";
+    }
+}
+
+// ==========================================
+// MÓDULO PAD DE FIRMA DIGITAL
+// ==========================================
+let signatureCanvas, sigCtx, isDrawing = false;
+function initSignaturePad() {
+    signatureCanvas = el('firma-canvas');
+    if(!signatureCanvas) return;
+    sigCtx = signatureCanvas.getContext('2d');
+    sigCtx.strokeStyle = "#000033"; // Tinta azul oscuro profesional
+    sigCtx.lineWidth = 3;
+    sigCtx.lineCap = "round";
+    sigCtx.lineJoin = "round";
+    
+    const getPos = (e) => {
+        const rect = signatureCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (signatureCanvas.width / rect.width),
+            y: (clientY - rect.top) * (signatureCanvas.height / rect.height)
+        };
+    };
+
+    const startDraw = (e) => {
+        if(vueloCerrado) return;
+        isDrawing = true;
+        const pos = getPos(e);
+        sigCtx.beginPath();
+        sigCtx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+    };
+    const draw = (e) => {
+        if(!isDrawing || vueloCerrado) return;
+        const pos = getPos(e);
+        sigCtx.lineTo(pos.x, pos.y);
+        sigCtx.stroke();
+        e.preventDefault();
+    };
+    const endDraw = () => {
+        if(isDrawing) {
+            isDrawing = false;
+            guardarFirmaEnInput();
+            triggerUpdate(); 
+        }
+    };
+
+    signatureCanvas.addEventListener('mousedown', startDraw);
+    signatureCanvas.addEventListener('mousemove', draw);
+    signatureCanvas.addEventListener('mouseup', endDraw);
+    signatureCanvas.addEventListener('mouseout', endDraw);
+    signatureCanvas.addEventListener('touchstart', startDraw, {passive: false});
+    signatureCanvas.addEventListener('touchmove', draw, {passive: false});
+    signatureCanvas.addEventListener('touchend', endDraw);
+}
+
+function limpiarFirma() {
+    if(vueloCerrado) return;
+    if(sigCtx) sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+    el('m_firma_data').value = "";
+    triggerUpdate();
+}
+
+function guardarFirmaEnInput() {
+    if(signatureCanvas) {
+        el('m_firma_data').value = signatureCanvas.toDataURL("image/png");
+    }
+}
+
+function cargarFirmaEnCanvas(dataURL) {
+    if(!dataURL || !signatureCanvas) return;
+    let img = new Image();
+    img.onload = () => {
+        sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+        sigCtx.drawImage(img, 0, 0);
+    };
+    img.src = dataURL;
+}
+
+// ACCIONES ESTÁNDAR
 async function accionGuardar() {
     mostrarCargando("Guardando progreso en Drive...");
     try { 
@@ -395,7 +703,7 @@ async function accionGuardar() {
         let dataBlob = new Blob([getAllData()], { type: "application/json" }); await uploadFileRaw(dataBlob, 'Progreso.json', folderId, file ? file.id : null); 
         alert("✅ Progreso guardado exitosamente en la carpeta de Drive."); 
     } catch(e) { 
-        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad (1 hora). Presiona el botón nuevamente para reactivarla sin pedir contraseña.");
+        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad. Presiona de nuevo para reactivar.");
         else alert("❌ Error: " + e.message); 
     } finally { ocultarCargando(); }
 }
@@ -408,7 +716,7 @@ async function accionLeer() {
         let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media`); let content = await res.json(); 
         loadDataIntoApp(content); alert("✅ Progreso recuperado."); 
     } catch(e) { 
-        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad (1 hora). Presiona el botón nuevamente para reactivarla sin pedir contraseña.");
+        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad. Presiona de nuevo para reactivar.");
         else alert("❌ Error: " + e.message); 
     } finally { ocultarCargando(); }
 }
@@ -416,7 +724,7 @@ async function accionLeer() {
 function prepararImpresionNativa() { updateAll(); setTimeout(() => { window.print(); }, 300); }
 
 async function accionGenerarPDF() {
-    mostrarCargando("Ensamblando PDF por páginas...\n(Normalizando texto a Mayúsculas)");
+    mostrarCargando("Ensamblando PDF por páginas...");
     setTimeout(async () => {
     try {
         let pov = val('m_pov'); let pdfBlob = await generarBlobPDF();
@@ -437,48 +745,47 @@ async function accionGenerarPDF() {
     }, 300);
 }
 
-async function generarBlobPDF() {
-updateAll();
-const mainUi = el('mobile-ui'); const header = document.querySelector('header'); const fab = document.querySelector('.fab-container'); const vpMeta = el('viewport-meta');
-const printLayout = el('print-layout');
-const originalScroll = window.scrollY; const originalVp = vpMeta.getAttribute('content');
+let originalVp = "";
+async function generarBlobPDF(mantenerOculto = false) {
+    updateAll();
+    const mainUi = el('mobile-ui'); const header = document.querySelector('header'); const fab = document.querySelector('.fab-container'); const vpMeta = el('viewport-meta');
+    const printLayout = el('print-layout');
+    const originalScroll = window.scrollY; originalVp = vpMeta.getAttribute('content');
 
-if(mainUi) mainUi.style.display = 'none'; if(header) header.style.display = 'none'; if(fab) fab.style.display = 'none';
-vpMeta.setAttribute('content', 'width=800, initial-scale=1.0');
-printLayout.style.display = 'block'; printLayout.style.width = '800px'; 
-window.scrollTo(0, 0);
+    if(mainUi) mainUi.style.display = 'none'; if(header) header.style.display = 'none'; if(fab) fab.style.display = 'none';
+    vpMeta.setAttribute('content', 'width=800, initial-scale=1.0');
+    printLayout.style.display = 'block'; printLayout.style.width = '800px'; 
+    window.scrollTo(0, 0);
 
-await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-const pages = document.querySelectorAll('.pdf-page');
+    const pages = document.querySelectorAll('.pdf-page');
 
-const opt = {
-margin: [5, 5, 5, 5],
-filename: 'temp.pdf',
-image: { type: 'jpeg', quality: 1.0 },
-pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'table'] },
-html2canvas: { scale: 3, useCORS: true, logging: false, width: 800, windowWidth: 800, letterRendering: true },
-jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-};
+    const opt = {
+        margin: [5, 5, 5, 5],
+        filename: 'temp.pdf',
+        image: { type: 'jpeg', quality: 1.0 },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'table'] },
+        html2canvas: { scale: 3, useCORS: true, logging: false, width: 800, windowWidth: 800, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+    };
 
-try {
-if (pages.length === 0) throw new Error("No se detectaron páginas para renderizar.");
+    try {
+        if (pages.length === 0) throw new Error("No se detectaron páginas para renderizar.");
 
-let worker = html2pdf().set(opt).from(pages[0]).toPdf();
+        let worker = html2pdf().set(opt).from(pages[0]).toPdf();
+        for (let i = 1; i < pages.length; i++) {
+            worker = worker.get('pdf').then(pdf => { pdf.addPage(); }).from(pages[i]).toContainer().toCanvas().toPdf();
+        }
+        return await worker.output('blob');
 
-for (let i = 1; i < pages.length; i++) {
-  worker = worker.get('pdf').then(pdf => {
-    pdf.addPage();
-  }).from(pages[i]).toContainer().toCanvas().toPdf();
-}
-
-return await worker.output('blob');
-
-} finally {
-await new Promise(resolve => setTimeout(resolve, 100));
-vpMeta.setAttribute('content', originalVp); printLayout.style.display = 'none'; printLayout.style.width = '';
-if(mainUi) mainUi.style.display = ''; if(header) header.style.display = ''; if(fab) fab.style.display = 'flex'; window.scrollTo(0, originalScroll);
-}
+    } finally {
+        if(!mantenerOculto) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            vpMeta.setAttribute('content', originalVp); printLayout.style.display = 'none'; printLayout.style.width = '';
+            if(mainUi) mainUi.style.display = ''; if(header) header.style.display = ''; if(fab) fab.style.display = 'flex'; window.scrollTo(0, originalScroll);
+        }
+    }
 }
 
 const el = id => document.getElementById(id);
@@ -503,6 +810,7 @@ const aeronavesDB = [
 { trigram: "DRS", matricula: "CC-DRS", material: "PC-24" }, { trigram: "AJS", matricula: "CC-AJS", material: "RJ85" }
 ];
 function lookupAircraft() {
+if (vueloCerrado) return;
 const suffix = val('m_matricula_suffix').trim().toUpperCase(); const matInput = el('m_material'); const fullMatInput = el('m_matricula'); const msgDiv = el('ui_mat_msg');
 if (!suffix) { matInput.value = ''; if(fullMatInput) fullMatInput.value = ''; if(msgDiv) msgDiv.innerHTML = '&nbsp;'; triggerUpdate(); return; }
 const matches = aeronavesDB.filter(a => a.trigram.toUpperCase() === suffix || a.matricula.toUpperCase().endsWith(suffix) || a.matricula.toUpperCase() === suffix);
@@ -522,6 +830,7 @@ let capitanActual = { nombre: "", rut: "", licencia: "" }; let foActual = { nomb
 
 function formatNameForSMS(fullName) { if(!fullName) return ""; const parts = fullName.split(' '); if(parts.length >= 2) return (parts[0][0] + ". " + parts[1]).toUpperCase(); return fullName.toUpperCase(); }
 function lookupPilots() {
+if (vueloCerrado) return;
 const picIni = val('m_pic_ini').toUpperCase(), sicIni = val('m_sic_ini').toUpperCase(), sic2Ini = val('m_sic2_ini').toUpperCase();
 if (pilotosDB[picIni]) { capitanActual = pilotosDB[picIni]; setTxt('ui_pic_name', `👤 ${capitanActual.nombre}`); } else { capitanActual = { nombre: "", rut: "", licencia: "" }; setTxt('ui_pic_name', picIni ? 'No encontrado' : '&nbsp;'); }
 if (pilotosDB[sicIni]) { foActual = pilotosDB[sicIni]; setTxt('ui_sic_name', `👤 ${foActual.nombre}`); } else { foActual = { nombre: "" }; setTxt('ui_sic_name', sicIni ? 'No encontrado' : '&nbsp;'); }
@@ -545,12 +854,13 @@ if(nSIC2) tripArr.push(nSIC2);
 setTxt('sms_p_tripulacion', tripArr.join(" / "));
 setTxt('sms_p_nombre', nom === "______________________" ? "" : nom);
 }
-function toggleSinObservaciones() { const isChecked = el('m_sms_sin_obs')?.checked; for(let i = 1; i <= 47; i++) { const cb = el(`m_sms_${i}`); if(cb) { if(isChecked) cb.checked = false; cb.disabled = isChecked; } } triggerUpdate(); }
+function toggleSinObservaciones() { if(vueloCerrado) return; const isChecked = el('m_sms_sin_obs')?.checked; for(let i = 1; i <= 47; i++) { const cb = el(`m_sms_${i}`); if(cb) { if(isChecked) cb.checked = false; cb.disabled = isChecked; } } triggerUpdate(); }
 function toggleSecSinObs(dateKey) {
+if(vueloCerrado) return;
 const isChecked = el(`m_sec_sin_obs_${dateKey}`)?.checked; secManualState[dateKey] = secManualState[dateKey] || {}; secManualState[dateKey].sinObs = isChecked;
 ['A','B','C','D','E','F','G','H','I','J','K'].forEach(id => { const cb = el(`m_sec_${dateKey}_${id}`); if(cb) { cb.checked = isChecked; cb.disabled = isChecked; secManualState[dateKey][id] = isChecked; } }); triggerUpdate();
 }
-function handleSecCheckboxChange(dateKey, id) { const cb = el(`m_sec_${dateKey}_${id}`); if(cb) { secManualState[dateKey] = secManualState[dateKey] || {}; secManualState[dateKey][id] = cb.checked; } triggerUpdate(); }
+function handleSecCheckboxChange(dateKey, id) { if(vueloCerrado) return; const cb = el(`m_sec_${dateKey}_${id}`); if(cb) { secManualState[dateKey] = secManualState[dateKey] || {}; secManualState[dateKey][id] = cb.checked; } triggerUpdate(); }
 
 const smsData = [
 { cat: "I. OPERACIONES DE DESPEGUE - ATERRIZAJE Y EN TIERRA", items: ["Colisión en tierra", "Casi colisión en tierra", "Pérdida de control en tierra", "Salida de la pista", "Incursión en la pista", "Aterrizaje antes de la pista/Después de la pista", "Contacto anormal con la pista", "Incidente derivado de evacuación", "Incidente por: gestión de tránsito aéreo/Comunicaciones(fallas o degradadas)/Vigilancia", "Despegue interrumpido después de alcanzar potencia de despegue", "Aproximación no estabilizada a menos de 500 pies", "Se lleva a cabo una aproximación frustrada a menos de 1000 pies encima del nivel del terreno", "Los procedimientos o el equipo de seguridad operacional son inadecuados o tienen defecto", "Deficiencias graves en la documentación operacional", "Modo incorrecto de cargar combustible, carga o mercancías peligrosas", "Condiciones de superficie peligrosa (Hielo, nieve fundente, frenado deficiente)", "Choque con ave, o daño por objetos extraños (FOD)", "Algunos tripulantes o pasajeros están gravemente enfermos, lesionados, incapacitados o mueren", "Pasajeros violentos, armados o intoxicados, o cuando sea necesario inmovilizar"] },
@@ -616,9 +926,12 @@ pSmsHtml += `</table>
 <b style="color:#000000!important; font-size:10px; ">Observaciones:</b><br>
 <span id="p_sms_obs" style="color:#000000!important; font-weight:bold;"></span>
 </div>
-<div style="padding-top:2px; color:#000000!important;">
-<b style="color:#000000!important; font-size:10px; ">Firma Comandante de Aeronave:</b>
-<span id="sms_p_nombre" style="border-bottom:1px solid black; display:inline-block; width:220px; padding-bottom: 4px; min-height: 16px; color:#000000!important; font-weight:bold; font-size:10px; vertical-align: bottom;"></span>
+<div style="padding-top:2px; color:#000000!important; text-align: center;">
+<b style="color:#000000!important; font-size:10px; ">Firma Comandante de Aeronave:</b><br>
+<div style="border-bottom:1px solid black; display:inline-block; width:220px; padding-bottom: 2px; text-align:center; margin-top:5px;">
+    <div id="sms_firma_placeholder" style="min-height: 25px;"></div>
+    <span id="sms_p_nombre" style="color:#000000!important; font-weight:bold; font-size:10px; display:block;"></span>
+</div>
 </div>
 </td></tr></table></div>`;
 el('print-sms-wrapper').innerHTML = pSmsHtml;
@@ -632,9 +945,10 @@ const minsToTime = m => { if (m === null || isNaN(m)) return "--:--"; m = (m % 1
 const timeDiffMins = (start, end) => { const s = timeToMins(start), e = timeToMins(end); if (s === null || e === null) return 0; return e - s < 0 ? (e - s) + 1440 : e - s; };
 const addMins = (t, mins) => { if (!t || !t.includes(':')) return ""; let [h, m] = t.split(':').map(Number); let total = h * 60 + m + mins; total = ((total % 1440) + 1440) % 1440; return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`; };
 
-function toggleLink(id, field) { const input = el(`m_t${id}_${field}`), btn = el(`lbtn_${field}_${id}`); const isLinked = input.dataset.linked === "true"; input.dataset.linked = !isLinked; input.readOnly = !isLinked; input.classList.toggle('inherited-input', !isLinked); btn.textContent = isLinked ? "🔓" : "🔗"; btn.title = isLinked ? "Restablecer herencia" : "Desvincular"; if(isLinked) triggerUpdate(); }
+function toggleLink(id, field) { if(vueloCerrado) return; const input = el(`m_t${id}_${field}`), btn = el(`lbtn_${field}_${id}`); const isLinked = input.dataset.linked === "true"; input.dataset.linked = !isLinked; input.readOnly = !isLinked; input.classList.toggle('inherited-input', !isLinked); btn.textContent = isLinked ? "🔓" : "🔗"; btn.title = isLinked ? "Restablecer herencia" : "Desvincular"; if(isLinked) triggerUpdate(); }
 
 function syncFolioDown(sourceId) {
+    if(vueloCerrado) return;
     const sourceVal = val(`m_t${sourceId}_folio`);
     let startSync = false;
     legIds.forEach(id => {
@@ -771,6 +1085,7 @@ return `<div id="p_t${id}_params_wrapper" style="display:none;">
 }
 
 function addLeg(defaultOrigin = '') {
+if(vueloCerrado) return;
 const id = nextLegId++, index = legIds.push(id);
 el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(id, index, defaultOrigin));
 
@@ -797,6 +1112,7 @@ triggerUpdate();
 }
 
 function removeLeg(id) {
+if(vueloCerrado) return;
 if (!confirm("¿Eliminar tramo? Actualizará continuidad.")) return;
 legIds = legIds.filter(l => l !== id); el(`leg_card_${id}`).remove();
 legIds.forEach((lId, i) => { 
@@ -814,13 +1130,12 @@ if(legIds.length > 0) {
 }
 triggerUpdate();
 }
-function resetSecTime(dateKey, type) { secManualState[dateKey] = secManualState[dateKey] || {}; if(type === 'hinicio') secManualState[dateKey].hinicioManual = false; if(type === 'htermino') secManualState[dateKey].hterminoManual = false; triggerUpdate(); }
+function resetSecTime(dateKey, type) { if(vueloCerrado) return; secManualState[dateKey] = secManualState[dateKey] || {}; if(type === 'hinicio') secManualState[dateKey].hinicioManual = false; if(type === 'htermino') secManualState[dateKey].hterminoManual = false; triggerUpdate(); }
 
 function updateAll() {
 let gDate = val('m_fecha_gen');
 let legDetails = [];
 
-// 1. Lectura Base y Cálculos de Tiempo/Horómetro por Tramo
 legIds.forEach((id, i) => {
     if (el(`m_t${id}_fecha`)?.dataset.linked === "true") setVal(`m_t${id}_fecha`, gDate);
     if (i > 0 && el(`m_t${id}_desde`)?.dataset.linked === "true") setVal(`m_t${id}_desde`, val(`m_t${legIds[i-1]}_dest`));
@@ -860,7 +1175,6 @@ legIds.forEach((id, i) => {
     legDetails.push({ id, date: tDate, desde, dest, tOut, tIn, tOff, tOn, bDiff, aDiff, fDiff: diffF||0, fuelOn: valOn, fuelOff: valOff, pax: lPax, pf: pfRaw, pm: pmRaw, pfArr, pmArr, pfCount: pfArr.length||1, pmCount: pmArr.length||1, horoBot: hBot.value, horoTop: hTop.value });
 });
 
-// 2. Cálculo Automático de REFUEL y Consumo Global
 let globalRefuel = 0; let totalFuelUsed = 0;
 legIds.forEach((id, i) => {
     let fOff = legDetails[i].fuelOff;
@@ -883,7 +1197,6 @@ legIds.forEach((id, i) => {
     totalFuelUsed += legDetails[i].fDiff;
 });
 
-// 3. Agrupación por Fecha y Cálculo Estricto de Duty Diario
 let legsByDate = {};
 legDetails.forEach(l => { if(!legsByDate[l.date]) legsByDate[l.date] = []; legsByDate[l.date].push(l); });
 
@@ -910,7 +1223,6 @@ sortedDates.forEach((date, i) => {
     dailyStats[date] = { start: dStart, end: dEnd, duration: dur };
 });
 
-// 4. Creación de Folios (Máx 4 tramos)
 let folioGroups = [];
 let currentFolio = null;
 legDetails.forEach((leg) => {
@@ -929,7 +1241,6 @@ legDetails.forEach((leg) => {
 let picIni = val('m_pic_ini').trim().toUpperCase(), sicIni = val('m_sic_ini').trim().toUpperCase(), sic2Ini = val('m_sic2_ini').trim().toUpperCase();
 let hasSic2 = sic2Ini !== '';
 
-// 5. Estadísticas de Consolidado separados por Fecha y Folio
 let pilotStats = {}; const initPilot = () => ({ pf_time: 0, pf_air: 0, pm_time: 0, pm_air: 0 });
 
 folioGroups.forEach(group => {
@@ -961,7 +1272,6 @@ folioGroups.forEach(group => {
             };
             procesarPilotoFolio(picIni, p1); procesarPilotoFolio(sicIni, p2); procesarPilotoFolio(sic2Ini, p3);
 
-            // Poblar global de pilotos para el resumen general
             leg.pfArr.forEach(p => { if (!pilotStats[p]) pilotStats[p] = initPilot(); pilotStats[p].pf_time += (leg.bDiff / leg.pfCount); pilotStats[p].pf_air += (leg.aDiff / leg.pfCount); });
             leg.pmArr.forEach(p => { if (!pilotStats[p]) pilotStats[p] = initPilot(); pilotStats[p].pm_time += (leg.bDiff / leg.pmCount); pilotStats[p].pm_air += (leg.aDiff / leg.pmCount); });
         });
@@ -976,7 +1286,6 @@ folioGroups.forEach(group => {
     });
 });
 
-// 6. Construcción HTML UI para App (Consolidado)
 let pfCols = hasSic2 ? 3 : 2;
 let folioTableHtml = `<table style="width:100%; min-width: 1000px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;">
 <thead>
@@ -1048,7 +1357,6 @@ folioTableHtml += `<tr style="background:rgba(255,255,255,0.08); font-weight:bol
 </tr></tbody></table>`;
 if(el('ui_resumen_diario')) el('ui_resumen_diario').innerHTML = folioTableHtml;
 
-// 6.5 Construcción HTML UI para Bitácora Transpuesta
 let bitacoraHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;">
 <thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th style="padding:6px; text-align:left; color:var(--text-muted); border-right:1px solid var(--border-color);">PARÁMETRO</th>`;
 legDetails.forEach((_, i) => { bitacoraHtml += `<th style="padding:6px; color:var(--accent); border-right:1px solid var(--border-color);">TRAMO ${i+1}</th>`; });
@@ -1100,6 +1408,8 @@ el('sum_pilots_container').innerHTML = Object.entries(pilotStats).filter(([_, d]
 }).join('') || "<span style='color:var(--text-muted); font-size:0.8rem;'>Sin horas registradas</span>";
 
 syncPrintData(folioGroups, dailyStats, gDuty, gAir, gBlock, gFuelUsed, globalRefuel, gPax, hasSic2, picIni, sicIni, sic2Ini); 
+
+aplicarEstadoCierre();
 autoSave(); 
 }
 
@@ -1151,6 +1461,7 @@ pSecHtml += `</table>
 </td>
 <td style="width:20%; vertical-align:top; color:#000000!important;">
 <div class="text-center" style="font-weight:bold; color:#000000!important;">FIRMA</div>
+<div id="sec_p_firma_placeholder_${dateKey}" style="min-height:30px; margin-top:5px; text-align:center;"></div>
 </td>
 </tr>
 </table></div>`;
@@ -1171,7 +1482,6 @@ let absIndex = 1;
 folioGroups.forEach(group => {
     let fDate = group.dates.map(formatDatePdf).join(' - ');
     let pageHtml = `<div class="pdf-page print-op-page" id="print_folio_${group.folioNum}">`;
-    // CABECERA DE LA HOJA
     pageHtml += `<table class="print-table" style="border-bottom: none;">
       <tr>
         <td colspan="2" class="no-border-x" style="width: 30%;"><div class="logo-text">AEROCARDAL</div></td>
@@ -1192,7 +1502,6 @@ folioGroups.forEach(group => {
     pageHtml += `</div>`;
     absIndex += group.legs.length;
 
-    // TABLA CONSOLIDADO EXACTO POR HOJA
     let summaryHtml = `<table class="print-table" style="margin-top:0; border-top:none; text-transform:uppercase; table-layout: fixed; width: 100%;">
         <tr><td colspan="${13 + (hasSic2 ? 1 : 0)}" class="summary-title-pdf"><b>CONSOLIDADO HOJA ${group.folioNum}</b></td></tr>
         <tr class="gray-bg compact-th">
@@ -1237,12 +1546,10 @@ folioGroups.forEach(group => {
     });
 
     let isSingleDaySingleFolio = (folioGroups.length === 1 && folioGroups[0].dateStats.length === 1);
-
     if (group.folioNum === folioGroups.length && folioGroups.length > 0 && !isSingleDaySingleFolio) {
         let p1TotPFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP1PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP1PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP1Dep} L:${totP1Arr}</b></div>` : '--'; 
         let p2TotPFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP2PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP2PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP2Dep} L:${totP2Arr}</b></div>` : '--';
         let p3TotPFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP3PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP3PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP3Dep} L:${totP3Arr}</b></div>` : '--';
-
         let totDStr = gDuty > 0 ? `${minsToTime(gDuty)} (${formatDec(gDuty/60).replace('.', ',')})` : '--:--';
         let totAStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
         let totBStr = gBlock > 0 ? `${minsToTime(gBlock)} (${formatDec(gBlock/60).replace('.', ',')})` : '--:--';
@@ -1259,7 +1566,6 @@ folioGroups.forEach(group => {
     pageHtml += `<div style="margin-top: 10px;">${summaryHtml}</div></div>`; 
     foliosHtml += pageHtml;
 });
-
 el('print-folios-wrapper').innerHTML = foliosHtml;
 
 const stdFields = ['folio','dest','desde','dist','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
@@ -1268,15 +1574,12 @@ const wpfFields = ['wp1','wp2','wp3','wp4','cp1','cp2','cp3','cp4','cr1','cr2','
 
 legIds.forEach(id => {
     stdFields.forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
-    const fUsedVal = val(`m_t${id}_fuel_diff`);
-    setTxtUpper(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
+    const fUsedVal = val(`m_t${id}_fuel_diff`); setTxtUpper(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
     setTxtUpper(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
     const windsVal = val(`m_t${id}_winds`).trim(); if(el(`p_t${id}_winds_wrapper`)) el(`p_t${id}_winds_wrapper`).style.display = windsVal ? "inline-block" : "none";
-    
     const hasPrm = prmFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasFuel = wpfFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasMet = val(`m_t${id}_meteo`).trim() !== "", hasAtc = val(`m_t${id}_atc`).trim() !== "";
     prmFields.concat(wpfFields).forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); 
-    setTxtUpper(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); 
-    setTxtUpper(`p_t${id}_atc`, val(`m_t${id}_atc`));
+    setTxtUpper(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); setTxtUpper(`p_t${id}_atc`, val(`m_t${id}_atc`));
     
     if(el(`p_t${id}_tbl_params`)) el(`p_t${id}_tbl_params`).style.display = hasPrm ? "table" : "none"; if(el(`p_t${id}_tbl_fuel`)) el(`p_t${id}_tbl_fuel`).style.display = hasFuel ? "table" : "none"; if(el(`p_t${id}_tbl_meteo`)) el(`p_t${id}_tbl_meteo`).style.display = hasMet ? "table" : "none"; if(el(`p_t${id}_tbl_atc`)) el(`p_t${id}_tbl_atc`).style.display = hasAtc ? "table" : "none"; if(el(`p_t${id}_params_wrapper`)) el(`p_t${id}_params_wrapper`).style.display = (hasPrm||hasFuel||hasMet||hasAtc) ? "block" : "none";
 
@@ -1295,13 +1598,28 @@ setTxtUpper(`sec_p_vuelo_${dateKey}`, val('m_pov')); setTxtUpper(`sec_p_material
 ['A','B','C','D','E','F','G','H','I','J','K'].forEach(id => { const cb = el(`m_sec_${dateKey}_${id}`); setTxtUpper(`p_sec_${dateKey}_${id}`, cb?.checked ? '✓' : ''); });
 setTxtUpper(`sec_p_nombre_${dateKey}`, capitanActual.nombre || ""); setTxtUpper(`sec_p_rut_${dateKey}`, capitanActual.rut || ""); setTxtUpper(`sec_p_licencia_${dateKey}`, capitanActual.licencia || "");
 });
+
+// ==== INYECCIÓN DE FIRMA DIGITAL EN PDF ====
+const firmaBase64 = val('m_firma_data');
+const smsFirmaPl = el('sms_firma_placeholder');
+if (smsFirmaPl) {
+    smsFirmaPl.innerHTML = firmaBase64 ? `<img src="${firmaBase64}" class="firma-img-print">` : ``;
+}
+activeDatesKeys.forEach(dateKey => {
+    const secFirmaPl = el(`sec_p_firma_placeholder_${dateKey}`);
+    if (secFirmaPl) {
+        secFirmaPl.innerHTML = firmaBase64 ? `<img src="${firmaBase64}" class="firma-img-print">` : ``;
+    }
+});
 }
 
 function getAllData() {
 let data = { globals: {}, legs: legIds.length, legData: {}, secManualState: secManualState };
-let globalFields = ['duty_start', 'duty_end', 'm_fecha_gen', 'm_pov', 'm_material', 'm_matricula', 'm_matricula_suffix', 'm_pic_ini', 'm_sic_ini', 'm_sic2_ini', 'm_sms_obs', 'm_sms_sin_obs'];
+let globalFields = ['duty_start', 'duty_end', 'm_fecha_gen', 'm_pov', 'm_material', 'm_matricula', 'm_matricula_suffix', 'm_pic_ini', 'm_sic_ini', 'm_sic2_ini', 'm_sms_obs', 'm_sms_sin_obs', 'm_firma_data'];
 for(let i=1; i<=47; i++) globalFields.push(`m_sms_${i}`);
 globalFields.forEach(id => { let element = el(id); if (element) { if(element.type === 'checkbox') data.globals[id] = element.checked; else data.globals[id] = element.value; } });
+data.globals.vuelo_cerrado = vueloCerrado;
+
 legIds.forEach(id => { 
     data.legData[id] = {}; 
     let inputs = document.querySelectorAll(`#leg_card_${id} input, #leg_card_${id} select, #leg_card_${id} textarea`); 
@@ -1319,10 +1637,17 @@ return JSON.stringify(data);
 }
 
 function autoSave() { localStorage.setItem('aerocardal_flight_data', getAllData()); }
-function clearAllData() { if(!confirm("⚠️ ¿Estás seguro de LIMPIAR TODOS los datos? Perderás el progreso local.")) return; localStorage.removeItem('aerocardal_flight_data'); window.location.reload(); }
+function clearAllData() { 
+    if(vueloCerrado) { alert("⚠️ El vuelo está cerrado y protegido. Debes reabrirlo con contraseña para poder borrarlo."); return; }
+    if(!confirm("⚠️ ¿Estás seguro de LIMPIAR TODOS los datos? Perderás el progreso local.")) return; 
+    localStorage.removeItem('aerocardal_flight_data'); 
+    window.location.reload(); 
+}
 
 function loadDataIntoApp(data) {
 if (!data) return;
+vueloCerrado = (data.globals.vuelo_cerrado === true || data.globals.vuelo_cerrado === "true");
+
 if (data.globals) { for (let key in data.globals) { let element = el(key); if (element) { if(element.type === 'checkbox') element.checked = (data.globals[key] === true || data.globals[key] === "true"); else setVal(key, data.globals[key]); } } }
 if(data.secManualState) secManualState = data.secManualState;
 el('tramos-container').innerHTML = ''; el('print-folios-wrapper').innerHTML = ''; legIds = []; nextLegId = 1; 
@@ -1338,22 +1663,17 @@ let currentId = legIds[i]; let savedId = savedIds[i]; if(!savedId) continue; let
 for (let inputId in savedLeg) {
 let targetId = inputId.replace(`_t${savedId}_`, `_t${currentId}_`); let element = el(targetId);
 if (element) {
-    if (element.type === 'radio' || element.type === 'checkbox') {
-        element.checked = savedLeg[inputId].checked === true;
-    } else {
-        element.value = savedLeg[inputId].value || "";
-    }
+    if (element.type === 'radio' || element.type === 'checkbox') { element.checked = savedLeg[inputId].checked === true; } 
+    else { element.value = savedLeg[inputId].value || ""; }
     
     if (savedLeg[inputId].linked) { 
         element.dataset.linked = savedLeg[inputId].linked; 
         if(savedLeg[inputId].linked === "false") { 
-            element.readOnly = false; 
-            element.classList.remove('inherited-input'); 
+            element.readOnly = false; element.classList.remove('inherited-input'); 
             let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
             if(btn) { btn.textContent = "🔓"; btn.title = "Restablecer herencia"; } 
         } else { 
-            element.readOnly = true; 
-            element.classList.add('inherited-input'); 
+            element.readOnly = true; element.classList.add('inherited-input'); 
             let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
             if(btn) { btn.textContent = "🔗"; btn.title = "Desvincular"; } 
         } 
@@ -1363,29 +1683,27 @@ if (element) {
 }
 }
 lookupAircraft(); toggleSinObservaciones(); lookupPilots(); 
+cargarFirmaEnCanvas(val('m_firma_data'));
 }
 
 window.onload = () => { 
     buildForms(); 
+    initSignaturePad();
     let saved = localStorage.getItem('aerocardal_flight_data'); 
     if (saved) { 
         if(confirm("Se encontró un vuelo en progreso guardado localmente en este iPad. ¿Deseas recuperarlo?")) { 
             loadDataIntoApp(JSON.parse(saved)); 
         } else { 
             localStorage.removeItem('aerocardal_flight_data'); 
-            addLeg('SCEL'); 
-            toggleSinObservaciones(); 
-            lookupPilots(); 
+            addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); 
         } 
     } else { 
-        addLeg('SCEL'); 
-        toggleSinObservaciones(); 
-        lookupPilots(); 
+        addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); 
     } 
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('✅ Service Worker registrado (Scope:', reg.scope, ')'))
+            .then(reg => console.log('✅ Service Worker registrado'))
             .catch(err => console.error('❌ Error Service Worker:', err));
     }
 };
