@@ -1,3 +1,4 @@
+<index>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -6,7 +7,7 @@
 
 <!-- CONFIGURACIÓN PWA Y OPTIMIZACIÓN iPAD -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#F4F7F9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PlanOp Cardal">
@@ -16,32 +17,84 @@
 <!-- Librerías Externas Requeridas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer onload="initDrive()"></script>
+
+<!-- SCRIPT DE TEMA (Ejecución Temprana para evitar parpadeos) -->
+<script>
+    function initTheme() {
+        const savedTheme = localStorage.getItem('aerocardal_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    initTheme();
+</script>
+
 <style>
 /* =======================================================
-VARIABLES Y ESTILOS TEMA OSCURO (PANTALLA)
+VARIABLES Y ESTILOS MODO DÍA (DEFAULT) Y MODO NOCHE
 ======================================================= */
+/* MODO DÍA (DEFAULT) - Paleta Aeronáutica de Alto Contraste */
 :root {
---bg-main: #111111; --bg-card: #1E1E1E; --bg-input: #0A0A0A;
---border-color: #333333; --border-focus: #777777;
---text-main: #EEEEEE; --text-muted: #888888;
---accent: #FFFFFF; --accent-hover: #CCCCCC;
---warning: #AAAAAA; --danger: #666666; --success: #DDDDDD;
+  --bg-main: #F4F7F9; /* Gris azulado aeronáutico claro */
+  --bg-card: #FFFFFF;
+  --bg-input: #FFFFFF;
+  --border-color: #CBD5E1;
+  --border-focus: #0277BD;
+  --text-main: #0F172A;
+  --text-muted: #546E7A;
+  --accent: #01579B; /* Deep Aviation Blue */
+  --accent-hover: #0277BD;
+  --warning: #D97706; 
+  --danger: #DC2626; /* Rojo aeronáutico */
+  --success: #16A34A; /* Verde */
+  --bg-box: #E2E8F0;
+  --bg-summary: #F1F5F9;
+  --overlay-bg: #F8FAFC;
+  --overlay-border: #CBD5E1;
+  --bg-fab: rgba(255, 255, 255, 0.95);
+  --header-bg: #FFFFFF;
+  --pov-color: #0277BD;
+  --pov-shadow: none;
 }
+
+/* MODO NOCHE (Original) */
+[data-theme="dark"] {
+  --bg-main: #111111;
+  --bg-card: #1E1E1E;
+  --bg-input: #0A0A0A;
+  --border-color: #333333;
+  --border-focus: #777777;
+  --text-main: #EEEEEE;
+  --text-muted: #888888;
+  --accent: #FFFFFF;
+  --accent-hover: #CCCCCC;
+  --warning: #AAAAAA;
+  --danger: #666666;
+  --success: #DDDDDD;
+  --bg-box: rgba(0,0,0,0.3);
+  --bg-summary: rgba(0,0,0,0.2);
+  --overlay-bg: rgba(255,255,255,0.05);
+  --overlay-border: rgba(255,255,255,0.2);
+  --bg-fab: rgba(17, 17, 17, 0.95);
+  --header-bg: #1E1E1E;
+  --pov-color: #4285F4;
+  --pov-shadow: 0 0 5px rgba(66,133,244,0.5);
+}
+
 * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-body { margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-main); -webkit-font-smoothing: antialiased; }
-header { background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 0.8rem 1rem; text-align: center; position: sticky; top: 0; z-index: 10; transition: background-color 0.3s;}
-h1 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; transition: color 0.3s;}
-.subtitle { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; font-weight: bold; }
+body { margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s;}
+header { background-color: var(--header-bg); border-bottom: 1px solid var(--border-color); padding: 0.8rem 1rem; position: sticky; top: 0; z-index: 10; transition: background-color 0.3s;}
+.header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto;}
+h1 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; transition: color 0.3s; text-align: center;}
+.subtitle { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; font-weight: bold; text-align: center; }
 .container { padding: 1rem 1rem 150px 1rem; max-width: 1000px; margin: 0 auto; }
-.card { background: var(--bg-card); margin-bottom: 1.2rem; border-radius: 10px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-.card-header { padding: 0.85rem 1rem; font-size: 1rem; font-weight: 600; background-color: rgba(255,255,255,0.05); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.card { background: var(--bg-card); margin-bottom: 1.2rem; border-radius: 10px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s;}
+[data-theme="dark"] .card { box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.card-header { padding: 0.85rem 1rem; font-size: 1rem; font-weight: 600; background-color: var(--overlay-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
 .card-content { padding: 1rem; }
-details.card summary, details.param-section summary { padding: 0.85rem 1rem; font-size: 1rem; font-weight: 600; background-color: rgba(255,255,255,0.05); cursor: pointer; user-select: none; outline: none; border-bottom: 1px solid transparent; transition: background 0.2s;}
+details.card summary, details.param-section summary { padding: 0.85rem 1rem; font-size: 1rem; font-weight: 600; background-color: var(--overlay-bg); cursor: pointer; user-select: none; outline: none; border-bottom: 1px solid transparent; transition: background 0.2s;}
 details.card summary::-webkit-details-marker, details.param-section summary::-webkit-details-marker { display:none; }
 details.card summary .arrow::after, details.param-section summary .arrow::after { content: "▼"; float: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; margin-left: 8px;}
 details.card[open] summary { border-bottom: 1px solid var(--border-color); }
 details.card[open] summary .arrow::after, details.param-section[open] summary .arrow::after { content: "▲"; }
-details.card summary:hover, details.param-section summary:hover { background-color: rgba(255,255,255,0.1); }
 
 .grid-header { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
@@ -61,14 +114,15 @@ width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 1rem; color:
 border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-input);
 transition: all 0.2s;
 }
-input:disabled, textarea:disabled, select:disabled { background-color: rgba(255,255,255,0.05); color: #666; cursor: not-allowed; border-color: #222; }
-input:focus, select:focus, textarea:focus { border-color: var(--border-focus); outline: none; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2); }
+input:disabled, textarea:disabled, select:disabled { background-color: var(--overlay-bg); color: var(--text-muted); cursor: not-allowed; border-color: var(--border-color); }
+input:focus, select:focus, textarea:focus { border-color: var(--border-focus); outline: none; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+[data-theme="dark"] input:focus, [data-theme="dark"] select:focus, [data-theme="dark"] textarea:focus { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2); }
 textarea { resize: vertical; min-height: 60px; font-family: inherit; }
 .time-input { text-align: center; font-family: monospace; font-size: 1.2rem !important; font-weight: bold; color: var(--accent) !important; letter-spacing: 2px;}
-.inherited-input { background-color: rgba(255, 255, 255, 0.05) !important; color: var(--accent) !important; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.3) !important; cursor: not-allowed; }
+.inherited-input { background-color: var(--overlay-bg) !important; color: var(--accent) !important; font-weight: bold; border: 1px solid var(--overlay-border) !important; cursor: not-allowed; }
 .link-btn { cursor: pointer; font-size: 1rem; user-select: none; transition: transform 0.2s; }
 .link-btn:active { transform: scale(0.9); }
-.time-sequence-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.8rem; margin: 0.5rem 0 1rem 0; }
+.time-sequence-box { background: var(--bg-box); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.8rem; margin: 0.5rem 0 1rem 0; }
 .time-sequence-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 @media (max-width: 550px) { .time-sequence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .time-step { text-align: center; min-width: 0; }
@@ -77,33 +131,33 @@ textarea { resize: vertical; min-height: 60px; font-family: inherit; }
 .btn { border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-danger { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 5px 10px; font-size: 0.75rem;}
-.btn-success { background-color: rgba(255, 255, 255, 0.1); border: 1px solid var(--success); color: var(--success); padding: 4px 8px; font-size: 0.75rem;}
+.btn-success { background-color: transparent; border: 1px solid var(--success); color: var(--success); padding: 4px 8px; font-size: 0.75rem;}
 .btn-outline { background-color: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 16px; font-size: 0.9rem;}
 .summary-box { background: var(--bg-input); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 8px; }
 .summary-title { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; text-transform: uppercase;}
 .summary-value { font-size: 1.6rem; font-weight: bold; font-family: monospace; color: var(--text-main); }
 .summary-sub { font-size: 0.8rem; color: var(--accent); margin-top: 2px;}
 hr.divider { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
-.fab-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 0.8rem; background: rgba(17, 17, 17, 0.95); backdrop-filter: blur(5px); border-top: 1px solid var(--border-color); text-align: center; z-index: 100; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;}
+.fab-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 0.8rem; background: var(--bg-fab); backdrop-filter: blur(5px); border-top: 1px solid var(--border-color); text-align: center; z-index: 100; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;}
 .btn-print { font-weight: bold; border-radius: 6px; border: none; }
 .checkbox-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; line-height: 1.3; }
 .checkbox-item input[type="checkbox"] { flex-shrink: 0; margin-top: 2px; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;}
-.radio-group input[type="radio"] { accent-color: #4285F4; cursor: pointer; width: 16px; height: 16px; margin: 0; }
-.form-category-title { font-size: 0.75rem; font-weight: bold; color: var(--accent); margin: 15px 0 8px 0; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 4px; border-left: 3px solid var(--accent);}
+.radio-group input[type="radio"] { accent-color: var(--accent); cursor: pointer; width: 16px; height: 16px; margin: 0; }
+.form-category-title { font-size: 0.75rem; font-weight: bold; color: var(--accent); margin: 15px 0 8px 0; background: var(--overlay-bg); padding: 6px; border-radius: 4px; border-left: 3px solid var(--accent);}
 .signature-block { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 0.85rem; color: var(--text-muted); }
 
 /* ESTILOS DE FIRMA DIGITAL */
-.signature-pad { border: 2px dashed #444; background-color: #FFFFFF; border-radius: 8px; width: 100%; max-width: 500px; height: 150px; touch-action: none; cursor: crosshair; margin: 0 auto; display: block; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
-.signature-pad-locked { opacity: 0.4; cursor: not-allowed; border: 2px solid #222; }
+.signature-pad { border: 2px dashed var(--border-color); background-color: #FFFFFF; border-radius: 8px; width: 100%; max-width: 500px; height: 150px; touch-action: none; cursor: crosshair; margin: 0 auto; display: block; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+.signature-pad-locked { opacity: 0.5; cursor: not-allowed; border: 2px solid var(--border-color); }
 .firma-img-print { max-height: 25px; max-width: 150px; display: block; margin: 0 auto; object-fit: contain; mix-blend-mode: multiply; }
 
 /* Pantalla de Carga */
-#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; color: var(--accent); backdrop-filter: blur(4px); }
-.spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; color: #FFF; backdrop-filter: blur(4px); }
+.spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #4285F4; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* =======================================================
-ESTILOS DE IMPRESIÓN NATIVA Y PDF
+ESTILOS DE IMPRESIÓN NATIVA Y PDF (SIEMPRE BLANCO Y NEGRO)
 ======================================================= */
 @media print {
   @page { size: letter portrait; margin: 6mm; }
@@ -115,7 +169,6 @@ ESTILOS DE IMPRESIÓN NATIVA Y PDF
 }
 
 #print-layout { display: none; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9px; line-height: 1.35; background: white; color: black; width: 100%; max-width: 800px; margin: 0 auto; }
-/* FORZAR MAYÚSCULAS EN EL PDF */
 #print-layout * { color: #000000 !important; -webkit-text-fill-color: #000000 !important; -webkit-font-smoothing: none !important; text-rendering: geometricPrecision !important; opacity: 1 !important; text-transform: uppercase !important; }
 #print-layout table, #print-layout td, #print-layout th { border-color: black !important; box-sizing: border-box; }
 
@@ -156,17 +209,23 @@ ESTILOS DE IMPRESIÓN NATIVA Y PDF
 <div id="loading-overlay">
 <div id="loading-spinner" class="spinner"></div>
 <div id="loading-text" style="font-weight: bold; font-size: 1.1rem; text-align: center; margin-bottom: 20px;">Procesando...</div>
-<button id="btn-open-pdf" class="btn btn-outline" style="display:none; background-color: var(--success); color: #000; font-weight: bold; padding: 15px 30px; border-radius: 30px; font-size: 1.1rem; border: none; box-shadow: 0 4px 12px rgba(255,255,255,0.2);">
+<button id="btn-open-pdf" class="btn btn-outline" style="display:none; background-color: #16A34A; color: #FFF; font-weight: bold; padding: 15px 30px; border-radius: 30px; font-size: 1.1rem; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
 📂 VER CONSOLIDADO EN DRIVE
 </button>
-<button id="btn-close-overlay" class="btn btn-danger" style="display:none; margin-top: 20px; border: none; text-decoration: underline;" onclick="cerrarOverlay()">
+<button id="btn-close-overlay" class="btn btn-danger" style="display:none; margin-top: 20px; border: none; text-decoration: underline; color: #FFF;" onclick="cerrarOverlay()">
 Volver a la app
 </button>
 </div>
 
 <header>
-<h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 2.2 (FIRMA DIGITAL CERTIFICADA)</div>
+  <div class="header-content">
+    <div style="width: 32px;"></div> <!-- Spacer para centrar el título -->
+    <div>
+      <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
+      <div class="subtitle">VERSIÓN 2.3 (MODO DÍA/NOCHE)</div>
+    </div>
+    <button id="theme-toggle" class="btn" style="background:transparent; font-size:1.5rem; cursor:pointer; padding:0; margin:0; border:none; width:32px; color:var(--text-main);" onclick="toggleTheme()" title="Cambiar Tema Día/Noche">☀️</button>
+  </div>
 </header>
 <main id="mobile-ui" class="container">
 
@@ -176,7 +235,7 @@ Volver a la app
 <div class="card-content">
 <div class="grid-header">
 <div class="form-group"><label style="color:var(--accent);">Fecha Inicial Vuelo</label><input type="date" id="m_fecha_gen" onchange="triggerUpdate()"></div>
-<div class="form-group"><label style="color:#4285F4; text-shadow: 0 0 5px rgba(66,133,244,0.5);">P.O.V. N°</label><input type="text" id="m_pov" oninput="triggerUpdate()" placeholder="Ej: 1234"></div>
+<div class="form-group"><label style="color:var(--pov-color); text-shadow: var(--pov-shadow);">P.O.V. N°</label><input type="text" id="m_pov" oninput="triggerUpdate()" placeholder="Ej: 1234"></div>
 </div>
 <div class="grid-3">
 <div class="form-group">
@@ -251,7 +310,7 @@ Volver a la app
   <div class="summary-title" style="color: var(--accent); margin-bottom: 4px; margin-top: 15px;">📝 RESUMEN PARA BITÁCORA</div>
   <div style="overflow-x: auto; margin-bottom: 15px; border-radius:8px; border:1px solid var(--border-color);" id="ui_resumen_bitacora"></div>
 
-  <details class="param-section" open style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px;">
+  <details class="param-section" open style="background: var(--overlay-bg); border: 1px dashed var(--border-color); border-radius: 8px;">
     <summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;">
        <div style="font-size: 0.8rem; font-weight: bold; flex:1; color:var(--accent);">📊 TOTALES ACUMULADOS Y PILOTOS <span class="arrow"></span></div>
     </summary>
@@ -270,7 +329,7 @@ Volver a la app
 
 <!-- FIRMA DIGITAL -->
 <details class="card" open style="border-color: #4285F4; margin-top: 1.2rem;">
-    <summary><span style="color:#4285F4;">✍️ FIRMA DIGITAL DEL COMANDANTE</span><span class="arrow"></span></summary>
+    <summary><span style="color:#4285F4; font-weight: bold;">✍️ FIRMA DIGITAL DEL COMANDANTE</span><span class="arrow"></span></summary>
     <div class="card-content" style="text-align: center; padding-bottom: 20px;">
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Firma en el recuadro usando tu dedo o Apple Pencil. Esta rúbrica certificará los formularios SMS y de Seguridad Operacional enviados por correo.</div>
         <canvas id="firma-canvas" class="signature-pad" width="600" height="150"></canvas>
@@ -285,11 +344,11 @@ Volver a la app
 
 <div class="fab-container">
 <button class="btn btn-danger" style="padding: 10px 14px;" onclick="clearAllData()">🗑️ Limpiar</button>
-<button id="btn_cerrar_vuelo" class="btn btn-danger" style="padding: 10px 14px;" onclick="toggleCerrarVuelo()">🔒 Cerrar Vuelo</button>
+<button id="btn_cerrar_vuelo" class="btn btn-danger" style="padding: 10px 14px; background:var(--danger); color:white;" onclick="toggleCerrarVuelo()">🔒 Cerrar Vuelo</button>
 <button class="btn btn-outline" style="border-color:var(--warning); color:var(--warning); padding: 10px 14px;" onclick="ensureAuth(accionLeer)">📂 Cargar</button>
 <button class="btn btn-outline" style="border-color:var(--success); color:var(--success); padding: 10px 14px;" onclick="ensureAuth(accionGuardar)">💾 Guardar</button>
 <button class="btn-print" style="background:#4285F4; color:white; padding: 10px 14px;" onclick="ensureAuth(accionGenerarPDF)">☁️ PDF</button>
-<button class="btn-print" style="background:var(--accent); color:black; padding: 10px 14px;" onclick="prepararImpresionNativa()">🖨️ Imprimir</button>
+<button class="btn-print" style="background:var(--text-main); color:var(--bg-main); padding: 10px 14px;" onclick="prepararImpresionNativa()">🖨️ Imprimir</button>
 </div>
 
 <!-- LAYOUT DE IMPRESIÓN (PDF) -->
@@ -301,6 +360,28 @@ Volver a la app
 
 <!-- SCRIPT PRINCIPAL -->
 <script>
+// ==========================================
+// TEMA DÍA / NOCHE
+// ==========================================
+function toggleTheme() {
+    let currentTheme = document.documentElement.getAttribute('data-theme');
+    let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('aerocardal_theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const btn = document.getElementById('theme-toggle');
+    if (btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+}
+
+// Asegurar ícono correcto al cargar
+window.addEventListener('DOMContentLoaded', () => {
+    updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'light');
+});
+
+
 // ==========================================
 // VARIABLES DE ESTADO Y CONFIGURACIÓN
 // ==========================================
@@ -590,7 +671,7 @@ function aplicarEstadoCierre() {
     // Bloquear botones operativos (eliminar, añadir) excluyendo el contenedor flotante
     const actionButtons = uiContainer.querySelectorAll('button:not(.btn-print)');
     actionButtons.forEach(btn => { 
-        if (btn.id !== 'btn_cerrar_vuelo') { btn.disabled = vueloCerrado; } 
+        if (btn.id !== 'btn_cerrar_vuelo' && btn.id !== 'theme-toggle') { btn.disabled = vueloCerrado; } 
     });
 
     // Enlaces de herencia
@@ -610,12 +691,12 @@ function aplicarEstadoCierre() {
     // Header UI
     const header = document.querySelector('header');
     if (header) {
-        header.style.backgroundColor = vueloCerrado ? "#4A0000" : "var(--bg-card)";
+        header.style.backgroundColor = vueloCerrado ? "#7F1D1D" : "var(--header-bg)";
         const title = header.querySelector('h1');
         if(title) {
             if (vueloCerrado) {
                 title.innerText = "🔒 VUELO CERRADO Y DESPACHADO";
-                title.style.color = "#FF4444";
+                title.style.color = "#FECACA";
             } else {
                 title.innerText = "AEROCARDAL - PLANIFICACIÓN OPERACIONAL";
                 title.style.color = "var(--accent)";
@@ -627,7 +708,7 @@ function aplicarEstadoCierre() {
     if (btnCerrar) {
         btnCerrar.innerHTML = vueloCerrado ? "🔓 Reabrir Vuelo" : "🔒 Cerrar Vuelo";
         btnCerrar.style.backgroundColor = vueloCerrado ? "var(--warning)" : "var(--danger)";
-        btnCerrar.style.color = vueloCerrado ? "black" : "white";
+        btnCerrar.style.color = "white";
     }
 }
 
@@ -639,7 +720,7 @@ function initSignaturePad() {
     signatureCanvas = el('firma-canvas');
     if(!signatureCanvas) return;
     sigCtx = signatureCanvas.getContext('2d');
-    sigCtx.strokeStyle = "#000033"; // Tinta azul oscuro profesional
+    sigCtx.strokeStyle = "#0F172A"; // Tinta oscura clásica
     sigCtx.lineWidth = 3;
     sigCtx.lineCap = "round";
     sigCtx.lineJoin = "round";
@@ -990,9 +1071,9 @@ return `<details class="card" id="leg_card_${id}" open>
         🛫 ${ordinals[index] || index + '°'} TRAMO (Leg #${index})
     </span>
     <div style="display:flex; align-items:center; gap:8px;">
-        <div style="display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:6px; border:1px solid var(--border-color);">
+        <div style="display:flex; align-items:center; gap:5px; background:var(--overlay-bg); padding:2px 8px; border-radius:6px; border:1px solid var(--border-color);">
             <label style="font-size:0.6rem; color:var(--text-muted); margin:0;">FECHA:</label>
-            <input type="date" id="m_t${id}_fecha" data-linked="true" readonly class="inherited-input" style="border:none; background:transparent; padding:0; width:105px; color:var(--accent); font-size:0.8rem; box-shadow:none; outline:none;" onchange="triggerUpdate()">
+            <input type="date" id="m_t${id}_fecha" data-linked="true" readonly class="inherited-input" style="border:none !important; background:transparent !important; padding:0; width:105px; color:var(--accent) !important; font-size:0.8rem; box-shadow:none; outline:none;" onchange="triggerUpdate()">
             <span class="link-btn" id="lbtn_fecha_${id}" onclick="toggleLink(${id}, 'fecha')" style="font-size:0.8rem; margin-left:3px;">🔗</span>
         </div>
         ${index > 1 ? `<button class="btn btn-danger" onclick="removeLeg(${id})" style="padding:4px 8px;">Eliminar</button>` : ''}
@@ -1014,13 +1095,13 @@ return `<details class="card" id="leg_card_${id}" open>
 <div class="time-step"><label>3. AIR ON</label><span>Aterrizaje</span><input type="text" class="time-input" placeholder="HH:MM" maxlength="5" inputmode="numeric" id="m_t${id}_time_on" oninput="formatTime(this)" onblur="validateTime(this)"></div>
 <div class="time-step"><label>4. BLOCK IN</label><span>Llegada Calzos</span><input type="text" class="time-input" placeholder="HH:MM" maxlength="5" inputmode="numeric" id="m_t${id}_time_in" oninput="formatTime(this)" onblur="validateTime(this)"></div>
 </div>
-<div style="margin-top:8px; padding:6px; background:rgba(255,255,255,0.05); border-radius:6px; font-size:0.75rem; text-align:center; border: 1px dashed rgba(255,255,255,0.2);"><span style="color:var(--text-muted);">BLOCK TIME:</span> <strong id="ui_t${id}_block_diff" style="color:var(--text-main);">--:--</strong> &nbsp;|&nbsp; <span style="color:var(--text-muted);">AIR TIME:</span> <strong id="ui_t${id}_air_diff" style="color:var(--text-main);">--:--</strong></div>
+<div style="margin-top:8px; padding:6px; background:var(--overlay-bg); border-radius:6px; font-size:0.75rem; text-align:center; border: 1px dashed var(--border-color);"><span style="color:var(--text-muted);">BLOCK TIME:</span> <strong id="ui_t${id}_block_diff" style="color:var(--text-main);">--:--</strong> &nbsp;|&nbsp; <span style="color:var(--text-muted);">AIR TIME:</span> <strong id="ui_t${id}_air_diff" style="color:var(--text-main);">--:--</strong></div>
 </div>
 <div class="grid-2">
 <div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;">HORÓMETRO</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" step="0.1" id="m_t${id}_horo_bot" placeholder="Inicial" oninput="triggerUpdate()"><input type="number" step="0.1" id="m_t${id}_horo_top" placeholder="Final" oninput="this.dataset.manual = (this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div></div>
 <div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;"># PASAJEROS</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" id="m_t${id}_pax" placeholder="PAX" oninput="triggerUpdate()"><input type="text" id="m_t${id}_dist" placeholder="DISTANCIA" oninput="triggerUpdate()"></div></div>
 </div>
-<div style="margin-top:12px; padding:10px; border:1px solid var(--border-color); border-radius:8px; background:rgba(0,0,0,0.2);">
+<div style="margin-top:12px; padding:10px; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-summary);">
 <label style="font-size:0.75rem; color:var(--text-main); font-weight:bold; margin-bottom:8px; display:block;">COMBUSTIBLE</label>
 <div class="grid-3">
 <div><label style="font-size:0.65rem; color:var(--text-muted);">1. FUEL ON (Inicial)</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
@@ -1028,11 +1109,11 @@ return `<details class="card" id="leg_card_${id}" open>
 <div><label style="font-size:0.65rem; color:var(--success);">3. REFUEL (Automático)</label><input type="number" step="0.1" id="m_t${id}_fuel_refuel" placeholder="Auto" oninput="this.dataset.manual='true'; triggerUpdate()" onblur="triggerUpdate()"></div>
 </div>
 </div>
-<details class="param-section" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 15px;"><summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;"><div style="font-size: 0.8rem; font-weight: bold; flex:1;">⚙️ PARÁMETROS DE VUELO Y WAYPOINTS <span class="arrow"></span></div></summary>
+<details class="param-section" style="background: var(--overlay-bg); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 15px;"><summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;"><div style="font-size: 0.8rem; font-weight: bold; flex:1;">⚙️ PARÁMETROS DE VUELO Y WAYPOINTS <span class="arrow"></span></div></summary>
 <div style="padding: 0 12px 12px 12px;">
 <div class="grid-6">${['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'].map(f => `<div class="form-group"><label>${f.toUpperCase()}</label><input type="text" id="m_t${id}_${f}" oninput="triggerUpdate()"></div>`).join('')}</div>
 <div style="font-size: 0.75rem; color: var(--text-main); font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin: 10px 0;">🛢️ COMBUSTIBLE WAYPOINTS</div>
-<div class="grid-4">${[1,2,3,4].map(w => `<div style="background:rgba(0,0,0,0.2); padding:5px; border-radius:4px;"><div class="form-group"><label>WP ${w}</label><input type="text" id="m_t${id}_wp${w}" oninput="triggerUpdate()"></div><div class="form-group"><label>Plan</label><input type="text" id="m_t${id}_cp${w}" oninput="triggerUpdate()"></div><div class="form-group"><label>Real</label><input type="text" id="m_t${id}_cr${w}" oninput="triggerUpdate()"></div></div>`).join('')}</div>
+<div class="grid-4">${[1,2,3,4].map(w => `<div style="background:var(--bg-summary); padding:5px; border-radius:4px;"><div class="form-group"><label>WP ${w}</label><input type="text" id="m_t${id}_wp${w}" oninput="triggerUpdate()"></div><div class="form-group"><label>Plan</label><input type="text" id="m_t${id}_cp${w}" oninput="triggerUpdate()"></div><div class="form-group"><label>Real</label><input type="text" id="m_t${id}_cr${w}" oninput="triggerUpdate()"></div></div>`).join('')}</div>
 <div class="grid-2" style="margin-top:10px;"><div class="form-group"><label>METEOROLOGÍA</label><textarea id="m_t${id}_meteo" oninput="triggerUpdate()"></textarea></div><div class="form-group"><label>AUTORIZACIÓN ATC</label><textarea id="m_t${id}_atc" oninput="triggerUpdate()"></textarea></div></div>
 </div></details>
 <input type="hidden" id="m_t${id}_horo_diff"><input type="hidden" id="m_t${id}_block_diff"><input type="hidden" id="m_t${id}_air_diff"><input type="hidden" id="m_t${id}_fuel_diff">
@@ -1309,7 +1390,7 @@ folioGroups.forEach(group => {
 let pfCols = hasSic2 ? 3 : 2;
 let folioTableHtml = `<table style="width:100%; min-width: 1000px; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;">
 <thead>
-<tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);">
+<tr style="background:var(--overlay-bg); border-bottom:1px solid var(--border-color);">
 <th rowspan="2" style="padding:8px; text-align:left; border-right:1px solid var(--border-color); color:var(--accent);">FECHA / HOJA</th>
 <th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">PAX</th>
 <th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">AIRTIME</th>
@@ -1319,18 +1400,18 @@ let folioTableHtml = `<table style="width:100%; min-width: 1000px; border-collap
 <th rowspan="2" style="padding:8px; border-right:1px solid var(--border-color); color:var(--accent);">BLOCKTIME</th>
 <th colspan="${pfCols}" style="padding:4px; color:var(--text-muted);">PILOT FLYING</th>
 </tr>
-<tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border-color);">
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th>
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">CONSUMO</th>
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th>
+<tr style="background:var(--overlay-bg); opacity:0.9; border-bottom:1px solid var(--border-color);">
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">INICIAL</th>
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">CONSUMO</th>
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">REMANENTE</th>
 <th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">RECARGA</th>
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIAL</th>
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">INICIAL</th>
 <th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">FINAL</th>
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">INICIO</th>
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FIN</th>
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">INICIO</th>
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">FIN</th>
 <th style="padding:4px; border-right:1px solid var(--border-color); font-size:0.65rem; color:var(--text-muted);">TOTAL</th>
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">CAP</th>
-<th style="padding:4px; border-right:1px solid rgba(255,255,255,0.05); font-size:0.65rem; color:var(--text-muted);">FO</th>
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">CAP</th>
+<th style="padding:4px; border-right:1px solid var(--overlay-border); font-size:0.65rem; color:var(--text-muted);">FO</th>
 ${hasSic2 ? `<th style="padding:4px; font-size:0.65rem; color:var(--text-muted);">FO2</th>` : ''}
 </tr></thead><tbody>`;
 
@@ -1340,7 +1421,7 @@ let gAir = 0, gBlock = 0, gFuelUsed = 0, gPax = 0;
 folioGroups.forEach(group => { 
     group.dateStats.forEach(ds => {
         gAir += ds.air; gBlock += ds.block; gFuelUsed += ds.fuelUsed; gPax += ds.paxSum; 
-        let bBottom = 'border-bottom:1px solid rgba(255,255,255,0.05);';
+        let bBottom = 'border-bottom:1px solid var(--overlay-border);';
         let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
         let dStr = ds.dutyDuration > 0 ? `${minsToTime(ds.dutyDuration)}` : '--:--';
         let bStr = ds.block > 0 ? `${minsToTime(ds.block)} (${formatDec(ds.block/60).replace('.', ',')})` : '--:--';
@@ -1353,18 +1434,18 @@ folioGroups.forEach(group => {
         <td style="padding:6px 8px; text-align:left; ${bBottom} border-right:1px solid var(--border-color); font-weight:bold;">HOJA ${group.folioNum}<br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:normal;">${ds.date}</span></td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${ds.paxStr}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--accent); font-weight:bold;">${aStr}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${Math.round(ds.fuelInit)}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--danger);">${Math.round(ds.fuelUsed)}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05); color:var(--accent);">${Math.round(ds.fuelFinal)}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border);">${Math.round(ds.fuelInit)}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border); color:var(--danger);">${Math.round(ds.fuelUsed)}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border); color:var(--accent);">${Math.round(ds.fuelFinal)}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color); color:var(--success);">+${Math.round(ds.refuel)}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${ds.hIni}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border);">${ds.hIni}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${ds.hFin}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${ds.dutyStart || '--:--'}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${ds.dutyEnd || '--:--'}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border);">${ds.dutyStart || '--:--'}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border);">${ds.dutyEnd || '--:--'}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${dStr}</td>
         <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--border-color);">${bStr}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${p1Str}</td>
-        <td style="padding:6px 8px; ${bBottom} border-right:1px solid rgba(255,255,255,0.05);">${p2Str}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border);">${p1Str}</td>
+        <td style="padding:6px 8px; ${bBottom} border-right:1px solid var(--overlay-border);">${p2Str}</td>
         ${hasSic2 ? `<td style="padding:6px 8px; ${bBottom}">${p3Str}</td>` : ''}
         </tr>`; 
     });
@@ -1372,13 +1453,13 @@ folioGroups.forEach(group => {
 
 let gDutyStr = gDuty > 0 ? `${minsToTime(gDuty)}` : '--:--';
 let gAirStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
-folioTableHtml += `<tr style="background:rgba(255,255,255,0.08); font-weight:bold; border-top:2px solid var(--accent);">
+folioTableHtml += `<tr style="background:var(--overlay-bg); font-weight:bold; border-top:2px solid var(--accent);">
 <td style="padding:6px 8px; text-align:left; color:var(--accent);">TOTAL GLOBAL</td><td style="padding:6px 8px; color:var(--accent);">${gPax}</td><td style="padding:6px 8px; color:var(--accent);">${gAirStr}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--danger);">${gFuelUsed}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--success);">+${globalRefuel}</td><td colspan="4"></td><td style="padding:6px 8px; color:var(--accent);">${gDutyStr}</td><td colspan="${2 + pfCols}"></td>
 </tr></tbody></table>`;
 if(el('ui_resumen_diario')) el('ui_resumen_diario').innerHTML = folioTableHtml;
 
 let bitacoraHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.75rem; text-align:center; background:var(--bg-input); border:none; white-space:nowrap;">
-<thead><tr style="background:rgba(255,255,255,0.05); border-bottom:1px solid var(--border-color);"><th style="padding:6px; text-align:left; color:var(--text-muted); border-right:1px solid var(--border-color);">PARÁMETRO</th>`;
+<thead><tr style="background:var(--overlay-bg); border-bottom:1px solid var(--border-color);"><th style="padding:6px; text-align:left; color:var(--text-muted); border-right:1px solid var(--border-color);">PARÁMETRO</th>`;
 legDetails.forEach((_, i) => { bitacoraHtml += `<th style="padding:6px; color:var(--accent); border-right:1px solid var(--border-color);">TRAMO ${i+1}</th>`; });
 bitacoraHtml += `</tr></thead><tbody>`;
 
@@ -1397,7 +1478,7 @@ const bitRows = [
 ];
 
 bitRows.forEach(row => {
-    let bBottom = 'border-bottom:1px solid rgba(255,255,255,0.05);';
+    let bBottom = 'border-bottom:1px solid var(--overlay-border);';
     bitacoraHtml += `<tr><td style="padding:6px; text-align:left; font-weight:bold; color:var(--text-muted); border-right:1px solid var(--border-color); ${bBottom}">${row.label}</td>`;
     legDetails.forEach(l => {
         bitacoraHtml += `<td style="padding:6px; border-right:1px solid var(--border-color); ${bBottom}">${row.key(l)}</td>`;
@@ -1419,7 +1500,7 @@ el('sum_pilots_container').innerHTML = Object.entries(pilotStats).filter(([_, d]
     let pmT = minsToTime(d.pm_time), pmTd = formatDec(d.pm_time/60).replace('.',',');
     let pmA = minsToTime(d.pm_air), pmAd = formatDec(d.pm_air/60).replace('.',',');
 
-    return `<div style="background:rgba(255,255,255,0.05); border:1px solid var(--accent); padding:6px 10px; border-radius:6px; flex:1; min-width:160px; text-align:center;">
+    return `<div style="background:var(--overlay-bg); border:1px solid var(--accent); padding:6px 10px; border-radius:6px; flex:1; min-width:160px; text-align:center;">
     <span style="display:block; font-size:0.75rem; font-weight:bold; color:var(--text-main); border-bottom:1px solid var(--border-color); padding-bottom:3px; margin-bottom:4px;">${p}</span>
     <div style="display:flex; justify-content:space-between; font-size:0.65rem;">
     <span style="color:var(--text-muted); text-align:left;">PF: ${pfT} (${pfTd})<br><span style="color:var(--accent); font-size:0.6rem;">(Air: ${pfA} (${pfAd}))</span></span>
@@ -1445,7 +1526,7 @@ let autoOrigen = dayLegs.length > 0 ? dayLegs[0].desde : ''; let autoDestino = d
 let currentHInicio = st.hinicioManual && st.customHInicio !== undefined ? st.customHInicio : autoHInicio; let currentHTermino = st.hterminoManual && st.customHTermino !== undefined ? st.customHTermino : autoHTermino;
 let defaultEst = (autoOrigen.trim().toUpperCase() === 'SCEL') ? 'AEROCARDAL' : ''; let currentEst = st.estacionamiento !== undefined ? st.estacionamiento : defaultEst;
 let currentAlerta = st.alerta !== undefined ? st.alerta : '';
-webHtml += `<details class="card" style="border-color: var(--accent);"><summary style="display:flex; justify-content:space-between; align-items:center;"><span style="flex:1;">🔎 INSPECCIÓN DE SEGURIDAD (${dateKey})</span><div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();"><label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sec_sin_obs_${dateKey}" ${st.sinObs ? 'checked' : ''} onchange="toggleSecSinObs('${dateKey}')"> <span>Sin obs</span></label><span class="arrow"></span></div></summary><div class="card-content"><div style="margin-bottom: 12px; padding:10px; background:rgba(255,255,255,0.03); border-radius:6px;"><div class="grid-3"><div class="form-group"><label>Origen</label><input type="text" id="m_sec_origen_${dateKey}" value="${autoOrigen}" oninput="triggerUpdate()"></div><div class="form-group"><label>Destino</label><input type="text" id="m_sec_destino_${dateKey}" value="${autoDestino}" oninput="triggerUpdate()"></div><div class="form-group"><label>Estacionamiento</label><input type="text" id="m_sec_est_${dateKey}" value="${currentEst}" oninput="secManualState['${dateKey}'].estacionamiento=this.value; triggerUpdate()"></div></div><div class="grid-3" style="margin-top:5px;"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Inicio (Out)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'hinicio')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_hinicio_${dateKey}" value="${currentHInicio}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hinicioManual=true; secManualState['${dateKey}'].customHInicio=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Término (In)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'htermino')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_htermino_${dateKey}" value="${currentHTermino}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hterminoManual=true; secManualState['${dateKey}'].customHTermino=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label>Alerta</label><input type="text" id="m_sec_alerta_${dateKey}" value="${currentAlerta}" oninput="secManualState['${dateKey}'].alerta=this.value; triggerUpdate()"></div></div></div><div id="sec_form_container_${dateKey}">`;
+webHtml += `<details class="card" style="border-color: var(--accent);"><summary style="display:flex; justify-content:space-between; align-items:center;"><span style="flex:1;">🔎 INSPECCIÓN DE SEGURIDAD (${dateKey})</span><div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();"><label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sec_sin_obs_${dateKey}" ${st.sinObs ? 'checked' : ''} onchange="toggleSecSinObs('${dateKey}')"> <span>Sin obs</span></label><span class="arrow"></span></div></summary><div class="card-content"><div style="margin-bottom: 12px; padding:10px; background:var(--overlay-bg); border-radius:6px;"><div class="grid-3"><div class="form-group"><label>Origen</label><input type="text" id="m_sec_origen_${dateKey}" value="${autoOrigen}" oninput="triggerUpdate()"></div><div class="form-group"><label>Destino</label><input type="text" id="m_sec_destino_${dateKey}" value="${autoDestino}" oninput="triggerUpdate()"></div><div class="form-group"><label>Estacionamiento</label><input type="text" id="m_sec_est_${dateKey}" value="${currentEst}" oninput="secManualState['${dateKey}'].estacionamiento=this.value; triggerUpdate()"></div></div><div class="grid-3" style="margin-top:5px;"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Inicio (Out)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'hinicio')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_hinicio_${dateKey}" value="${currentHInicio}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hinicioManual=true; secManualState['${dateKey}'].customHInicio=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Término (In)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'htermino')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_htermino_${dateKey}" value="${currentHTermino}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hterminoManual=true; secManualState['${dateKey}'].customHTermino=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label>Alerta</label><input type="text" id="m_sec_alerta_${dateKey}" value="${currentAlerta}" oninput="secManualState['${dateKey}'].alerta=this.value; triggerUpdate()"></div></div></div><div id="sec_form_container_${dateKey}">`;
 secData.forEach(item => { let isChecked = st[item.id] !== undefined ? st[item.id] : st.sinObs; webHtml += `<label class="checkbox-item"><input type="checkbox" id="m_sec_${dateKey}_${item.id}" ${isChecked ? 'checked' : ''} ${st.sinObs ? 'disabled' : ''} onchange="handleSecCheckboxChange('${dateKey}', '${item.id}')"> <span><b>${item.id}.</b> ${item.text}</span></label>`; });
 webHtml += `</div><div class="signature-block"><div>III. COMANDANTE DE LA AERONAVE:</div><div class="grid-3" style="margin-top:8px;"><div>Nombre: <strong id="sec_ui_nombre_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>RUT: <strong id="sec_ui_rut_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>Licencia: <strong id="sec_ui_licencia_${dateKey}" style="color:var(--accent);">______________________</strong></div></div></div></div></details>`;
 
