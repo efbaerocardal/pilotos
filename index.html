@@ -95,7 +95,7 @@ hr.divider { border: 0; border-top: 1px solid var(--border-color); margin: 12px 
 /* ESTILOS DE FIRMA DIGITAL */
 .signature-pad { border: 2px dashed #444; background-color: #FFFFFF; border-radius: 8px; width: 100%; max-width: 500px; height: 150px; touch-action: none; cursor: crosshair; margin: 0 auto; display: block; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
 .signature-pad-locked { opacity: 0.4; cursor: not-allowed; border: 2px solid #222; }
-.firma-img-print { max-height: 45px; max-width: 180px; display: block; margin: 0 auto; object-fit: contain; mix-blend-mode: multiply; }
+.firma-img-print { max-height: 25px; max-width: 150px; display: block; margin: 0 auto; object-fit: contain; mix-blend-mode: multiply; }
 
 /* Pantalla de Carga */
 #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; color: var(--accent); backdrop-filter: blur(4px); }
@@ -157,7 +157,7 @@ ESTILOS DE IMPRESIÓN NATIVA Y PDF
 <div id="loading-spinner" class="spinner"></div>
 <div id="loading-text" style="font-weight: bold; font-size: 1.1rem; text-align: center; margin-bottom: 20px;">Procesando...</div>
 <button id="btn-open-pdf" class="btn btn-outline" style="display:none; background-color: var(--success); color: #000; font-weight: bold; padding: 15px 30px; border-radius: 30px; font-size: 1.1rem; border: none; box-shadow: 0 4px 12px rgba(255,255,255,0.2);">
-📂 VER PDF EN DRIVE
+📂 VER CONSOLIDADO EN DRIVE
 </button>
 <button id="btn-close-overlay" class="btn btn-danger" style="display:none; margin-top: 20px; border: none; text-decoration: underline;" onclick="cerrarOverlay()">
 Volver a la app
@@ -166,7 +166,7 @@ Volver a la app
 
 <header>
 <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-<div class="subtitle">VERSIÓN 2.1 (FIRMA DIGITAL CERTIFICADA)</div>
+<div class="subtitle">VERSIÓN 2.2 (FIRMA DIGITAL CERTIFICADA)</div>
 </header>
 <main id="mobile-ui" class="container">
 
@@ -273,7 +273,7 @@ Volver a la app
     <summary><span style="color:#4285F4;">✍️ FIRMA DIGITAL DEL COMANDANTE</span><span class="arrow"></span></summary>
     <div class="card-content" style="text-align: center; padding-bottom: 20px;">
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Firma en el recuadro usando tu dedo o Apple Pencil. Esta rúbrica certificará los formularios SMS y de Seguridad Operacional enviados por correo.</div>
-        <canvas id="firma-canvas" class="signature-pad" width="600" height="200"></canvas>
+        <canvas id="firma-canvas" class="signature-pad" width="600" height="150"></canvas>
         <div style="margin-top: 12px; display: flex; justify-content: center; gap: 10px;">
             <button id="btn_limpiar_firma" class="btn btn-outline" style="padding: 6px 20px; font-size: 0.8rem; border-color: var(--text-muted); color: var(--text-main);" onclick="limpiarFirma()">🧹 Borrar Firma</button>
         </div>
@@ -305,6 +305,7 @@ Volver a la app
 // VARIABLES DE ESTADO Y CONFIGURACIÓN
 // ==========================================
 let vueloCerrado = false;
+let haSidoGuardado = false;
 const PASSWORD_REAPERTURA = "aerocardal"; 
 
 const GOOGLE_CLIENT_ID = '564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com'; 
@@ -370,7 +371,7 @@ async function fetchWithAuth(url, options = {}) {
     let res = await fetch(url, options);
     if (res.status === 401 || res.status === 403) {
         if(res.status === 403 && url.includes('gmail')) {
-            alert("❌ ERROR 403: La API de Gmail no está habilitada en tu Google Cloud Console. Por favor ingresa a tu proyecto, busca 'Gmail API' y presiona Habilitar.");
+            alert("❌ ERROR 403: La API de Gmail no está habilitada. Verifica tu Google Cloud Console.");
         } else if (res.status === 401) {
             accessToken = null;
             localStorage.removeItem('gdrive_token');
@@ -488,11 +489,20 @@ async function sendGmailEmail(to, subject, body, pdfBlob, filename) {
 // ==========================================
 function toggleCerrarVuelo() {
     if (!vueloCerrado) {
+        if (!val('m_pic_ini')) {
+            alert("⚠️ ACCIÓN DENEGADA: Debes ingresar las iniciales del Capitán en la cabecera antes de poder cerrar el vuelo.");
+            return;
+        }
+        if (!haSidoGuardado) {
+            alert("⚠️ ACCIÓN DENEGADA: Debes GUARDAR el progreso en la nube (botón 💾 Guardar) antes de poder cerrar y despachar este vuelo.");
+            return;
+        }
         if (!val('m_firma_data')) {
-            if(!confirm("⚠️ Aún no has firmado el documento. ¿Deseas cerrarlo y enviarlo sin firma digital?")) return;
+            alert("⚠️ ACCIÓN DENEGADA: El formulario requiere la firma digital del Capitán al final de la página para ser despachado.");
+            return;
         }
 
-        if(confirm("🔒 ¿Estás seguro de CERRAR este vuelo?\n\nAl confirmar:\n1. Se bloqueará la edición y firma.\n2. Se respaldarán los datos en Drive.\n3. SE ENVIARÁN AUTOMÁTICAMENTE por correo las hojas de planificación, SMS y Seguridad a los responsables respectivos.")) {
+        if(confirm("🔒 ¿Estás seguro de CERRAR este vuelo?\n\nAl confirmar:\n1. Se bloqueará la edición y rúbrica.\n2. Se enviarán los formularios correspondientes a cada departamento automáticamente.\n3. Se respaldará el consolidado maestro en Google Drive.")) {
             ensureAuth(async () => {
                 vueloCerrado = true;
                 aplicarEstadoCierre();
@@ -504,9 +514,10 @@ function toggleCerrarVuelo() {
         let pwd = prompt("🔓 Ingresa la contraseña para reabrir el vuelo:");
         if (pwd === PASSWORD_REAPERTURA) {
             vueloCerrado = false;
+            haSidoGuardado = false; 
             aplicarEstadoCierre();
             autoSave();
-            alert("✅ Vuelo reabierto exitosamente. Ahora puedes editar los campos.");
+            alert("✅ Vuelo reabierto exitosamente. Recuerda que deberás guardarlo nuevamente antes de cerrarlo.");
         } else if (pwd !== null && pwd !== "") {
             alert("❌ Contraseña incorrecta.");
         }
@@ -517,10 +528,17 @@ async function despacharVueloCerrado() {
     try {
         let pov = val('m_pov') || "SIN_POV";
         let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
-        let filename = `POV_${pov}_${dateStr}.pdf`;
 
-        mostrarCargando("Ensamblando PDF maestro (puede tardar unos segundos)...");
-        let pdfBlob = await generarBlobPDF(true);
+        mostrarCargando("Ensamblando PDFs segmentados...");
+        prepareUiForPdf();
+        await new Promise(r => setTimeout(r, 800)); // Espera estabilización de UI
+
+        let pdfMaster = await generarPdfSilencioso('.pdf-page');
+        let pdfPlan = await generarPdfSilencioso('#print-folios-wrapper .pdf-page');
+        let pdfSms = await generarPdfSilencioso('#print-sms-wrapper .pdf-page');
+        let pdfSec = await generarPdfSilencioso('#print-sec-forms-wrapper .pdf-page');
+
+        restoreUiAfterPdf();
 
         mostrarCargando("Guardando respaldos en Google Drive...");
         let folderId = await getOrCreateFolder(pov);
@@ -528,8 +546,9 @@ async function despacharVueloCerrado() {
         let backupFile = await findFileInFolder('Progreso.json', folderId);
         await uploadFileRaw(dataBlob, 'Progreso.json', folderId, backupFile ? backupFile.id : null);
         
-        let existingPdf = await findFileInFolder(filename, folderId);
-        let uploadRes = await uploadFileRaw(pdfBlob, filename, folderId, existingPdf ? existingPdf.id : null);
+        let filenameMaster = `POV_${pov}_${dateStr}_COMPLETO.pdf`;
+        let existingPdf = await findFileInFolder(filenameMaster, folderId);
+        let uploadRes = await uploadFileRaw(pdfMaster, filenameMaster, folderId, existingPdf ? existingPdf.id : null);
         let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`);
         let driveData = await finalRes.json();
         let driveLink = driveData.webViewLink;
@@ -538,32 +557,25 @@ async function despacharVueloCerrado() {
         let secSinObs = true;
         Object.values(secManualState).forEach(st => { if (st.sinObs === false) secSinObs = false; });
 
-        let subjPlan = `POV_${pov} - PLANIFICACIÓN OPERACIONAL`;
-        let subjSms = smsSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SMS CON OBSERVACIONES)`;
-        let subjSec = secSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SEGURIDAD CON OBSERVACIONES)`;
+        let bodyText = `Link respaldo consolidado Drive: ${driveLink}`;
 
-        let bodyText = `Se adjunta documento PDF consolidado con los registros del vuelo y firmas electrónicas integradas.\nLink respaldo Drive: ${driveLink}`;
-
-        mostrarCargando("Enviando correo a Operaciones...");
-        await sendGmailEmail('jose.oyarzun@aerocardal.com', subjPlan, bodyText, pdfBlob, filename);
+        mostrarCargando("Enviando correo Operaciones...");
+        if(pdfPlan) await sendGmailEmail('jose.oyarzun@aerocardal.com', `POV_${pov} - PLANIFICACIÓN OPERACIONAL`, bodyText, pdfPlan, `POV_${pov}_PLAN.pdf`);
 
         mostrarCargando("Enviando correo SMS...");
-        await sendGmailEmail('516jom@gmail.com', subjSms, bodyText, pdfBlob, filename);
+        let subjSms = smsSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SMS CON OBSERVACIONES)`;
+        if(pdfSms) await sendGmailEmail('516jom@gmail.com', subjSms, bodyText, pdfSms, `POV_${pov}_SMS.pdf`);
 
-        mostrarCargando("Enviando correo a Seguridad...");
-        await sendGmailEmail('academics.viper@gmail.com', subjSec, bodyText, pdfBlob, filename);
+        mostrarCargando("Enviando correo Seguridad...");
+        let subjSec = secSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SEGURIDAD CON OBSERVACIONES)`;
+        if(pdfSec) await sendGmailEmail('academics.viper@gmail.com', subjSec, bodyText, pdfSec, `POV_${pov}_SEG.pdf`);
 
         mostrarModalPDF(driveLink);
 
     } catch(e) {
         console.error(e);
-        alert("❌ Ocurrió un error en el despacho automatizado:\n\n" + e.message + "\n\nLos datos han sido protegidos de todos modos.");
+        alert("❌ Ocurrió un error en el despacho automatizado:\n\n" + e.message + "\n\nLos datos han sido protegidos de todos modos en el dispositivo.");
         ocultarCargando();
-    } finally {
-        vpMeta.setAttribute('content', originalVp); 
-        el('print-layout').style.display = 'none'; el('print-layout').style.width = '';
-        el('mobile-ui').style.display = ''; document.querySelector('header').style.display = ''; document.querySelector('.fab-container').style.display = 'flex'; 
-        window.scrollTo(0, 0);
     }
 }
 
@@ -575,9 +587,11 @@ function aplicarEstadoCierre() {
     const elementsToDisable = uiContainer.querySelectorAll('input:not([type="hidden"]), textarea, select');
     elementsToDisable.forEach(element => { element.disabled = vueloCerrado; });
 
-    // Bloquear botones operativos (eliminar, añadir)
+    // Bloquear botones operativos (eliminar, añadir) excluyendo el contenedor flotante
     const actionButtons = uiContainer.querySelectorAll('button:not(.btn-print)');
-    actionButtons.forEach(btn => { if (btn.id !== 'btn_cerrar_vuelo') { btn.disabled = vueloCerrado; } });
+    actionButtons.forEach(btn => { 
+        if (btn.id !== 'btn_cerrar_vuelo') { btn.disabled = vueloCerrado; } 
+    });
 
     // Enlaces de herencia
     const linkBtns = uiContainer.querySelectorAll('.link-btn');
@@ -701,6 +715,8 @@ async function accionGuardar() {
     try { 
         let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); 
         let dataBlob = new Blob([getAllData()], { type: "application/json" }); await uploadFileRaw(dataBlob, 'Progreso.json', folderId, file ? file.id : null); 
+        haSidoGuardado = true; // Marcar como guardado en la nube
+        autoSave();
         alert("✅ Progreso guardado exitosamente en la carpeta de Drive."); 
     } catch(e) { 
         if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad. Presiona de nuevo para reactivar.");
@@ -714,7 +730,10 @@ async function accionLeer() {
         let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); 
         if (!file) { alert("⚠️ No se encontró ningún progreso guardado para este POV."); ocultarCargando(); return; } 
         let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media`); let content = await res.json(); 
-        loadDataIntoApp(content); alert("✅ Progreso recuperado."); 
+        loadDataIntoApp(content); 
+        haSidoGuardado = true; // Recuperado desde la nube, se considera guardado
+        autoSave();
+        alert("✅ Progreso recuperado exitosamente."); 
     } catch(e) { 
         if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión de Google ha caducado por seguridad. Presiona de nuevo para reactivar.");
         else alert("❌ Error: " + e.message); 
@@ -723,44 +742,28 @@ async function accionLeer() {
 
 function prepararImpresionNativa() { updateAll(); setTimeout(() => { window.print(); }, 300); }
 
-async function accionGenerarPDF() {
-    mostrarCargando("Ensamblando PDF por páginas...");
-    setTimeout(async () => {
-    try {
-        let pov = val('m_pov'); let pdfBlob = await generarBlobPDF();
-        mostrarCargando("Subiendo a Google Drive...");
-        let folderId = await getOrCreateFolder(pov);
-        let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
-        let filename = `Planificacion_POV_${pov}_${dateStr}.pdf`;
-        let existingFile = await findFileInFolder(filename, folderId);
-        let uploadRes = await uploadFileRaw(pdfBlob, filename, folderId, existingFile ? existingFile.id : null);
-        let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`);
-        let finalData = await finalRes.json();
-        mostrarModalPDF(finalData.webViewLink);
-    } catch(e) { 
-        if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión ha caducado por seguridad. Presiona de nuevo para reactivar.");
-        else alert("❌ Error al procesar PDF en Drive: " + e.message); 
-        ocultarCargando(); 
-    }
-    }, 300);
-}
-
-let originalVp = "";
-async function generarBlobPDF(mantenerOculto = false) {
+let originalVp = "", originalScroll = 0;
+function prepareUiForPdf() {
     updateAll();
     const mainUi = el('mobile-ui'); const header = document.querySelector('header'); const fab = document.querySelector('.fab-container'); const vpMeta = el('viewport-meta');
     const printLayout = el('print-layout');
-    const originalScroll = window.scrollY; originalVp = vpMeta.getAttribute('content');
-
+    originalScroll = window.scrollY; originalVp = vpMeta.getAttribute('content');
     if(mainUi) mainUi.style.display = 'none'; if(header) header.style.display = 'none'; if(fab) fab.style.display = 'none';
     vpMeta.setAttribute('content', 'width=800, initial-scale=1.0');
     printLayout.style.display = 'block'; printLayout.style.width = '800px'; 
     window.scrollTo(0, 0);
+}
 
-    await new Promise(resolve => setTimeout(resolve, 800));
+function restoreUiAfterPdf() {
+    const mainUi = el('mobile-ui'); const header = document.querySelector('header'); const fab = document.querySelector('.fab-container'); const vpMeta = el('viewport-meta');
+    const printLayout = el('print-layout');
+    vpMeta.setAttribute('content', originalVp); printLayout.style.display = 'none'; printLayout.style.width = '';
+    if(mainUi) mainUi.style.display = ''; if(header) header.style.display = ''; if(fab) fab.style.display = 'flex'; window.scrollTo(0, originalScroll);
+}
 
-    const pages = document.querySelectorAll('.pdf-page');
-
+async function generarPdfSilencioso(selector) {
+    const pages = document.querySelectorAll(selector);
+    if(pages.length === 0) return null;
     const opt = {
         margin: [5, 5, 5, 5],
         filename: 'temp.pdf',
@@ -769,23 +772,38 @@ async function generarBlobPDF(mantenerOculto = false) {
         html2canvas: { scale: 3, useCORS: true, logging: false, width: 800, windowWidth: 800, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
     };
-
-    try {
-        if (pages.length === 0) throw new Error("No se detectaron páginas para renderizar.");
-
-        let worker = html2pdf().set(opt).from(pages[0]).toPdf();
-        for (let i = 1; i < pages.length; i++) {
-            worker = worker.get('pdf').then(pdf => { pdf.addPage(); }).from(pages[i]).toContainer().toCanvas().toPdf();
-        }
-        return await worker.output('blob');
-
-    } finally {
-        if(!mantenerOculto) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            vpMeta.setAttribute('content', originalVp); printLayout.style.display = 'none'; printLayout.style.width = '';
-            if(mainUi) mainUi.style.display = ''; if(header) header.style.display = ''; if(fab) fab.style.display = 'flex'; window.scrollTo(0, originalScroll);
-        }
+    let worker = html2pdf().set(opt).from(pages[0]).toPdf();
+    for (let i = 1; i < pages.length; i++) {
+        worker = worker.get('pdf').then(pdf => { pdf.addPage(); }).from(pages[i]).toContainer().toCanvas().toPdf();
     }
+    return await worker.output('blob');
+}
+
+async function accionGenerarPDF() {
+    mostrarCargando("Ensamblando PDF consolidado...");
+    setTimeout(async () => {
+        try {
+            let pov = val('m_pov'); 
+            prepareUiForPdf();
+            await new Promise(r => setTimeout(r, 800));
+            let pdfMaster = await generarPdfSilencioso('.pdf-page');
+            restoreUiAfterPdf();
+
+            mostrarCargando("Subiendo a Google Drive...");
+            let folderId = await getOrCreateFolder(pov);
+            let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
+            let filename = `Planificacion_POV_${pov}_${dateStr}.pdf`;
+            let existingFile = await findFileInFolder(filename, folderId);
+            let uploadRes = await uploadFileRaw(pdfMaster, filename, folderId, existingFile ? existingFile.id : null);
+            let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`);
+            let finalData = await finalRes.json();
+            mostrarModalPDF(finalData.webViewLink);
+        } catch(e) { 
+            if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión ha caducado por seguridad. Presiona de nuevo para reactivar.");
+            else alert("❌ Error al procesar PDF en Drive: " + e.message); 
+            ocultarCargando(); 
+        }
+    }, 300);
 }
 
 const el = id => document.getElementById(id);
@@ -929,11 +947,13 @@ pSmsHtml += `</table>
 <div style="padding-top:2px; color:#000000!important; text-align: center;">
 <b style="color:#000000!important; font-size:10px; ">Firma Comandante de Aeronave:</b><br>
 <div style="border-bottom:1px solid black; display:inline-block; width:220px; padding-bottom: 2px; text-align:center; margin-top:5px;">
-    <div id="sms_firma_placeholder" style="min-height: 25px;"></div>
+    <div id="sms_firma_placeholder" style="height: 25px;"></div>
     <span id="sms_p_nombre" style="color:#000000!important; font-weight:bold; font-size:10px; display:block;"></span>
 </div>
 </div>
-</td></tr></table></div>`;
+</td></tr></table>
+<div style="height: 15px;"></div>
+</div>`;
 el('print-sms-wrapper').innerHTML = pSmsHtml;
 }
 
@@ -1446,7 +1466,7 @@ secData.forEach(item => { let splitIdx = item.text.indexOf(':'); let title = spl
 pSecHtml += `</table>
 <table class="print-form-table" style="border-top:none;">
 <tr>
-<td style="width:40%; vertical-align:top; height:50px; color:#000000!important;">
+<td style="width:40%; vertical-align:top; color:#000000!important;">
 <div style="margin-bottom:4px; font-weight:bold; color:#000000!important;">III. COMANDANTE DE LA AERONAVE:</div>
 <div class="text-center" style="margin-bottom:8px; font-weight:bold; color:#000000!important;">NOMBRE Y APELLIDOS</div>
 <div class="text-center"><span id="sec_p_nombre_${dateKey}" style="font-weight:bold; color:#000000!important; font-size:9.5px;"></span></div>
@@ -1461,10 +1481,12 @@ pSecHtml += `</table>
 </td>
 <td style="width:20%; vertical-align:top; color:#000000!important;">
 <div class="text-center" style="font-weight:bold; color:#000000!important;">FIRMA</div>
-<div id="sec_p_firma_placeholder_${dateKey}" style="min-height:30px; margin-top:5px; text-align:center;"></div>
+<div id="sec_p_firma_placeholder_${dateKey}" style="height:25px; margin-top:5px; text-align:center;"></div>
 </td>
 </tr>
-</table></div>`;
+</table>
+<div style="height: 15px;"></div>
+</div>`;
 printHtml += pSecHtml;
 });
 container.innerHTML = webHtml; printContainer.innerHTML = printHtml; updateFormFooters();
@@ -1619,6 +1641,7 @@ let globalFields = ['duty_start', 'duty_end', 'm_fecha_gen', 'm_pov', 'm_materia
 for(let i=1; i<=47; i++) globalFields.push(`m_sms_${i}`);
 globalFields.forEach(id => { let element = el(id); if (element) { if(element.type === 'checkbox') data.globals[id] = element.checked; else data.globals[id] = element.value; } });
 data.globals.vuelo_cerrado = vueloCerrado;
+data.globals.haSidoGuardado = haSidoGuardado;
 
 legIds.forEach(id => { 
     data.legData[id] = {}; 
@@ -1637,9 +1660,13 @@ return JSON.stringify(data);
 }
 
 function autoSave() { localStorage.setItem('aerocardal_flight_data', getAllData()); }
+
 function clearAllData() { 
-    if(vueloCerrado) { alert("⚠️ El vuelo está cerrado y protegido. Debes reabrirlo con contraseña para poder borrarlo."); return; }
-    if(!confirm("⚠️ ¿Estás seguro de LIMPIAR TODOS los datos? Perderás el progreso local.")) return; 
+    if(vueloCerrado) { 
+        if(!confirm("⚠️ El vuelo actual está CERRADO Y DESPACHADO.\n\n¿Deseas limpiar el formulario para iniciar uno NUEVO?\n(No afectará el progreso que ya subiste a la nube).")) return;
+    } else {
+        if(!confirm("⚠️ ¿Estás seguro de LIMPIAR TODOS los datos? Perderás el progreso local no guardado.")) return; 
+    }
     localStorage.removeItem('aerocardal_flight_data'); 
     window.location.reload(); 
 }
@@ -1647,6 +1674,7 @@ function clearAllData() {
 function loadDataIntoApp(data) {
 if (!data) return;
 vueloCerrado = (data.globals.vuelo_cerrado === true || data.globals.vuelo_cerrado === "true");
+haSidoGuardado = (data.globals.haSidoGuardado === true || data.globals.haSidoGuardado === "true");
 
 if (data.globals) { for (let key in data.globals) { let element = el(key); if (element) { if(element.type === 'checkbox') element.checked = (data.globals[key] === true || data.globals[key] === "true"); else setVal(key, data.globals[key]); } } }
 if(data.secManualState) secManualState = data.secManualState;
