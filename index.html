@@ -222,7 +222,7 @@ Volver a la app
     <div style="width: 32px;"></div> <!-- Spacer para centrar el título -->
     <div>
       <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-      <div class="subtitle">VERSIÓN 2.3 (MODO DÍA/NOCHE)</div>
+      <div class="subtitle">VERSIÓN 2.0 (MARCHA BLANCA PILOTOS)</div>
     </div>
     <button id="theme-toggle" class="btn" style="background:transparent; font-size:1.5rem; cursor:pointer; padding:0; margin:0; border:none; width:32px; color:var(--text-main);" onclick="toggleTheme()" title="Cambiar Tema Día/Noche">☀️</button>
   </div>
@@ -641,11 +641,11 @@ async function despacharVueloCerrado() {
         let bodyText = `Link respaldo consolidado Drive: ${driveLink}`;
 
         mostrarCargando("Enviando correo Operaciones...");
-        if(pdfPlan) await sendGmailEmail('jose.oyarzun@aerocardal.com', `POV_${pov} - PLANIFICACIÓN OPERACIONAL`, bodyText, pdfPlan, `POV_${pov}_PLAN.pdf`);
+        if(pdfPlan) await sendGmailEmail('academics.viper@gmail.com', `POV_${pov} - PLANIFICACIÓN OPERACIONAL`, bodyText, pdfPlan, `POV_${pov}_PLAN.pdf`);
 
         mostrarCargando("Enviando correo SMS...");
         let subjSms = smsSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SMS CON OBSERVACIONES)`;
-        if(pdfSms) await sendGmailEmail('516jom@gmail.com', subjSms, bodyText, pdfSms, `POV_${pov}_SMS.pdf`);
+        if(pdfSms) await sendGmailEmail('academics.viper@gmail.com', subjSms, bodyText, pdfSms, `POV_${pov}_SMS.pdf`);
 
         mostrarCargando("Enviando correo Seguridad...");
         let subjSec = secSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SEGURIDAD CON OBSERVACIONES)`;
@@ -921,7 +921,7 @@ else { matInput.value = ''; if(fullMatInput) fullMatInput.value = ''; if(msgDiv)
 // ==========================================
 // NUEVO SISTEMA DE PILOTOS API + CACHÉ
 // ==========================================
-const URL_API_PILOTOS = "PEGA_AQUI_LA_URL_LARGA_DE_APPS_SCRIPT";
+const URL_API_PILOTOS = "https://script.google.com/macros/s/AKfycbxl2YWoAUAIBu7QTragW_VuiNaYit_xDi7aSkRXdLjN04Br7mb9mUaqdGMiiHyOSpFgDQ/exec";
 let pilotosDB = {}; // Ahora se carga dinámicamente
 
 async function actualizarBasePilotos() {
