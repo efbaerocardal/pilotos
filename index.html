@@ -918,19 +918,56 @@ else if (matches.length > 1) { matInput.value = ''; if(fullMatInput) fullMatInpu
 else { matInput.value = ''; if(fullMatInput) fullMatInput.value = ''; if(msgDiv) msgDiv.innerHTML = `❌ No encontrada`; } triggerUpdate();
 }
 
-const pilotosDB = {
-"JA": { "nombre": "José Arellano G.", "rut": "8.621.855-0", "licencia": "TLA 1641" }, "SS": { "nombre": "Sebastian Saez X.", "rut": "99.999.999-9", "licencia": "PCA 3535" }, "FC": { "nombre": "Felipe Casasempere G.", "rut": "15.781.258-0", "licencia": "TLA 2114" }, "AC": { "nombre": "Alfredo Castro C.", "rut": "7.155.617-4", "licencia": "TLA 920" },
-"RE": { "nombre": "Ricardo Espinosa U.", "rut": "6.827.727-2", "licencia": "TLA 674" }, "IF": { "nombre": "Iván Fabry R.", "rut": "6.111.339-8", "licencia": "1359" }, "FG": { "nombre": "Felipe Guínez A.", "rut": "15.771.343-4", "licencia": "TLA 2217" }, "EI": { "nombre": "Esteban Inostroza L.", "rut": "12.120.521-1", "licencia": "TLA 1256" },
-"AK": { "nombre": "Alexander Kaufmann R.", "rut": "6.926.596-0", "licencia": "PCA 4185" }, "EM": { "nombre": "Enrique Mancini A.", "rut": "19.310.398-7", "licencia": "PCA 4148" }, "NM": { "nombre": "Nicolás Mohr S.", "rut": "18239044-5", "licencia": "TLA 2064" }, "CM": { "nombre": "Claudio Muñoz P.", "rut": "7.999.795-1", "licencia": "TLA 921" },
-"FE": { "nombre": "Francisco Esquivel C.", "rut": "88.888.888-8", "licencia": "TLA 1899" }, "JO": { "nombre": "José Oyarzún M.", "rut": "16.239.897-0", "licencia": "TLA 2387" }, "FCH":{ "nombre": "Fernando Chacana X.", "rut": "66.666.666-6", "licencia": "PCA 2604" }, "MS": { "nombre": "Mauricio Solano P.", "rut": "14.322.271-3", "licencia": "TLA 1657" },
-"CV": { "nombre": "Cristhian Vázquez F.", "rut": "15.549.870-6", "licencia": "PCA 3435" }, "MV": { "nombre": "Matías Vega C.", "rut": "77.777.777-7", "licencia": "TLA 2420" }, "KW": { "nombre": "Klaus Wobbe S.", "rut": "14.103.915-6", "licencia": "TLA 1741" }, "CB": { "nombre": "Cristobal Briones B.", "rut": "10.345.076-4", "licencia": "TLA 2108" }
-};
+// ==========================================
+// NUEVO SISTEMA DE PILOTOS API + CACHÉ
+// ==========================================
+const URL_API_PILOTOS = "PEGA_AQUI_LA_URL_LARGA_DE_APPS_SCRIPT";
+let pilotosDB = {}; // Ahora se carga dinámicamente
+
+async function actualizarBasePilotos() {
+    if (navigator.onLine && URL_API_PILOTOS !== "PEGA_AQUI_LA_URL_LARGA_DE_APPS_SCRIPT") {
+        try {
+            let res = await fetch(URL_API_PILOTOS);
+            let data = await res.json();
+            
+            let dbFormateada = {};
+            data.forEach(p => {
+                dbFormateada[String(p.iniciales).toUpperCase()] = {
+                    nombre: p.nombre,
+                    rut: String(p.rut),
+                    licencia: String(p.licencia)
+                };
+            });
+            
+            localStorage.setItem('bd_pilotos', JSON.stringify(dbFormateada));
+            pilotosDB = dbFormateada;
+            console.log("✅ Base de pilotos sincronizada con Google Drive");
+        } catch (e) {
+            console.warn("⚠️ Sin conexión a la API, utilizando caché local");
+            cargarPilotosDesdeCache();
+        }
+    } else {
+        cargarPilotosDesdeCache();
+    }
+}
+
+function cargarPilotosDesdeCache() {
+    let guardado = localStorage.getItem('bd_pilotos');
+    if (guardado) {
+        pilotosDB = JSON.parse(guardado);
+    }
+}
+
 let capitanActual = { nombre: "", rut: "", licencia: "" }; let foActual = { nombre: "" }; let fo2Actual = { nombre: "" };
 
 function formatNameForSMS(fullName) { if(!fullName) return ""; const parts = fullName.split(' '); if(parts.length >= 2) return (parts[0][0] + ". " + parts[1]).toUpperCase(); return fullName.toUpperCase(); }
 function lookupPilots() {
 if (vueloCerrado) return;
 const picIni = val('m_pic_ini').toUpperCase(), sicIni = val('m_sic_ini').toUpperCase(), sic2Ini = val('m_sic2_ini').toUpperCase();
+
+// Rescate de caché si la memoria RAM está vacía al reabrir la app offline
+if (Object.keys(pilotosDB).length === 0) cargarPilotosDesdeCache();
+
 if (pilotosDB[picIni]) { capitanActual = pilotosDB[picIni]; setTxt('ui_pic_name', `👤 ${capitanActual.nombre}`); } else { capitanActual = { nombre: "", rut: "", licencia: "" }; setTxt('ui_pic_name', picIni ? 'No encontrado' : '&nbsp;'); }
 if (pilotosDB[sicIni]) { foActual = pilotosDB[sicIni]; setTxt('ui_sic_name', `👤 ${foActual.nombre}`); } else { foActual = { nombre: "" }; setTxt('ui_sic_name', sicIni ? 'No encontrado' : '&nbsp;'); }
 if (pilotosDB[sic2Ini]) { fo2Actual = pilotosDB[sic2Ini]; setTxt('ui_sic2_name', `👤 ${fo2Actual.nombre}`); } else { fo2Actual = { nombre: "" }; setTxt('ui_sic2_name', sic2Ini ? 'No encontrado' : '&nbsp;'); }
@@ -1538,282 +1575,4 @@ let pSecHtml = `
 <td colspan="2" class="no-border-x" style="vertical-align:bottom; padding-bottom:4px;"><div class="main-title">INSPECCIÓN DE SEGURIDAD DE AERONAVES</div></td>
 <td colspan="1" style="border-left:none; width:20%;"></td>
 </tr>
-<tr><td style="width:25%; color:#000000!important;"><b style="color:#000000!important;">FECHA:</b> <span class="bold" style="color:#000000!important;">${formatDatePdf(dateKey)}</span></td><td style="width:20%; color:#000000!important;"><b style="color:#000000!important;">P.O.V.: N°</b> <span id="sec_p_vuelo_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td><td style="width:25%; color:#000000!important;"><b style="color:#000000!important;">MATERIAL:</b> <span id="sec_p_material_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td><td colspan="2" style="color:#000000!important;"><b style="color:#000000!important;">MATRICULA:</b> <span id="sec_p_matricula_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td></tr>
-<tr><td colspan="2" class="gray-bg text-left" style="color:#000000!important;"><b style="color:#000000!important;">ESTACIONAMIENTO:</b> <span id="sec_p_estacionamiento_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td><td class="gray-bg text-left" style="color:#000000!important;"><b style="color:#000000!important;">ORIGEN:</b> <span id="sec_p_origen_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td><td colspan="2" class="gray-bg text-left" style="color:#000000!important;"><b style="color:#000000!important;">DESTINO:</b> <span id="sec_p_destino_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td></tr>
-<tr><td colspan="2" style="color:#000000!important;"><b style="color:#000000!important;">H. INICIO:</b> <span id="sec_p_hinicio_${dateKey}" style="color:#000000!important; font-weight:bold;">${currentHInicio}</span></td><td style="color:#000000!important;"><b style="color:#000000!important;">H. TÉRMINO:</b> <span id="sec_p_htermino_${dateKey}" style="color:#000000!important; font-weight:bold;">${currentHTermino}</span></td><td colspan="2" style="color:#000000!important;"><b style="color:#000000!important;">ESTADO ALERTA:</b> <span id="sec_p_alerta_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td></tr>
-</table>
-<table class="print-form-table" style="border-bottom:none; margin-top:4px;">`;
-secData.forEach(item => { let splitIdx = item.text.indexOf(':'); let title = splitIdx > -1 ? item.text.substring(0, splitIdx + 1) : item.text; let desc = splitIdx > -1 ? item.text.substring(splitIdx + 1) : ""; pSecHtml += `<tr><td style="text-align:justify;"><b>${item.id}. ${title}</b><br>${desc}</td><td style="width:35px;" class="tick-cell" id="p_sec_${dateKey}_${item.id}"></td></tr>`; });
-pSecHtml += `</table>
-<table class="print-form-table" style="border-top:none;">
-<tr>
-<td style="width:40%; vertical-align:top; color:#000000!important;">
-<div style="margin-bottom:4px; font-weight:bold; color:#000000!important;">III. COMANDANTE DE LA AERONAVE:</div>
-<div class="text-center" style="margin-bottom:8px; font-weight:bold; color:#000000!important;">NOMBRE Y APELLIDOS</div>
-<div class="text-center"><span id="sec_p_nombre_${dateKey}" style="font-weight:bold; color:#000000!important; font-size:9.5px;"></span></div>
-</td>
-<td style="width:20%; vertical-align:top; color:#000000!important;">
-<div class="text-center" style="margin-bottom:20px; font-weight:bold; color:#000000!important;">RUT</div>
-<div class="text-center"><span id="sec_p_rut_${dateKey}" style="font-weight:bold; color:#000000!important; font-size:9.5px;"></span></div>
-</td>
-<td style="width:20%; vertical-align:top; color:#000000!important;">
-<div class="text-center" style="margin-bottom:20px; font-weight:bold; color:#000000!important;">LICENCIA</div>
-<div class="text-center"><span id="sec_p_licencia_${dateKey}" style="font-weight:bold; color:#000000!important; font-size:9.5px;"></span></div>
-</td>
-<td style="width:20%; vertical-align:top; color:#000000!important;">
-<div class="text-center" style="font-weight:bold; color:#000000!important;">FIRMA</div>
-<div id="sec_p_firma_placeholder_${dateKey}" style="height:25px; margin-top:5px; text-align:center;"></div>
-</td>
-</tr>
-</table>
-<div style="height: 15px;"></div>
-</div>`;
-printHtml += pSecHtml;
-});
-container.innerHTML = webHtml; printContainer.innerHTML = printHtml; updateFormFooters();
-}
-
-function syncPrintData(folioGroups, dailyStats, gDuty, gAir, gBlock, gFuelUsed, globalRefuel, gPax, hasSic2, picIni, sicIni, sic2Ini) {
-const pfCols = hasSic2 ? 3 : 2;
-let totP1Block = 0, totP1Air = 0, totP1Dep = 0, totP1Arr = 0, totP1PFBlock = 0, totP1PFAir = 0; 
-let totP2Block = 0, totP2Air = 0, totP2Dep = 0, totP2Arr = 0, totP2PFBlock = 0, totP2PFAir = 0;
-let totP3Block = 0, totP3Air = 0, totP3Dep = 0, totP3Arr = 0, totP3PFBlock = 0, totP3PFAir = 0;
-
-let foliosHtml = '';
-let absIndex = 1;
-
-folioGroups.forEach(group => {
-    let fDate = group.dates.map(formatDatePdf).join(' - ');
-    let pageHtml = `<div class="pdf-page print-op-page" id="print_folio_${group.folioNum}">`;
-    pageHtml += `<table class="print-table" style="border-bottom: none;">
-      <tr>
-        <td colspan="2" class="no-border-x" style="width: 30%;"><div class="logo-text">AEROCARDAL</div></td>
-        <td colspan="2" class="no-border-x" style="vertical-align: bottom; padding-bottom: 4px;"><div class="main-title">PLANIFICACIÓN OPERACIONAL - HOJA ${group.folioNum}</div></td>
-        <td colspan="1" style="border-left: none; width: 20%;"></td>
-      </tr>
-      <tr>
-        <td style="width: 25%;"><b style="color: #000000 !important;">FECHA:</b> <span class="bold" style="color:#000000!important;">${fDate}</span></td>
-        <td style="width: 20%;"><b style="color: #000000 !important;">P.O.V.: N°</b> <span class="bold" style="color:#000000!important;">${val('m_pov').toUpperCase()}</span></td>
-        <td style="width: 25%;"><b style="color: #000000 !important;">MATERIAL:</b> <span class="bold" style="color:#000000!important;">${val('m_material').toUpperCase()}</span></td>
-        <td colspan="2"><b style="color: #000000 !important;">MATRICULA:</b> <span class="bold" style="color:#000000!important;">${val('m_matricula').toUpperCase()}</span></td>
-      </tr>
-    </table>`;
-
-    group.legs.forEach((leg, i) => { pageHtml += getPrintLegHTML(leg.id, absIndex + i); });
-    pageHtml += `<div style="margin-top: 15px;">`;
-    group.legs.forEach((leg, i) => { pageHtml += getPrintParamsHTML(leg.id, absIndex + i); });
-    pageHtml += `</div>`;
-    absIndex += group.legs.length;
-
-    let summaryHtml = `<table class="print-table" style="margin-top:0; border-top:none; text-transform:uppercase; table-layout: fixed; width: 100%;">
-        <tr><td colspan="${13 + (hasSic2 ? 1 : 0)}" class="summary-title-pdf"><b>CONSOLIDADO HOJA ${group.folioNum}</b></td></tr>
-        <tr class="gray-bg compact-th">
-        <td rowspan="2" style="width:9%; vertical-align:middle;" class="text-center"><b>FECHA</b></td>
-        <td rowspan="2" style="width:4%; vertical-align:middle;" class="text-center"><b>PAX</b></td>
-        <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>AIRTIME</b></td>
-        <td colspan="4" style="width:18%;" class="text-center"><b>COMBUSTIBLE</b></td>
-        <td colspan="2" style="width:11%;" class="text-center"><b>HOROMETRO</b></td>
-        <td colspan="3" style="width:16%;" class="text-center"><b>DUTY</b></td>
-        <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>BLOCK</b></td>
-        <td colspan="${pfCols}" style="width:${hasSic2 ? '28%' : '28%'};" class="text-center"><b>PILOT FLYING</b></td>
-        </tr>
-        <tr class="gray-bg compact-th">
-        <td class="text-center"><b>INICIAL</b></td><td class="text-center"><b>CONS.</b></td><td class="text-center"><b>REMAN.</b></td><td class="text-center"><b>RECARGA</b></td>
-        <td class="text-center"><b>INICIAL</b></td><td class="text-center"><b>FINAL</b></td>
-        <td class="text-center"><b>INICIO</b></td><td class="text-center"><b>FIN</b></td><td class="text-center"><b>TOTAL</b></td>
-        <td class="text-center"><b>CAP: ${picIni || 'CAP'}</b></td>
-        <td class="text-center"><b>FO: ${sicIni || 'FO'}</b></td>
-        ${hasSic2 ? `<td class="text-center"><b>FO2: ${sic2Ini || 'FO2'}</b></td>` : ''}
-        </tr>`;
-
-    group.dateStats.forEach(ds => {
-        totP1Block += ds.p1.block; totP1Air += ds.p1.air; totP1Dep += ds.p1.dep; totP1Arr += ds.p1.arr; totP1PFBlock += ds.p1.pf_block; totP1PFAir += ds.p1.pf_air;
-        totP2Block += ds.p2.block; totP2Air += ds.p2.air; totP2Dep += ds.p2.dep; totP2Arr += ds.p2.arr; totP2PFBlock += ds.p2.pf_block; totP2PFAir += ds.p2.pf_air;
-        totP3Block += ds.p3.block; totP3Air += ds.p3.air; totP3Dep += ds.p3.dep; totP3Arr += ds.p3.arr; totP3PFBlock += ds.p3.pf_block; totP3PFAir += ds.p3.pf_air;
-
-        let dStr = ds.dutyDuration > 0 ? `${minsToTime(ds.dutyDuration)}` : '--:--';
-        let aStr = ds.air > 0 ? `${minsToTime(ds.air)} (${formatDec(ds.air/60).replace('.', ',')})` : '--:--';
-        let bStr = ds.block > 0 ? `${minsToTime(ds.block)} (${formatDec(ds.block/60).replace('.', ',')})` : '--:--';
-        let p1PFStr = (ds.p1.pf_block > 0 || ds.p1.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(ds.p1.pf_air/60).replace('.', ',')})<br>BLK: (${formatDec(ds.p1.pf_block/60).replace('.', ',')})<br>T:${ds.p1.dep} L:${ds.p1.arr}</div>` : '--'; 
-        let p2PFStr = (ds.p2.pf_block > 0 || ds.p2.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(ds.p2.pf_air/60).replace('.', ',')})<br>BLK: (${formatDec(ds.p2.pf_block/60).replace('.', ',')})<br>T:${ds.p2.dep} L:${ds.p2.arr}</div>` : '--';
-        let p3PFStr = (ds.p3.pf_block > 0 || ds.p3.pf_air > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(ds.p3.pf_air/60).replace('.', ',')})<br>BLK: (${formatDec(ds.p3.pf_block/60).replace('.', ',')})<br>T:${ds.p3.dep} L:${ds.p3.arr}</div>` : '--';
-
-        summaryHtml += `<tr class="compact-td">
-        <td class="text-center bold">${formatDatePdf(ds.date)}</td><td class="text-center">${ds.paxStr}</td><td class="text-center bold">${aStr}</td>
-        <td class="text-center">${Math.round(ds.fuelInit)}</td><td class="text-center color-danger">${Math.round(ds.fuelUsed)}</td><td class="text-center color-accent">${Math.round(ds.fuelFinal)}</td><td class="text-center color-success">+${Math.round(ds.refuel)}</td>
-        <td class="text-center">${ds.hIni}</td><td class="text-center">${ds.hFin}</td>
-        <td class="text-center">${ds.dutyStart || '--:--'}</td><td class="text-center">${ds.dutyEnd || '--:--'}</td><td class="text-center bold">${dStr}</td>
-        <td class="text-center bold">${bStr}</td>
-        <td class="text-center">${p1PFStr}</td><td class="text-center">${p2PFStr}</td>${hasSic2 ? `<td class="text-center">${p3PFStr}</td>` : ''}
-        </tr>`;
-    });
-
-    let isSingleDaySingleFolio = (folioGroups.length === 1 && folioGroups[0].dateStats.length === 1);
-    if (group.folioNum === folioGroups.length && folioGroups.length > 0 && !isSingleDaySingleFolio) {
-        let p1TotPFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP1PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP1PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP1Dep} L:${totP1Arr}</b></div>` : '--'; 
-        let p2TotPFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP2PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP2PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP2Dep} L:${totP2Arr}</b></div>` : '--';
-        let p3TotPFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP3PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP3PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP3Dep} L:${totP3Arr}</b></div>` : '--';
-        let totDStr = gDuty > 0 ? `${minsToTime(gDuty)} (${formatDec(gDuty/60).replace('.', ',')})` : '--:--';
-        let totAStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
-        let totBStr = gBlock > 0 ? `${minsToTime(gBlock)} (${formatDec(gBlock/60).replace('.', ',')})` : '--:--';
-
-        summaryHtml += `<tr class="compact-td">
-        <td class="text-center summary-total-bg"><b>GLOBAL POV</b></td><td class="text-center summary-total-bg"><b>${gPax}</b></td><td class="text-center summary-total-bg"><b>${totAStr}</b></td>
-        <td class="text-center summary-total-bg"></td><td class="text-center summary-total-bg color-danger"><b>${Math.round(gFuelUsed)}</b></td><td class="text-center summary-total-bg"></td><td class="text-center summary-total-bg color-success"><b>+${Math.round(globalRefuel)}</b></td>
-        <td colspan="2" class="text-center summary-total-bg"></td><td colspan="2" class="text-center summary-total-bg"></td><td class="text-center summary-total-bg"><b>${totDStr}</b></td>
-        <td class="text-center summary-total-bg"><b>${totBStr}</b></td>
-        <td class="text-center summary-total-bg"><b>${p1TotPFStr}</b></td><td class="text-center summary-total-bg"><b>${p2TotPFStr}</b></td>${hasSic2 ? `<td class="text-center summary-total-bg"><b>${p3TotPFStr}</b></td>` : ''}
-        </tr>`;
-    }
-    summaryHtml += `</table>`;
-    pageHtml += `<div style="margin-top: 10px;">${summaryHtml}</div></div>`; 
-    foliosHtml += pageHtml;
-});
-el('print-folios-wrapper').innerHTML = foliosHtml;
-
-const stdFields = ['folio','dest','desde','dist','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
-const prmFields = ['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'];
-const wpfFields = ['wp1','wp2','wp3','wp4','cp1','cp2','cp3','cp4','cr1','cr2','cr3','cr4'];
-
-legIds.forEach(id => {
-    stdFields.forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
-    const fUsedVal = val(`m_t${id}_fuel_diff`); setTxtUpper(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
-    setTxtUpper(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
-    const windsVal = val(`m_t${id}_winds`).trim(); if(el(`p_t${id}_winds_wrapper`)) el(`p_t${id}_winds_wrapper`).style.display = windsVal ? "inline-block" : "none";
-    const hasPrm = prmFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasFuel = wpfFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasMet = val(`m_t${id}_meteo`).trim() !== "", hasAtc = val(`m_t${id}_atc`).trim() !== "";
-    prmFields.concat(wpfFields).forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); 
-    setTxtUpper(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); setTxtUpper(`p_t${id}_atc`, val(`m_t${id}_atc`));
-    
-    if(el(`p_t${id}_tbl_params`)) el(`p_t${id}_tbl_params`).style.display = hasPrm ? "table" : "none"; if(el(`p_t${id}_tbl_fuel`)) el(`p_t${id}_tbl_fuel`).style.display = hasFuel ? "table" : "none"; if(el(`p_t${id}_tbl_meteo`)) el(`p_t${id}_tbl_meteo`).style.display = hasMet ? "table" : "none"; if(el(`p_t${id}_tbl_atc`)) el(`p_t${id}_tbl_atc`).style.display = hasAtc ? "table" : "none"; if(el(`p_t${id}_params_wrapper`)) el(`p_t${id}_params_wrapper`).style.display = (hasPrm||hasFuel||hasMet||hasAtc) ? "block" : "none";
-
-    const dnVal = document.querySelector(`input[name="dn_${id}"]:checked`)?.value || '';
-    const pnpVal = document.querySelector(`input[name="pnp_${id}"]:checked`)?.value || '';
-    setTxtUpper(`p_t${id}_dn_text`, dnVal === 'D' ? 'DIURNO' : (dnVal === 'N' ? 'NOCTURNO' : '')); 
-    setTxtUpper(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
-});
-
-const sinObs = el('m_sms_sin_obs')?.checked; setTxtUpper('sms_p_fecha', formatDatePdf(val('m_fecha_gen'))); setTxtUpper('sms_p_pov', val('m_pov')); setTxtUpper('sms_p_matricula', val('m_matricula')); setTxtUpper('sms_p_material', val('m_material'));
-for(let i=1; i<=47; i++) { const cell = el(`p_sms_${i}`); if(cell) { if(sinObs) { cell.innerHTML = ""; cell.classList.add('strike-cell'); } else { cell.classList.remove('strike-cell'); setTxtUpper(`p_sms_${i}`, el(`m_sms_${i}`)?.checked ? '✓' : ''); } } } setTxtUpper('p_sms_obs', val('m_sms_obs'));
-
-let activeDatesKeys = Object.keys(secManualState).sort();
-activeDatesKeys.forEach(dateKey => {
-setTxtUpper(`sec_p_vuelo_${dateKey}`, val('m_pov')); setTxtUpper(`sec_p_material_${dateKey}`, val('m_material')); setTxtUpper(`sec_p_matricula_${dateKey}`, val('m_matricula')); setTxtUpper(`sec_p_estacionamiento_${dateKey}`, val(`m_sec_est_${dateKey}`)); setTxtUpper(`sec_p_origen_${dateKey}`, val(`m_sec_origen_${dateKey}`)); setTxtUpper(`sec_p_destino_${dateKey}`, val(`m_sec_destino_${dateKey}`)); setTxtUpper(`sec_p_alerta_${dateKey}`, val(`m_sec_alerta_${dateKey}`));
-['A','B','C','D','E','F','G','H','I','J','K'].forEach(id => { const cb = el(`m_sec_${dateKey}_${id}`); setTxtUpper(`p_sec_${dateKey}_${id}`, cb?.checked ? '✓' : ''); });
-setTxtUpper(`sec_p_nombre_${dateKey}`, capitanActual.nombre || ""); setTxtUpper(`sec_p_rut_${dateKey}`, capitanActual.rut || ""); setTxtUpper(`sec_p_licencia_${dateKey}`, capitanActual.licencia || "");
-});
-
-// ==== INYECCIÓN DE FIRMA DIGITAL EN PDF ====
-const firmaBase64 = val('m_firma_data');
-const smsFirmaPl = el('sms_firma_placeholder');
-if (smsFirmaPl) {
-    smsFirmaPl.innerHTML = firmaBase64 ? `<img src="${firmaBase64}" class="firma-img-print">` : ``;
-}
-activeDatesKeys.forEach(dateKey => {
-    const secFirmaPl = el(`sec_p_firma_placeholder_${dateKey}`);
-    if (secFirmaPl) {
-        secFirmaPl.innerHTML = firmaBase64 ? `<img src="${firmaBase64}" class="firma-img-print">` : ``;
-    }
-});
-}
-
-function getAllData() {
-let data = { globals: {}, legs: legIds.length, legData: {}, secManualState: secManualState };
-let globalFields = ['duty_start', 'duty_end', 'm_fecha_gen', 'm_pov', 'm_material', 'm_matricula', 'm_matricula_suffix', 'm_pic_ini', 'm_sic_ini', 'm_sic2_ini', 'm_sms_obs', 'm_sms_sin_obs', 'm_firma_data'];
-for(let i=1; i<=47; i++) globalFields.push(`m_sms_${i}`);
-globalFields.forEach(id => { let element = el(id); if (element) { if(element.type === 'checkbox') data.globals[id] = element.checked; else data.globals[id] = element.value; } });
-data.globals.vuelo_cerrado = vueloCerrado;
-data.globals.haSidoGuardado = haSidoGuardado;
-
-legIds.forEach(id => { 
-    data.legData[id] = {}; 
-    let inputs = document.querySelectorAll(`#leg_card_${id} input, #leg_card_${id} select, #leg_card_${id} textarea`); 
-    inputs.forEach(input => { 
-        if(input.id) {
-            if (input.type === 'radio' || input.type === 'checkbox') {
-                data.legData[id][input.id] = { checked: input.checked, linked: input.dataset.linked || "false" };
-            } else {
-                data.legData[id][input.id] = { value: input.value, linked: input.dataset.linked || "false" };
-            }
-        }
-    }); 
-});
-return JSON.stringify(data);
-}
-
-function autoSave() { localStorage.setItem('aerocardal_flight_data', getAllData()); }
-
-function clearAllData() { 
-    if(vueloCerrado) { 
-        if(!confirm("⚠️ El vuelo actual está CERRADO Y DESPACHADO.\n\n¿Deseas limpiar el formulario para iniciar uno NUEVO?\n(No afectará el progreso que ya subiste a la nube).")) return;
-    } else {
-        if(!confirm("⚠️ ¿Estás seguro de LIMPIAR TODOS los datos? Perderás el progreso local no guardado.")) return; 
-    }
-    localStorage.removeItem('aerocardal_flight_data'); 
-    window.location.reload(); 
-}
-
-function loadDataIntoApp(data) {
-if (!data) return;
-vueloCerrado = (data.globals.vuelo_cerrado === true || data.globals.vuelo_cerrado === "true");
-haSidoGuardado = (data.globals.haSidoGuardado === true || data.globals.haSidoGuardado === "true");
-
-if (data.globals) { for (let key in data.globals) { let element = el(key); if (element) { if(element.type === 'checkbox') element.checked = (data.globals[key] === true || data.globals[key] === "true"); else setVal(key, data.globals[key]); } } }
-if(data.secManualState) secManualState = data.secManualState;
-el('tramos-container').innerHTML = ''; el('print-folios-wrapper').innerHTML = ''; legIds = []; nextLegId = 1; 
-let legCount = data.legs || 1;
-for(let i=0; i<legCount; i++) {
-let newId = nextLegId++; legIds.push(newId); let index = legIds.length;
-el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(newId, index, i === 0 ? 'SCEL' : ''));
-}
-if (data.legData) {
-let savedIds = Object.keys(data.legData);
-for(let i=0; i<legIds.length; i++) {
-let currentId = legIds[i]; let savedId = savedIds[i]; if(!savedId) continue; let savedLeg = data.legData[savedId];
-for (let inputId in savedLeg) {
-let targetId = inputId.replace(`_t${savedId}_`, `_t${currentId}_`); let element = el(targetId);
-if (element) {
-    if (element.type === 'radio' || element.type === 'checkbox') { element.checked = savedLeg[inputId].checked === true; } 
-    else { element.value = savedLeg[inputId].value || ""; }
-    
-    if (savedLeg[inputId].linked) { 
-        element.dataset.linked = savedLeg[inputId].linked; 
-        if(savedLeg[inputId].linked === "false") { 
-            element.readOnly = false; element.classList.remove('inherited-input'); 
-            let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
-            if(btn) { btn.textContent = "🔓"; btn.title = "Restablecer herencia"; } 
-        } else { 
-            element.readOnly = true; element.classList.add('inherited-input'); 
-            let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
-            if(btn) { btn.textContent = "🔗"; btn.title = "Desvincular"; } 
-        } 
-    }
-}
-}
-}
-}
-lookupAircraft(); toggleSinObservaciones(); lookupPilots(); 
-cargarFirmaEnCanvas(val('m_firma_data'));
-}
-
-window.onload = () => { 
-    buildForms(); 
-    initSignaturePad();
-    let saved = localStorage.getItem('aerocardal_flight_data'); 
-    if (saved) { 
-        if(confirm("Se encontró un vuelo en progreso guardado localmente en este iPad. ¿Deseas recuperarlo?")) { 
-            loadDataIntoApp(JSON.parse(saved)); 
-        } else { 
-            localStorage.removeItem('aerocardal_flight_data'); 
-            addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); 
-        } 
-    } else { 
-        addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); 
-    } 
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('✅ Service Worker registrado'))
-            .catch(err => console.error('❌ Error Service Worker:', err));
-    }
-};
-</script></body></html>
+<tr><td style="width:25%; color:#000000!important;"><b style="color:#000000!important;">FECHA:</b> <span class="bold" style="color:#000000!important;">${formatDatePdf(dateKey)}</span></td><td style="width:20%; color:#000000!important;"><b style="color:#000000!important;">P.O.V.: N°</b> <span id="sec_p_vuelo_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td><td style="width:25%; color:#000000!important;"><b style="color:#000000!important;">MATERIAL:</b> <span id="sec_p_material_${dateKey}" style="color:#000000!important; font-weight:bold;"></span></td><td colspan="2"
