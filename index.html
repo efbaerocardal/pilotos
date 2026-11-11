@@ -222,7 +222,7 @@ Volver a la app
     <div style="width: 32px;"></div> <!-- Spacer para centrar el título -->
     <div>
       <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-      <div class="subtitle">VERSIÓN 2.3 (MODO DÍA/NOCHE)</div>
+      <div class="subtitle">VERSIÓN 2.4 (MARCHA BLANCA PILOTOS)</div>
     </div>
     <button id="theme-toggle" class="btn" style="background:transparent; font-size:1.5rem; cursor:pointer; padding:0; margin:0; border:none; width:32px; color:var(--text-main);" onclick="toggleTheme()" title="Cambiar Tema Día/Noche">☀️</button>
   </div>
@@ -380,7 +380,6 @@ function updateThemeIcon(theme) {
 window.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'light');
 });
-
 
 // ==========================================
 // VARIABLES DE ESTADO Y CONFIGURACIÓN
@@ -574,16 +573,12 @@ function toggleCerrarVuelo() {
             alert("⚠️ ACCIÓN DENEGADA: Debes ingresar las iniciales del Capitán en la cabecera antes de poder cerrar el vuelo.");
             return;
         }
-        if (!haSidoGuardado) {
-            alert("⚠️ ACCIÓN DENEGADA: Debes GUARDAR el progreso en la nube (botón 💾 Guardar) antes de poder cerrar y despachar este vuelo.");
-            return;
-        }
         if (!val('m_firma_data')) {
             alert("⚠️ ACCIÓN DENEGADA: El formulario requiere la firma digital del Capitán al final de la página para ser despachado.");
             return;
         }
 
-        if(confirm("🔒 ¿Estás seguro de CERRAR este vuelo?\n\nAl confirmar:\n1. Se bloqueará la edición y rúbrica.\n2. Se enviarán los formularios correspondientes a cada departamento automáticamente.\n3. Se respaldará el consolidado maestro en Google Drive.")) {
+        if(confirm("🔒 ¿Estás seguro de CERRAR este vuelo?\n\nAl confirmar:\n1. Se guardará automáticamente el progreso final en Google Drive.\n2. Se bloqueará la edición.\n3. Se enviarán los formularios PDF a Operaciones, SMS y Seguridad.")) {
             ensureAuth(async () => {
                 vueloCerrado = true;
                 aplicarEstadoCierre();
@@ -850,7 +845,8 @@ async function generarPdfSilencioso(selector) {
         filename: 'temp.pdf',
         image: { type: 'jpeg', quality: 1.0 },
         pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'table'] },
-        html2canvas: { scale: 3, useCORS: true, logging: false, width: 800, windowWidth: 800, letterRendering: true },
+        // IMPORTANTE: SCALE 1.5 ALIGERA EL USO DE MEMORIA EN iPAD OFFLINE EVITANDO EL CRASH
+        html2canvas: { scale: 1.5, useCORS: true, logging: false, width: 800, windowWidth: 800, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
     };
     let worker = html2pdf().set(opt).from(pages[0]).toPdf();
@@ -909,7 +905,6 @@ const aeronavesDB = [
 { trigram: "DRS", matricula: "CC-DRS", material: "PC-24" }, { trigram: "AJS", matricula: "CC-AJS", material: "RJ85" }
 ];
 function lookupAircraft() {
-if (vueloCerrado) return;
 const suffix = val('m_matricula_suffix').trim().toUpperCase(); const matInput = el('m_material'); const fullMatInput = el('m_matricula'); const msgDiv = el('ui_mat_msg');
 if (!suffix) { matInput.value = ''; if(fullMatInput) fullMatInput.value = ''; if(msgDiv) msgDiv.innerHTML = '&nbsp;'; triggerUpdate(); return; }
 const matches = aeronavesDB.filter(a => a.trigram.toUpperCase() === suffix || a.matricula.toUpperCase().endsWith(suffix) || a.matricula.toUpperCase() === suffix);
@@ -929,7 +924,6 @@ let capitanActual = { nombre: "", rut: "", licencia: "" }; let foActual = { nomb
 
 function formatNameForSMS(fullName) { if(!fullName) return ""; const parts = fullName.split(' '); if(parts.length >= 2) return (parts[0][0] + ". " + parts[1]).toUpperCase(); return fullName.toUpperCase(); }
 function lookupPilots() {
-if (vueloCerrado) return;
 const picIni = val('m_pic_ini').toUpperCase(), sicIni = val('m_sic_ini').toUpperCase(), sic2Ini = val('m_sic2_ini').toUpperCase();
 if (pilotosDB[picIni]) { capitanActual = pilotosDB[picIni]; setTxt('ui_pic_name', `👤 ${capitanActual.nombre}`); } else { capitanActual = { nombre: "", rut: "", licencia: "" }; setTxt('ui_pic_name', picIni ? 'No encontrado' : '&nbsp;'); }
 if (pilotosDB[sicIni]) { foActual = pilotosDB[sicIni]; setTxt('ui_sic_name', `👤 ${foActual.nombre}`); } else { foActual = { nombre: "" }; setTxt('ui_sic_name', sicIni ? 'No encontrado' : '&nbsp;'); }
@@ -1046,7 +1040,7 @@ const minsToTime = m => { if (m === null || isNaN(m)) return "--:--"; m = (m % 1
 const timeDiffMins = (start, end) => { const s = timeToMins(start), e = timeToMins(end); if (s === null || e === null) return 0; return e - s < 0 ? (e - s) + 1440 : e - s; };
 const addMins = (t, mins) => { if (!t || !t.includes(':')) return ""; let [h, m] = t.split(':').map(Number); let total = h * 60 + m + mins; total = ((total % 1440) + 1440) % 1440; return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`; };
 
-function toggleLink(id, field) { if(vueloCerrado) return; const input = el(`m_t${id}_${field}`), btn = el(`lbtn_${field}_${id}`); const isLinked = input.dataset.linked === "true"; input.dataset.linked = !isLinked; input.readOnly = !isLinked; input.classList.toggle('inherited-input', !isLinked); btn.textContent = isLinked ? "🔓" : "🔗"; btn.title = isLinked ? "Restablecer herencia" : "Desvincular"; if(isLinked) triggerUpdate(); }
+function toggleLink(id, field) { if(vueloCerrado) return; const input = el(`m_t${id}_field`), btn = el(`lbtn_${field}_${id}`); const isLinked = input.dataset.linked === "true"; input.dataset.linked = !isLinked; input.readOnly = !isLinked; input.classList.toggle('inherited-input', !isLinked); btn.textContent = isLinked ? "🔓" : "🔗"; btn.title = isLinked ? "Restablecer herencia" : "Desvincular"; if(isLinked) triggerUpdate(); }
 
 function syncFolioDown(sourceId) {
     if(vueloCerrado) return;
@@ -1732,7 +1726,11 @@ legIds.forEach(id => {
             if (input.type === 'radio' || input.type === 'checkbox') {
                 data.legData[id][input.id] = { checked: input.checked, linked: input.dataset.linked || "false" };
             } else {
-                data.legData[id][input.id] = { value: input.value, linked: input.dataset.linked || "false" };
+                data.legData[id][input.id] = { 
+                    value: input.value, 
+                    linked: input.dataset.linked || "false",
+                    manual: input.dataset.manual || "false"
+                };
             }
         }
     }); 
@@ -1772,8 +1770,15 @@ let currentId = legIds[i]; let savedId = savedIds[i]; if(!savedId) continue; let
 for (let inputId in savedLeg) {
 let targetId = inputId.replace(`_t${savedId}_`, `_t${currentId}_`); let element = el(targetId);
 if (element) {
-    if (element.type === 'radio' || element.type === 'checkbox') { element.checked = savedLeg[inputId].checked === true; } 
-    else { element.value = savedLeg[inputId].value || ""; }
+    if (element.type === 'radio' || element.type === 'checkbox') { 
+        element.checked = savedLeg[inputId].checked === true; 
+    } else { 
+        element.value = savedLeg[inputId].value || ""; 
+    }
+    
+    if (savedLeg[inputId].manual) {
+        element.dataset.manual = savedLeg[inputId].manual;
+    }
     
     if (savedLeg[inputId].linked) { 
         element.dataset.linked = savedLeg[inputId].linked; 
@@ -1791,8 +1796,45 @@ if (element) {
 }
 }
 }
+
 lookupAircraft(); toggleSinObservaciones(); lookupPilots(); 
 cargarFirmaEnCanvas(val('m_firma_data'));
+
+updateAll();
+aplicarEstadoCierre();
+}
+
+// ==========================================
+// CICLO DE VIDA (iPAD) Y VERIFICACIÓN CLOUD
+// ==========================================
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        // Forzar guardado local exacto antes de suspender
+        autoSave();
+    } else if (document.visibilityState === 'visible') {
+        // Recuperar foco: verificar silenciosamente en la nube si hay red
+        if (navigator.onLine && val('m_pov') && !vueloCerrado && accessToken) {
+            verificarEstadoNube();
+        }
+    }
+});
+
+async function verificarEstadoNube() {
+    try {
+        let pov = val('m_pov');
+        let folderId = await getOrCreateFolder(pov);
+        let file = await findFileInFolder('Progreso.json', folderId);
+        if (file) {
+            let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media`);
+            let content = await res.json();
+            if (content.globals && (content.globals.vuelo_cerrado === true || content.globals.vuelo_cerrado === "true")) {
+                alert("⚠️ ATENCIÓN: Se detectó que este vuelo fue CERRADO Y DESPACHADO desde otro dispositivo.\nLa aplicación bloqueará la edición para reflejar la versión final.");
+                loadDataIntoApp(content);
+            }
+        }
+    } catch(e) {
+        console.warn("Verificación silenciosa en la nube abortada (sin red o token expirado).");
+    }
 }
 
 window.onload = () => { 
