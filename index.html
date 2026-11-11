@@ -1,4 +1,3 @@
-<index>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -222,7 +221,7 @@ Volver a la app
     <div style="width: 32px;"></div> <!-- Spacer para centrar el título -->
     <div>
       <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
-      <div class="subtitle">VERSIÓN 2.4 (MARCHA BLANCA PILOTOS)</div>
+      <div class="subtitle">VERSIÓN 2.2 (MARCHA BLANCA PILOTOS)</div>
     </div>
     <button id="theme-toggle" class="btn" style="background:transparent; font-size:1.5rem; cursor:pointer; padding:0; margin:0; border:none; width:32px; color:var(--text-main);" onclick="toggleTheme()" title="Cambiar Tema Día/Noche">☀️</button>
   </div>
@@ -1093,28 +1092,26 @@ return `<details class="card" id="leg_card_${id}" open>
 </div>
 <div class="grid-2">
 <div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;">HORÓMETRO</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" step="0.1" id="m_t${id}_horo_bot" placeholder="Inicial" oninput="triggerUpdate()"><input type="number" step="0.1" id="m_t${id}_horo_top" placeholder="Final" oninput="this.dataset.manual = (this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div></div>
-<div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;"># PASAJEROS</label><div style="display:flex; gap:5px; margin-top:4px;"><input type="number" id="m_t${id}_pax" placeholder="PAX" oninput="triggerUpdate()"><input type="text" id="m_t${id}_dist" placeholder="DISTANCIA" oninput="triggerUpdate()"></div></div>
+<div><label style="font-size:0.7rem; color:var(--text-muted); font-weight:bold;"># PASAJEROS</label><div style="margin-top:4px;"><input type="number" id="m_t${id}_pax" placeholder="PAX" oninput="triggerUpdate()"></div></div>
 </div>
 <div style="margin-top:12px; padding:10px; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-summary);">
 <label style="font-size:0.75rem; color:var(--text-main); font-weight:bold; margin-bottom:8px; display:block;">COMBUSTIBLE</label>
-<div class="grid-3">
-<div><label style="font-size:0.65rem; color:var(--text-muted);">1. FUEL ON (Inicial)</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
-<div><label style="font-size:0.65rem; color:var(--text-muted);">2. FUEL OFF (Final)</label><input type="number" step="0.1" id="m_t${id}_fuel_off" oninput="triggerUpdate()"></div>
-<div><label style="font-size:0.65rem; color:var(--success);">3. REFUEL (Automático)</label><input type="number" step="0.1" id="m_t${id}_fuel_refuel" placeholder="Auto" oninput="this.dataset.manual='true'; triggerUpdate()" onblur="triggerUpdate()"></div>
+<div class="grid-4">
+<div><label style="font-size:0.6rem; color:var(--text-muted);">1. ON (Inicial)</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
+<div><label style="font-size:0.6rem; color:var(--text-muted);">2. OFF (Final)</label><input type="number" step="0.1" id="m_t${id}_fuel_off" oninput="triggerUpdate()"></div>
+<div><label style="font-size:0.6rem; color:var(--accent);">3. USADO</label><input type="text" id="m_t${id}_fuel_diff" readonly class="inherited-input" tabindex="-1" style="text-align:center;"></div>
+<div><label style="font-size:0.6rem; color:var(--success);">4. REFUEL</label><input type="number" step="0.1" id="m_t${id}_fuel_refuel" placeholder="Auto" oninput="this.dataset.manual='true'; triggerUpdate()" onblur="triggerUpdate()"></div>
 </div>
 </div>
-<details class="param-section" style="background: var(--overlay-bg); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 15px;"><summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;"><div style="font-size: 0.8rem; font-weight: bold; flex:1;">⚙️ PARÁMETROS DE VUELO Y WAYPOINTS <span class="arrow"></span></div></summary>
+<details class="param-section" style="background: var(--overlay-bg); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 15px;"><summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;"><div style="font-size: 0.8rem; font-weight: bold; flex:1;">⚙️ PARÁMETROS DE VUELO <span class="arrow"></span></div></summary>
 <div style="padding: 0 12px 12px 12px;">
 <div class="grid-6">${['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'].map(f => `<div class="form-group"><label>${f.toUpperCase()}</label><input type="text" id="m_t${id}_${f}" oninput="triggerUpdate()"></div>`).join('')}</div>
-<div style="font-size: 0.75rem; color: var(--text-main); font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin: 10px 0;">🛢️ COMBUSTIBLE WAYPOINTS</div>
-<div class="grid-4">${[1,2,3,4].map(w => `<div style="background:var(--bg-summary); padding:5px; border-radius:4px;"><div class="form-group"><label>WP ${w}</label><input type="text" id="m_t${id}_wp${w}" oninput="triggerUpdate()"></div><div class="form-group"><label>Plan</label><input type="text" id="m_t${id}_cp${w}" oninput="triggerUpdate()"></div><div class="form-group"><label>Real</label><input type="text" id="m_t${id}_cr${w}" oninput="triggerUpdate()"></div></div>`).join('')}</div>
-<div class="grid-2" style="margin-top:10px;"><div class="form-group"><label>METEOROLOGÍA</label><textarea id="m_t${id}_meteo" oninput="triggerUpdate()"></textarea></div><div class="form-group"><label>AUTORIZACIÓN ATC</label><textarea id="m_t${id}_atc" oninput="triggerUpdate()"></textarea></div></div>
 </div></details>
-<input type="hidden" id="m_t${id}_horo_diff"><input type="hidden" id="m_t${id}_block_diff"><input type="hidden" id="m_t${id}_air_diff"><input type="hidden" id="m_t${id}_fuel_diff">
+<input type="hidden" id="m_t${id}_horo_diff"><input type="hidden" id="m_t${id}_block_diff"><input type="hidden" id="m_t${id}_air_diff">
 <hr class="divider">
 <div class="grid-3">
     <div class="form-group"><label>FOLIO BIT</label><input type="text" id="m_t${id}_folio" placeholder="Folio Único..." oninput="this.dataset.manual='true'; syncFolioDown(${id}); triggerUpdate();"></div>
-    <div class="form-group"><label>Vientos</label><input type="text" id="m_t${id}_winds" oninput="triggerUpdate()"></div>
+    <div class="form-group"><label>Notas</label><input type="text" id="m_t${id}_winds" oninput="triggerUpdate()"></div>
     <div class="form-group"><label>Aterrizaje / APP</label>
         <div style="display:flex; gap:10px; margin-top:2px;">
             <div class="radio-group" style="display:flex; gap:5px; background:var(--bg-input); padding:6px; border-radius:6px; border:1px solid var(--border-color);">
@@ -1124,6 +1121,7 @@ return `<details class="card" id="leg_card_${id}" open>
             <div class="radio-group" style="display:flex; gap:5px; background:var(--bg-input); padding:6px; border-radius:6px; border:1px solid var(--border-color);">
                 <label style="display:flex; align-items:center; gap:3px; font-size:0.75rem;"><input type="radio" name="pnp_${id}" id="m_t${id}_pnp_p" value="P" onchange="triggerUpdate()"> P</label>
                 <label style="display:flex; align-items:center; gap:3px; font-size:0.75rem;"><input type="radio" name="pnp_${id}" id="m_t${id}_pnp_np" value="NP" onchange="triggerUpdate()"> NP</label>
+                <label style="display:flex; align-items:center; gap:3px; font-size:0.75rem;"><input type="radio" name="pnp_${id}" id="m_t${id}_pnp_v" value="V" onchange="triggerUpdate()"> V</label>
             </div>
         </div>
     </div>
@@ -1143,39 +1141,31 @@ return `<table class="print-table" id="print_leg_${id}">
 <td class="col-land" style="color:#000000!important;"><b style="color:#000000!important;">ATERRIZAJE</b></td>
 </tr>
 <tr>
-<td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none;"><tr><td class="text-left no-border-t no-border-x">Destino: <span id="p_t${id}_dest" class="bold"></span></td></tr><tr><td class="text-left no-border-x">Desde: <span id="p_t${id}_desde" class="bold"></span></td></tr><tr><td class="text-left no-border-b no-border-x">Distancia: <span id="p_t${id}_dist" class="bold"></span></td></tr></table></td>
+<td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none;"><tr><td class="text-left no-border-t no-border-x">Destino: <span id="p_t${id}_dest" class="bold"></span></td></tr><tr><td class="text-left no-border-x no-border-b">Desde: <span id="p_t${id}_desde" class="bold"></span></td></tr></table></td>
 <td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none; height:100%;"><tr><td class="no-border-t no-border-x" style="height:33.3%;"><span id="p_t${id}_horo_top" class="bold text-md"></span></td></tr><tr><td class="no-border-x" style="height:33.3%;"><span id="p_t${id}_horo_bot" class="bold text-md"></span></td></tr><tr><td class="no-border-b no-border-x" style="height:33.3%;"><span id="p_t${id}_horo_diff" class="bold text-md"></span></td></tr></table></td>
 <td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none; height:100%;"><tr><td class="no-border-t no-border-x" style="height:33.3%;"><span id="p_t${id}_time_in" class="bold text-md"></span></td></tr><tr><td class="no-border-x" style="height:33.3%;"><span id="p_t${id}_time_out" class="bold text-md"></span></td></tr><tr><td class="no-border-b no-border-x" style="height:33.3%;"><span id="p_t${id}_block_diff" class="bold text-md"></span></td></tr></table></td>
 <td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none; height:100%;"><tr><td class="no-border-t no-border-x" style="height:33.3%;"><span id="p_t${id}_time_on" class="bold text-md"></span></td></tr><tr><td class="no-border-x" style="height:33.3%;"><span id="p_t${id}_time_off" class="bold text-md"></span></td></tr><tr><td class="no-border-b no-border-x" style="height:33.3%;"><span id="p_t${id}_air_diff" class="bold text-md"></span></td></tr></table></td>
-<td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none; height:100%;"><tr><td class="no-border-t no-border-x text-left text-xs" style="height:33.3%;"><b>ON:</b> <span id="p_t${id}_fuel_on" class="bold text-sm" style="float:right;"></span></td></tr><tr><td class="no-border-x text-left text-xs" style="height:33.3%;"><b>OFF:</b> <span id="p_t${id}_fuel_off" class="bold text-sm" style="float:right;"></span></td></tr><tr><td class="no-border-b no-border-x text-left text-xs" style="height:33.3%;"><b>Used:</b> <span id="p_t${id}_fuel_diff" class="bold text-sm" style="float:right;"></span></td></tr></table></td>
+<td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none; height:100%;"><tr><td class="no-border-t no-border-x text-left text-xs" style="height:33.3%;"><b>ON:</b> <span id="p_t${id}_fuel_on" class="bold text-sm" style="float:right;"></span></td></tr><tr><td class="no-border-x text-left text-xs" style="height:33.3%;"><b>OFF:</b> <span id="p_t${id}_fuel_off" class="bold text-sm" style="float:right;"></span></td></tr><tr><td class="no-border-b no-border-x text-left text-xs" style="height:33.3%;"><b>Usado:</b> <span id="p_t${id}_fuel_diff" class="bold text-sm" style="float:right;"></span></td></tr></table></td>
 <td style="padding:0; vertical-align:top;"><table class="tramo-grid" style="border:none; height:100%;"><tr><td class="no-border-t no-border-x text-center bold text-xs" style="height:50%;" id="p_t${id}_dn_text"></td></tr><tr><td class="no-border-x text-center text-xs" style="background:#f0f0f0;"><b>APP. IFR</b></td></tr><tr><td class="no-border-b no-border-x text-center bold text-xs" style="height:50%;" id="p_t${id}_pnp_text"></td></tr></table></td>
 </tr>
 <tr><td colspan="6" style="padding:3px 5px;">
 <span style="display:inline-block; width:15%; font-weight:bold; color:#000000!important;">PAX: <span id="p_t${id}_pax" style="font-weight:bold; color:#000000!important;"></span></span>
 <span style="display:inline-block; width:20%; font-weight:bold; color:#000000!important;">PF: <span id="p_t${id}_pf" style="font-weight:bold; color:#000000!important;"></span></span>
 <span style="display:inline-block; width:20%; font-weight:bold; color:#000000!important;">PM: <span id="p_t${id}_pm" style="font-weight:bold; color:#000000!important;"></span></span>
-<span style="display:inline-block; width:40%; font-weight:bold; color:#000000!important;" id="p_t${id}_winds_wrapper">WINDS: <span id="p_t${id}_winds" style="font-weight:bold; color:#000000!important;"></span></span>
+<span style="display:inline-block; width:40%; font-weight:bold; color:#000000!important;" id="p_t${id}_winds_wrapper">NOTAS: <span id="p_t${id}_winds" style="font-weight:bold; color:#000000!important;"></span></span>
 </td></tr>
 </table>`;
 }
 
 function getPrintParamsHTML(id, index) {
 return `<div id="p_t${id}_params_wrapper" style="display:none;">
-<table class="print-table" id="p_t${id}_tbl_params">
+<table class="print-table" id="p_t${id}_tbl_params" style="margin-bottom:12px;">
 <tr><td colspan="6" class="tramo-title-gray"><b>PARÁMETROS TRAMO N° ${index}</b></td></tr>
 <tr class="gray-bg text-left text-sm"><td style="width:16.6%;"><b>FL:</b></td><td style="width:16.6%;"><b>N° MACH:</b></td><td style="width:16.6%;"><b>ISA:</b></td><td style="width:16.6%;"><b>OAT:</b></td><td style="width:16.6%;"><b>GSPD:</b></td><td style="width:16.6%;"><b>FF L/R:</b></td></tr>
 <tr><td class="cell-data"><span id="p_t${id}_fl"></span></td><td class="cell-data"><span id="p_t${id}_mach"></span></td><td class="cell-data"><span id="p_t${id}_isa"></span></td><td class="cell-data"><span id="p_t${id}_oat"></span></td><td class="cell-data"><span id="p_t${id}_gspd"></span></td><td class="cell-data"><span id="p_t${id}_ff"></span></td></tr>
 <tr class="gray-bg text-left text-sm"><td><b>N1:</b></td><td><b>N2:</b></td><td><b>OIL T°:</b></td><td><b>OIL P:</b></td><td><b>ITT:</b></td><td><b>OBS:</b></td></tr>
 <tr><td class="cell-data"><span id="p_t${id}_n1"></span></td><td class="cell-data"><span id="p_t${id}_n2"></span></td><td class="cell-data"><span id="p_t${id}_oilt"></span></td><td class="cell-data"><span id="p_t${id}_oilp"></span></td><td class="cell-data"><span id="p_t${id}_itt"></span></td><td class="cell-data"><span id="p_t${id}_obs"></span></td></tr>
 </table>
-<table class="print-table" id="p_t${id}_tbl_fuel">
-<tr><td colspan="5" class="tramo-title-gray"><b>COMBUSTIBLE TRAMO N° ${index}</b></td></tr>
-<tr class="gray-bg text-sm"><td style="width:20%; text-align:left;"><b>ID WP</b></td>${[1,2,3,4].map(w =>`<td style="width:20%;" class="text-center"><b><span id="p_t${id}_wp${w}"></span></b></td>`).join('')}</tr>
-<tr><td class="gray-bg text-sm text-left"><b>Plan</b></td>${[1,2,3,4].map(w =>`<td class="cell-data"><span id="p_t${id}_cp${w}"></span></td>`).join('')}</tr>
-<tr><td class="gray-bg text-sm text-left"><b>Real</b></td>${[1,2,3,4].map(w =>`<td class="cell-data"><span id="p_t${id}_cr${w}"></span></td>`).join('')}</tr>
-</table>
-<table class="print-table" id="p_t${id}_tbl_meteo"><tr><td class="tramo-title-gray tramo-title-left"><b>METEOROLOGÍA TRAMO N° ${index}</b></td></tr><tr><td style="height:25px; vertical-align:top; text-align:left;"><span id="p_t${id}_meteo"></span></td></tr></table>
-<table class="print-table" id="p_t${id}_tbl_atc" style="margin-bottom:12px;"><tr><td class="tramo-title-gray tramo-title-left"><b>AUTORIZACIÓN ATC TRAMO N° ${index}</b></td></tr><tr><td style="height:25px; vertical-align:top; text-align:left;"><span id="p_t${id}_atc"></span></td></tr></table>
 </div>`;
 }
 
@@ -1665,25 +1655,25 @@ folioGroups.forEach(group => {
 });
 el('print-folios-wrapper').innerHTML = foliosHtml;
 
-const stdFields = ['folio','dest','desde','dist','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
+const stdFields = ['folio','dest','desde','pax','pf','pm','winds','time_out','time_off','time_on','time_in','block_diff','air_diff','horo_top','horo_bot','horo_diff','fuel_on','fuel_off'];
 const prmFields = ['fl','mach','isa','oat','gspd','ff','n1','n2','oilt','oilp','itt','obs'];
-const wpfFields = ['wp1','wp2','wp3','wp4','cp1','cp2','cp3','cp4','cr1','cr2','cr3','cr4'];
 
 legIds.forEach(id => {
     stdFields.forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`)));
     const fUsedVal = val(`m_t${id}_fuel_diff`); setTxtUpper(`p_t${id}_fuel_diff`, fUsedVal ? Math.round(parseFloat(fUsedVal)) : '');
     setTxtUpper(`p_t${id}_fecha`, formatDatePdf(val(`m_t${id}_fecha`)));
     const windsVal = val(`m_t${id}_winds`).trim(); if(el(`p_t${id}_winds_wrapper`)) el(`p_t${id}_winds_wrapper`).style.display = windsVal ? "inline-block" : "none";
-    const hasPrm = prmFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasFuel = wpfFields.some(f => val(`m_t${id}_${f}`).trim() !== ""); const hasMet = val(`m_t${id}_meteo`).trim() !== "", hasAtc = val(`m_t${id}_atc`).trim() !== "";
-    prmFields.concat(wpfFields).forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); 
-    setTxtUpper(`p_t${id}_meteo`, val(`m_t${id}_meteo`)); setTxtUpper(`p_t${id}_atc`, val(`m_t${id}_atc`));
     
-    if(el(`p_t${id}_tbl_params`)) el(`p_t${id}_tbl_params`).style.display = hasPrm ? "table" : "none"; if(el(`p_t${id}_tbl_fuel`)) el(`p_t${id}_tbl_fuel`).style.display = hasFuel ? "table" : "none"; if(el(`p_t${id}_tbl_meteo`)) el(`p_t${id}_tbl_meteo`).style.display = hasMet ? "table" : "none"; if(el(`p_t${id}_tbl_atc`)) el(`p_t${id}_tbl_atc`).style.display = hasAtc ? "table" : "none"; if(el(`p_t${id}_params_wrapper`)) el(`p_t${id}_params_wrapper`).style.display = (hasPrm||hasFuel||hasMet||hasAtc) ? "block" : "none";
+    const hasPrm = prmFields.some(f => val(`m_t${id}_${f}`).trim() !== "");
+    prmFields.forEach(f => setTxtUpper(`p_t${id}_${f}`, val(`m_t${id}_${f}`))); 
+    
+    if(el(`p_t${id}_tbl_params`)) el(`p_t${id}_tbl_params`).style.display = hasPrm ? "table" : "none"; 
+    if(el(`p_t${id}_params_wrapper`)) el(`p_t${id}_params_wrapper`).style.display = hasPrm ? "block" : "none";
 
     const dnVal = document.querySelector(`input[name="dn_${id}"]:checked`)?.value || '';
     const pnpVal = document.querySelector(`input[name="pnp_${id}"]:checked`)?.value || '';
     setTxtUpper(`p_t${id}_dn_text`, dnVal === 'D' ? 'DIURNO' : (dnVal === 'N' ? 'NOCTURNO' : '')); 
-    setTxtUpper(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : ''));
+    setTxtUpper(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : (pnpVal === 'V' ? 'VISUAL' : '')));
 });
 
 const sinObs = el('m_sms_sin_obs')?.checked; setTxtUpper('sms_p_fecha', formatDatePdf(val('m_fecha_gen'))); setTxtUpper('sms_p_pov', val('m_pov')); setTxtUpper('sms_p_matricula', val('m_matricula')); setTxtUpper('sms_p_material', val('m_material'));
