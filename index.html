@@ -1,3 +1,4 @@
+<index>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -6,7 +7,7 @@
 
 <!-- CONFIGURACIÓN PWA Y OPTIMIZACIÓN iPAD -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#F4F7F9">
+<meta id="theme-color-meta" name="theme-color" content="#F4F7F9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PlanOp Cardal">
@@ -22,6 +23,8 @@
     function initTheme() {
         const savedTheme = localStorage.getItem('aerocardal_theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+        const metaTheme = document.getElementById('theme-color-meta');
+        if (metaTheme) metaTheme.setAttribute('content', savedTheme === 'dark' ? '#111111' : '#F4F7F9');
     }
     initTheme();
 </script>
@@ -30,20 +33,19 @@
 /* =======================================================
 VARIABLES Y ESTILOS MODO DÍA (DEFAULT) Y MODO NOCHE
 ======================================================= */
-/* MODO DÍA (DEFAULT) - Paleta Aeronáutica de Alto Contraste */
 :root {
-  --bg-main: #F4F7F9; /* Gris azulado aeronáutico claro */
+  --bg-main: #F4F7F9;
   --bg-card: #FFFFFF;
   --bg-input: #FFFFFF;
   --border-color: #CBD5E1;
   --border-focus: #0277BD;
   --text-main: #0F172A;
   --text-muted: #546E7A;
-  --accent: #01579B; /* Deep Aviation Blue */
+  --accent: #01579B;
   --accent-hover: #0277BD;
   --warning: #D97706; 
-  --danger: #DC2626; /* Rojo aeronáutico */
-  --success: #16A34A; /* Verde */
+  --danger: #DC2626;
+  --success: #16A34A;
   --bg-box: #E2E8F0;
   --bg-summary: #F1F5F9;
   --overlay-bg: #F8FAFC;
@@ -54,7 +56,6 @@ VARIABLES Y ESTILOS MODO DÍA (DEFAULT) Y MODO NOCHE
   --pov-shadow: none;
 }
 
-/* MODO NOCHE (Original) */
 [data-theme="dark"] {
   --bg-main: #111111;
   --bg-card: #1E1E1E;
@@ -138,7 +139,7 @@ textarea { resize: vertical; min-height: 60px; font-family: inherit; }
 .summary-sub { font-size: 0.8rem; color: var(--accent); margin-top: 2px;}
 hr.divider { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
 .fab-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 0.8rem; background: var(--bg-fab); backdrop-filter: blur(5px); border-top: 1px solid var(--border-color); text-align: center; z-index: 100; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;}
-.btn-print { font-weight: bold; border-radius: 6px; border: none; }
+.btn-print { font-weight: bold; border-radius: 6px; border: none; cursor: pointer; }
 .checkbox-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; line-height: 1.3; }
 .checkbox-item input[type="checkbox"] { flex-shrink: 0; margin-top: 2px; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;}
 .radio-group input[type="radio"] { accent-color: var(--accent); cursor: pointer; width: 16px; height: 16px; margin: 0; }
@@ -174,6 +175,12 @@ ESTILOS DE IMPRESIÓN NATIVA Y PDF (SIEMPRE BLANCO Y NEGRO)
 .pdf-page { background: white; width: 100%; box-sizing: border-box; }
 .print-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 6px; page-break-inside: avoid; break-inside: avoid; table-layout: fixed; }
 .print-table th, .print-table td, .tramo-grid td { border: 1px solid black; padding: 3px 5px; vertical-align: middle; font-size: 9px; }
+.col-fecha { width: 23%; }
+.col-horo { width: 14%; }
+.col-block { width: 14%; }
+.col-air { width: 14%; }
+.col-fuel { width: 19%; }
+.col-land { width: 16%; }
 .logo-text { font-size: 15px; font-weight: 900; font-style: italic; letter-spacing: -0.5px; color: #000000 !important; }
 .main-title { font-size: 13px; font-weight: bold; text-align: center; letter-spacing: 0.5px; text-transform: uppercase; color: #000000 !important; }
 .summary-title-pdf, .tramo-title-darkgray { background-color: #E0E0E0 !important; color: #000000 !important; text-align: center; font-weight: bold; padding: 3px; letter-spacing: 1px; font-size: 11px; text-transform: uppercase; border: 1px solid black; }
@@ -218,7 +225,7 @@ Volver a la app
 
 <header>
   <div class="header-content">
-    <div style="width: 32px;"></div> <!-- Spacer para centrar el título -->
+    <div style="width: 32px;"></div>
     <div>
       <h1>AEROCARDAL - PLANIFICACIÓN OPERACIONAL</h1>
       <div class="subtitle">VERSIÓN 2.2 (MARCHA BLANCA PILOTOS)</div>
@@ -234,7 +241,7 @@ Volver a la app
 <div class="card-content">
 <div class="grid-header">
 <div class="form-group"><label style="color:var(--accent);">Fecha Inicial Vuelo</label><input type="date" id="m_fecha_gen" onchange="triggerUpdate()"></div>
-<div class="form-group"><label style="color:var(--pov-color); text-shadow: var(--pov-shadow);">P.O.V. N°</label><input type="text" id="m_pov" oninput="triggerUpdate()" placeholder="Ej: 1234"></div>
+<div class="form-group"><label style="color:var(--pov-color); text-shadow: var(--pov-shadow);">P.O.V. N°</label><input type="text" id="m_pov" oninput="triggerUpdate()" placeholder="Ej: 1234" style="text-transform: uppercase;"></div>
 </div>
 <div class="grid-3">
 <div class="form-group">
@@ -367,6 +374,8 @@ function toggleTheme() {
     let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('aerocardal_theme', newTheme);
+    const metaTheme = document.getElementById('theme-color-meta');
+    if (metaTheme) metaTheme.setAttribute('content', newTheme === 'dark' ? '#111111' : '#F4F7F9');
     updateThemeIcon(newTheme);
 }
 
@@ -375,7 +384,6 @@ function updateThemeIcon(theme) {
     if (btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
 }
 
-// Asegurar ícono correcto al cargar
 window.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'light');
 });
@@ -391,7 +399,7 @@ const GOOGLE_CLIENT_ID = '564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.goo
 const DRIVE_API_URL = 'https://www.googleapis.com/drive/v3/files';
 const SHARED_FOLDER_ID = '1uFFBWEPcFGrbP6lYBX0x5I3mSEPTjBR9';
 
-let tokenClient;
+let tokenClient = null;
 let accessToken = null;
 let pendingAction = null;
 
@@ -403,7 +411,7 @@ if (localStorage.getItem('scope_version') !== SCOPE_VERSION) {
 }
 
 function initDrive() {
-    if (!window.google) return;
+    if (!window.google || !google.accounts || !google.accounts.oauth2) return;
     tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: GOOGLE_CLIENT_ID,
         scope: 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/gmail.send',
@@ -420,23 +428,28 @@ function initDrive() {
 
     let savedToken = localStorage.getItem('gdrive_token');
     let savedExpires = localStorage.getItem('gdrive_expires');
-    if(savedToken && savedExpires && Date.now() < parseInt(savedExpires)) {
+    if (savedToken && savedExpires && Date.now() < parseInt(savedExpires, 10)) {
         accessToken = savedToken;
     }
 }
 
 function ensureAuth(actionCallback) {
     if (!GOOGLE_CLIENT_ID) { alert("⚠️ Falta el CLIENT_ID."); return; }
-    if (!val('m_pov')) { alert("⚠️ Por favor, ingresa el P.O.V. N° en la cabecera antes de operar en la nube."); return; }
+    if (!val('m_pov').trim()) { alert("⚠️ Por favor, ingresa el P.O.V. N° en la cabecera antes de operar en la nube."); return; }
     
     let savedExpires = localStorage.getItem('gdrive_expires');
-    if(savedExpires && Date.now() >= parseInt(savedExpires)) {
+    if (savedExpires && Date.now() >= parseInt(savedExpires, 10)) {
         accessToken = null;
         localStorage.removeItem('gdrive_token');
         localStorage.removeItem('gdrive_expires');
     }
 
-    if (!accessToken) { 
+    if (!accessToken) {
+        if (!tokenClient) initDrive();
+        if (!tokenClient) {
+            alert("⚠️ No se pudo conectar con el servicio de autenticación de Google. Verifica tu conexión a internet e intenta nuevamente.");
+            return;
+        }
         pendingAction = actionCallback; 
         tokenClient.requestAccessToken({prompt: ''}); 
     } else { 
@@ -449,7 +462,7 @@ async function fetchWithAuth(url, options = {}) {
     options.headers['Authorization'] = 'Bearer ' + accessToken;
     let res = await fetch(url, options);
     if (res.status === 401 || res.status === 403) {
-        if(res.status === 403 && url.includes('gmail')) {
+        if (res.status === 403 && url.includes('gmail')) {
             alert("❌ ERROR 403: La API de Gmail no está habilitada. Verifica tu Google Cloud Console.");
         } else if (res.status === 401) {
             accessToken = null;
@@ -467,7 +480,8 @@ function cerrarOverlay() { ocultarCargando(); }
 function mostrarModalPDF(link) { el('loading-spinner').style.display = 'none'; el('loading-text').innerText = "✅ ¡Proceso finalizado con éxito!"; const btn = el('btn-open-pdf'); btn.style.display = 'block'; btn.onclick = () => window.open(link, '_blank'); el('btn-close-overlay').style.display = 'block'; }
 
 async function getOrCreateFolder(povName) {
-    const folderName = `POV_${povName}`;
+    const cleanPov = povName.trim().toUpperCase();
+    const folderName = `POV_${cleanPov}`;
     const query = encodeURIComponent(`name='${folderName}' and '${SHARED_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
     let res = await fetchWithAuth(`${DRIVE_API_URL}?q=${query}&fields=files(id, name)`);
     let data = await res.json();
@@ -532,7 +546,7 @@ async function createMimeMessage(to, subject, body, pdfBlob, filename) {
                     ""
                 ].join("\r\n");
 
-                let rawMessage = headerAndBody + "\r\n\r\n" + base64Pdf + "\r\n" + `--${boundary}--`;
+                let rawMessage = headerAndBody + "\r\n" + base64Pdf + "\r\n" + `--${boundary}--`;
                 let encoder = new TextEncoder();
                 let bytes = encoder.encode(rawMessage);
                 let binary = '';
@@ -568,7 +582,7 @@ async function sendGmailEmail(to, subject, body, pdfBlob, filename) {
 // ==========================================
 function toggleCerrarVuelo() {
     if (!vueloCerrado) {
-        if (!val('m_pic_ini')) {
+        if (!val('m_pic_ini').trim()) {
             alert("⚠️ ACCIÓN DENEGADA: Debes ingresar las iniciales del Capitán en la cabecera antes de poder cerrar el vuelo.");
             return;
         }
@@ -600,13 +614,15 @@ function toggleCerrarVuelo() {
 }
 
 async function despacharVueloCerrado() {
+    let uiPrepared = false;
     try {
-        let pov = val('m_pov') || "SIN_POV";
-        let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
+        let pov = val('m_pov').trim().toUpperCase() || "SIN_POV";
+        let dateStr = val('m_fecha_gen') || getLocalDateISO();
 
         mostrarCargando("Ensamblando PDFs segmentados...");
         prepareUiForPdf();
-        await new Promise(r => setTimeout(r, 800)); // Espera estabilización de UI
+        uiPrepared = true;
+        await new Promise(r => setTimeout(r, 800));
 
         let pdfMaster = await generarPdfSilencioso('.pdf-page');
         let pdfPlan = await generarPdfSilencioso('#print-folios-wrapper .pdf-page');
@@ -614,6 +630,7 @@ async function despacharVueloCerrado() {
         let pdfSec = await generarPdfSilencioso('#print-sec-forms-wrapper .pdf-page');
 
         restoreUiAfterPdf();
+        uiPrepared = false;
 
         mostrarCargando("Guardando respaldos en Google Drive...");
         let folderId = await getOrCreateFolder(pov);
@@ -630,7 +647,10 @@ async function despacharVueloCerrado() {
 
         let smsSinObs = el('m_sms_sin_obs')?.checked;
         let secSinObs = true;
-        Object.values(secManualState).forEach(st => { if (st.sinObs === false) secSinObs = false; });
+        Object.values(secManualState).forEach(st => {
+            const allItemsChecked = ['A','B','C','D','E','F','G','H','I','J','K'].every(k => st[k] === true);
+            if (!st.sinObs && !allItemsChecked) secSinObs = false;
+        });
 
         let bodyText = `Link respaldo consolidado Drive: ${driveLink}`;
 
@@ -645,9 +665,12 @@ async function despacharVueloCerrado() {
         let subjSec = secSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SEGURIDAD CON OBSERVACIONES)`;
         if(pdfSec) await sendGmailEmail('academics.viper@gmail.com', subjSec, bodyText, pdfSec, `POV_${pov}_SEG.pdf`);
 
+        haSidoGuardado = true;
+        autoSave();
         mostrarModalPDF(driveLink);
 
     } catch(e) {
+        if (uiPrepared) restoreUiAfterPdf();
         console.error(e);
         alert("❌ Ocurrió un error en el despacho automatizado:\n\n" + e.message + "\n\nLos datos han sido protegidos de todos modos en el dispositivo.");
         ocultarCargando();
@@ -658,31 +681,42 @@ function aplicarEstadoCierre() {
     const uiContainer = el('mobile-ui');
     if (!uiContainer) return;
     
-    // Bloquear inputs
     const elementsToDisable = uiContainer.querySelectorAll('input:not([type="hidden"]), textarea, select');
     elementsToDisable.forEach(element => { element.disabled = vueloCerrado; });
 
-    // Bloquear botones operativos (eliminar, añadir) excluyendo el contenedor flotante
     const actionButtons = uiContainer.querySelectorAll('button:not(.btn-print)');
     actionButtons.forEach(btn => { 
         if (btn.id !== 'btn_cerrar_vuelo' && btn.id !== 'theme-toggle') { btn.disabled = vueloCerrado; } 
     });
 
-    // Enlaces de herencia
     const linkBtns = uiContainer.querySelectorAll('.link-btn');
     linkBtns.forEach(btn => {
         btn.style.opacity = vueloCerrado ? "0.3" : "1";
         btn.style.cursor = vueloCerrado ? "not-allowed" : "pointer";
     });
 
-    // Bloqueo visual de Pad de Firma
     const canvasEl = el('firma-canvas');
     if (canvasEl) {
         if (vueloCerrado) canvasEl.classList.add('signature-pad-locked');
         else canvasEl.classList.remove('signature-pad-locked');
     }
 
-    // Header UI
+    // Si el vuelo está abierto, respetar los bloqueos individuales de "Sin observaciones"
+    if (!vueloCerrado) {
+        const smsSinObs = el('m_sms_sin_obs')?.checked;
+        for (let i = 1; i <= 47; i++) {
+            const cb = el(`m_sms_${i}`);
+            if (cb) cb.disabled = !!smsSinObs;
+        }
+        Object.keys(secManualState).forEach(dateKey => {
+            const secSinObs = el(`m_sec_sin_obs_${dateKey}`)?.checked;
+            ['A','B','C','D','E','F','G','H','I','J','K'].forEach(id => {
+                const cb = el(`m_sec_${dateKey}_${id}`);
+                if (cb) cb.disabled = !!secSinObs;
+            });
+        });
+    }
+
     const header = document.querySelector('header');
     if (header) {
         header.style.backgroundColor = vueloCerrado ? "#7F1D1D" : "var(--header-bg)";
@@ -709,12 +743,13 @@ function aplicarEstadoCierre() {
 // ==========================================
 // MÓDULO PAD DE FIRMA DIGITAL
 // ==========================================
-let signatureCanvas, sigCtx, isDrawing = false;
+let signatureCanvas, sigCtx, isDrawing = false, hasSignatureStrokes = false;
 function initSignaturePad() {
     signatureCanvas = el('firma-canvas');
     if(!signatureCanvas) return;
     sigCtx = signatureCanvas.getContext('2d');
-    sigCtx.strokeStyle = "#0F172A"; // Tinta oscura clásica
+    sigCtx.strokeStyle = "#0F172A";
+    sigCtx.fillStyle = "#0F172A";
     sigCtx.lineWidth = 3;
     sigCtx.lineCap = "round";
     sigCtx.lineJoin = "round";
@@ -732,9 +767,12 @@ function initSignaturePad() {
     const startDraw = (e) => {
         if(vueloCerrado) return;
         isDrawing = true;
+        hasSignatureStrokes = true;
         const pos = getPos(e);
         sigCtx.beginPath();
         sigCtx.moveTo(pos.x, pos.y);
+        sigCtx.lineTo(pos.x + 0.1, pos.y + 0.1);
+        sigCtx.stroke();
         e.preventDefault();
     };
     const draw = (e) => {
@@ -747,8 +785,10 @@ function initSignaturePad() {
     const endDraw = () => {
         if(isDrawing) {
             isDrawing = false;
-            guardarFirmaEnInput();
-            triggerUpdate(); 
+            if (hasSignatureStrokes) {
+                guardarFirmaEnInput();
+                triggerUpdate();
+            }
         }
     };
 
@@ -763,19 +803,21 @@ function initSignaturePad() {
 
 function limpiarFirma() {
     if(vueloCerrado) return;
+    hasSignatureStrokes = false;
     if(sigCtx) sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
     el('m_firma_data').value = "";
     triggerUpdate();
 }
 
 function guardarFirmaEnInput() {
-    if(signatureCanvas) {
+    if(signatureCanvas && hasSignatureStrokes) {
         el('m_firma_data').value = signatureCanvas.toDataURL("image/png");
     }
 }
 
 function cargarFirmaEnCanvas(dataURL) {
     if(!dataURL || !signatureCanvas) return;
+    hasSignatureStrokes = true;
     let img = new Image();
     img.onload = () => {
         sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
@@ -790,7 +832,7 @@ async function accionGuardar() {
     try { 
         let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); 
         let dataBlob = new Blob([getAllData()], { type: "application/json" }); await uploadFileRaw(dataBlob, 'Progreso.json', folderId, file ? file.id : null); 
-        haSidoGuardado = true; // Marcar como guardado en la nube
+        haSidoGuardado = true;
         autoSave();
         alert("✅ Progreso guardado exitosamente en la carpeta de Drive."); 
     } catch(e) { 
@@ -806,7 +848,7 @@ async function accionLeer() {
         if (!file) { alert("⚠️ No se encontró ningún progreso guardado para este POV."); ocultarCargando(); return; } 
         let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media`); let content = await res.json(); 
         loadDataIntoApp(content); 
-        haSidoGuardado = true; // Recuperado desde la nube, se considera guardado
+        haSidoGuardado = true;
         autoSave();
         alert("✅ Progreso recuperado exitosamente."); 
     } catch(e) { 
@@ -832,7 +874,8 @@ function prepareUiForPdf() {
 function restoreUiAfterPdf() {
     const mainUi = el('mobile-ui'); const header = document.querySelector('header'); const fab = document.querySelector('.fab-container'); const vpMeta = el('viewport-meta');
     const printLayout = el('print-layout');
-    vpMeta.setAttribute('content', originalVp); printLayout.style.display = 'none'; printLayout.style.width = '';
+    if (originalVp) vpMeta.setAttribute('content', originalVp);
+    printLayout.style.display = 'none'; printLayout.style.width = '';
     if(mainUi) mainUi.style.display = ''; if(header) header.style.display = ''; if(fab) fab.style.display = 'flex'; window.scrollTo(0, originalScroll);
 }
 
@@ -844,7 +887,6 @@ async function generarPdfSilencioso(selector) {
         filename: 'temp.pdf',
         image: { type: 'jpeg', quality: 1.0 },
         pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'table'] },
-        // IMPORTANTE: SCALE 1.5 ALIGERA EL USO DE MEMORIA EN iPAD OFFLINE EVITANDO EL CRASH
         html2canvas: { scale: 1.5, useCORS: true, logging: false, width: 800, windowWidth: 800, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
     };
@@ -858,16 +900,19 @@ async function generarPdfSilencioso(selector) {
 async function accionGenerarPDF() {
     mostrarCargando("Ensamblando PDF consolidado...");
     setTimeout(async () => {
+        let uiPrepared = false;
         try {
-            let pov = val('m_pov'); 
+            let pov = val('m_pov').trim().toUpperCase(); 
             prepareUiForPdf();
+            uiPrepared = true;
             await new Promise(r => setTimeout(r, 800));
             let pdfMaster = await generarPdfSilencioso('.pdf-page');
             restoreUiAfterPdf();
+            uiPrepared = false;
 
             mostrarCargando("Subiendo a Google Drive...");
             let folderId = await getOrCreateFolder(pov);
-            let dateStr = val('m_fecha_gen') || new Date().toISOString().split('T')[0];
+            let dateStr = val('m_fecha_gen') || getLocalDateISO();
             let filename = `Planificacion_POV_${pov}_${dateStr}.pdf`;
             let existingFile = await findFileInFolder(filename, folderId);
             let uploadRes = await uploadFileRaw(pdfMaster, filename, folderId, existingFile ? existingFile.id : null);
@@ -875,6 +920,7 @@ async function accionGenerarPDF() {
             let finalData = await finalRes.json();
             mostrarModalPDF(finalData.webViewLink);
         } catch(e) { 
+            if (uiPrepared) restoreUiAfterPdf();
             if(e.message === "SESIÓN_EXPIRADA") alert("⚠️ La sesión ha caducado por seguridad. Presiona de nuevo para reactivar.");
             else alert("❌ Error al procesar PDF en Drive: " + e.message); 
             ocultarCargando(); 
@@ -890,6 +936,12 @@ const setTxtUpper = (id, t) => { if(el(id)) el(id).innerHTML = t !== null && t !
 let legIds = [], nextLegId = 1; let updateRAF = null; let secManualState = {}; 
 const ordinals = ["", "PRIMER", "SEGUNDO", "TERCER", "CUARTO", "QUINTO", "SEXTO", "SÉPTIMO", "OCTAVO", "NOVENO", "DÉCIMO", "UNDÉCIMO", "DUODÉCIMO"];
 const formatDec = val => Number(val || 0).toFixed(1);
+
+function getLocalDateISO() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().split('T')[0];
+}
 
 function formatDatePdf(dateStr) {
   if (!dateStr) return '';
@@ -921,9 +973,9 @@ const pilotosDB = {
 };
 let capitanActual = { nombre: "", rut: "", licencia: "" }; let foActual = { nombre: "" }; let fo2Actual = { nombre: "" };
 
-function formatNameForSMS(fullName) { if(!fullName) return ""; const parts = fullName.split(' '); if(parts.length >= 2) return (parts[0][0] + ". " + parts[1]).toUpperCase(); return fullName.toUpperCase(); }
+function formatNameForSMS(fullName) { if(!fullName) return ""; const parts = fullName.trim().split(' '); if(parts.length >= 2) return (parts[0][0] + ". " + parts[1]).toUpperCase(); return fullName.toUpperCase(); }
 function lookupPilots() {
-const picIni = val('m_pic_ini').toUpperCase(), sicIni = val('m_sic_ini').toUpperCase(), sic2Ini = val('m_sic2_ini').toUpperCase();
+const picIni = val('m_pic_ini').trim().toUpperCase(), sicIni = val('m_sic_ini').trim().toUpperCase(), sic2Ini = val('m_sic2_ini').trim().toUpperCase();
 if (pilotosDB[picIni]) { capitanActual = pilotosDB[picIni]; setTxt('ui_pic_name', `👤 ${capitanActual.nombre}`); } else { capitanActual = { nombre: "", rut: "", licencia: "" }; setTxt('ui_pic_name', picIni ? 'No encontrado' : '&nbsp;'); }
 if (pilotosDB[sicIni]) { foActual = pilotosDB[sicIni]; setTxt('ui_sic_name', `👤 ${foActual.nombre}`); } else { foActual = { nombre: "" }; setTxt('ui_sic_name', sicIni ? 'No encontrado' : '&nbsp;'); }
 if (pilotosDB[sic2Ini]) { fo2Actual = pilotosDB[sic2Ini]; setTxt('ui_sic2_name', `👤 ${fo2Actual.nombre}`); } else { fo2Actual = { nombre: "" }; setTxt('ui_sic2_name', sic2Ini ? 'No encontrado' : '&nbsp;'); }
@@ -1015,11 +1067,11 @@ cat.items.forEach((item, itemIdx) => { let realIdx = startIdx + itemIdx; pSmsHtm
 });
 pSmsHtml += `</table>
 <div style="border:1px solid black; padding:8px; height:250px; margin-bottom:5px; overflow:hidden; color:#000000!important;">
-<b style="color:#000000!important; font-size:10px; ">Observaciones:</b><br>
-<span id="p_sms_obs" style="color:#000000!important; font-weight:bold;"></span>
+<b style="color:#000000!important; font-size:10px;">Observaciones:</b><br>
+<span id="p_sms_obs" style="color:#000000!important; font-weight:bold; white-space:pre-wrap;"></span>
 </div>
 <div style="padding-top:2px; color:#000000!important; text-align: center;">
-<b style="color:#000000!important; font-size:10px; ">Firma Comandante de Aeronave:</b><br>
+<b style="color:#000000!important; font-size:10px;">Firma Comandante de Aeronave:</b><br>
 <div style="border-bottom:1px solid black; display:inline-block; width:220px; padding-bottom: 2px; text-align:center; margin-top:5px;">
     <div id="sms_firma_placeholder" style="height: 25px;"></div>
     <span id="sms_p_nombre" style="color:#000000!important; font-weight:bold; font-size:10px; display:block;"></span>
@@ -1039,7 +1091,19 @@ const minsToTime = m => { if (m === null || isNaN(m)) return "--:--"; m = (m % 1
 const timeDiffMins = (start, end) => { const s = timeToMins(start), e = timeToMins(end); if (s === null || e === null) return 0; return e - s < 0 ? (e - s) + 1440 : e - s; };
 const addMins = (t, mins) => { if (!t || !t.includes(':')) return ""; let [h, m] = t.split(':').map(Number); let total = h * 60 + m + mins; total = ((total % 1440) + 1440) % 1440; return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`; };
 
-function toggleLink(id, field) { if(vueloCerrado) return; const input = el(`m_t${id}_field`), btn = el(`lbtn_${field}_${id}`); const isLinked = input.dataset.linked === "true"; input.dataset.linked = !isLinked; input.readOnly = !isLinked; input.classList.toggle('inherited-input', !isLinked); btn.textContent = isLinked ? "🔓" : "🔗"; btn.title = isLinked ? "Restablecer herencia" : "Desvincular"; if(isLinked) triggerUpdate(); }
+function toggleLink(id, field) {
+    if (vueloCerrado) return;
+    const input = el(`m_t${id}_${field}`), btn = el(`lbtn_${field}_${id}`);
+    if (!input || !btn) return;
+    const isLinked = input.dataset.linked === "true";
+    const nextLinked = !isLinked;
+    input.dataset.linked = String(nextLinked);
+    input.readOnly = nextLinked;
+    input.classList.toggle('inherited-input', nextLinked);
+    btn.textContent = nextLinked ? "🔗" : "🔓";
+    btn.title = nextLinked ? "Desvincular" : "Restablecer herencia";
+    triggerUpdate();
+}
 
 function syncFolioDown(sourceId) {
     if(vueloCerrado) return;
@@ -1059,26 +1123,26 @@ function syncFolioDown(sourceId) {
 
 function getLegHTML(id, index, defaultOrigin = '') {
 return `<details class="card" id="leg_card_${id}" open>
-<summary>
-    <span style="display:flex; align-items:center; gap:10px;">
+<summary style="display:flex; justify-content:space-between; align-items:center;">
+    <span class="leg-title-span" style="display:flex; align-items:center; gap:10px;">
         🛫 ${ordinals[index] || index + '°'} TRAMO (Leg #${index})
     </span>
-    <div style="display:flex; align-items:center; gap:8px;">
+    <div style="display:flex; align-items:center; gap:8px;" onclick="event.stopPropagation();">
         <div style="display:flex; align-items:center; gap:5px; background:var(--overlay-bg); padding:2px 8px; border-radius:6px; border:1px solid var(--border-color);">
             <label style="font-size:0.6rem; color:var(--text-muted); margin:0;">FECHA:</label>
             <input type="date" id="m_t${id}_fecha" data-linked="true" readonly class="inherited-input" style="border:none !important; background:transparent !important; padding:0; width:105px; color:var(--accent) !important; font-size:0.8rem; box-shadow:none; outline:none;" onchange="triggerUpdate()">
             <span class="link-btn" id="lbtn_fecha_${id}" onclick="toggleLink(${id}, 'fecha')" style="font-size:0.8rem; margin-left:3px;">🔗</span>
         </div>
-        ${index > 1 ? `<button class="btn btn-danger" onclick="removeLeg(${id})" style="padding:4px 8px;">Eliminar</button>` : ''}
-        <span class="arrow"></span>
+        <button class="btn btn-danger btn-remove-leg" id="btn_rem_${id}" onclick="removeLeg(${id})" style="padding:4px 8px; ${index <= 1 ? 'display:none;' : ''}">Eliminar</button>
     </div>
+    <span class="arrow"></span>
 </summary>
 <div class="card-content">
 <div class="grid-4" style="margin-bottom: 8px;">
 <div class="form-group"><label>Desde <span class="link-btn" id="lbtn_desde_${id}" onclick="toggleLink(${id}, 'desde')">🔗</span></label><input type="text" id="m_t${id}_desde" data-linked="true" value="${defaultOrigin}" style="text-transform: uppercase;" oninput="triggerUpdate()"></div>
 <div class="form-group"><label>Destino</label><input type="text" id="m_t${id}_dest" oninput="triggerUpdate()" style="text-transform: uppercase;"></div>
-<div class="form-group"><label>PF</label><input type="text" id="m_t${id}_pf" placeholder="Ej: XX o XX/YY" oninput="triggerUpdate()"></div>
-<div class="form-group"><label>PM</label><input type="text" id="m_t${id}_pm" placeholder="Ej: YY o YY/ZZ" oninput="triggerUpdate()"></div>
+<div class="form-group"><label>PF</label><input type="text" id="m_t${id}_pf" placeholder="Ej: XX o XX/YY" style="text-transform: uppercase;" oninput="triggerUpdate()"></div>
+<div class="form-group"><label>PM</label><input type="text" id="m_t${id}_pm" placeholder="Ej: YY o YY/ZZ" style="text-transform: uppercase;" oninput="triggerUpdate()"></div>
 </div>
 <div class="time-sequence-box">
 <div style="font-size:0.72rem; color:var(--text-main); margin-bottom:8px; font-weight:bold;">SECUENCIA HORARIA (24H)</div>
@@ -1100,7 +1164,7 @@ return `<details class="card" id="leg_card_${id}" open>
 <div><label style="font-size:0.6rem; color:var(--text-muted);">1. ON (Inicial)</label><input type="number" step="0.1" id="m_t${id}_fuel_on" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
 <div><label style="font-size:0.6rem; color:var(--text-muted);">2. OFF (Final)</label><input type="number" step="0.1" id="m_t${id}_fuel_off" oninput="triggerUpdate()"></div>
 <div><label style="font-size:0.6rem; color:var(--accent);">3. USADO</label><input type="text" id="m_t${id}_fuel_diff" readonly class="inherited-input" tabindex="-1" style="text-align:center;"></div>
-<div><label style="font-size:0.6rem; color:var(--success);">4. REFUEL</label><input type="number" step="0.1" id="m_t${id}_fuel_refuel" placeholder="Auto" oninput="this.dataset.manual='true'; triggerUpdate()" onblur="triggerUpdate()"></div>
+<div><label style="font-size:0.6rem; color:var(--success);">4. REFUEL</label><input type="number" step="0.1" id="m_t${id}_fuel_refuel" placeholder="Auto" oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; triggerUpdate()" onblur="triggerUpdate()"></div>
 </div>
 </div>
 <details class="param-section" style="background: var(--overlay-bg); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 15px;"><summary style="display:flex; justify-content:space-between; align-items:center; padding: 12px;"><div style="font-size: 0.8rem; font-weight: bold; flex:1;">⚙️ PARÁMETROS DE VUELO <span class="arrow"></span></div></summary>
@@ -1110,7 +1174,7 @@ return `<details class="card" id="leg_card_${id}" open>
 <input type="hidden" id="m_t${id}_horo_diff"><input type="hidden" id="m_t${id}_block_diff"><input type="hidden" id="m_t${id}_air_diff">
 <hr class="divider">
 <div class="grid-3">
-    <div class="form-group"><label>FOLIO BIT</label><input type="text" id="m_t${id}_folio" placeholder="Folio Único..." oninput="this.dataset.manual='true'; syncFolioDown(${id}); triggerUpdate();"></div>
+    <div class="form-group"><label>FOLIO BIT</label><input type="text" id="m_t${id}_folio" placeholder="Folio Único..." oninput="this.dataset.manual=(this.value !== '') ? 'true' : 'false'; syncFolioDown(${id}); triggerUpdate();"></div>
     <div class="form-group"><label>Notas</label><input type="text" id="m_t${id}_winds" oninput="triggerUpdate()"></div>
     <div class="form-group"><label>Aterrizaje / APP</label>
         <div style="display:flex; gap:10px; margin-top:2px;">
@@ -1169,18 +1233,23 @@ return `<div id="p_t${id}_params_wrapper" style="display:none;">
 </div>`;
 }
 
+function configureFirstLegControls(fId) {
+    const dLink = el(`m_t${fId}_desde`), dBtn = el(`lbtn_desde_${fId}`);
+    if (dLink) { dLink.dataset.linked = "false"; dLink.readOnly = false; dLink.classList.remove('inherited-input'); }
+    if (dBtn) dBtn.style.display = "none";
+
+    const fLink = el(`m_t${fId}_fecha`), fBtnDate = el(`lbtn_fecha_${fId}`);
+    if (fLink) { fLink.dataset.linked = "true"; fLink.readOnly = true; fLink.classList.add('inherited-input'); }
+    if (fBtnDate) fBtnDate.style.display = "none";
+}
+
 function addLeg(defaultOrigin = '') {
 if(vueloCerrado) return;
 const id = nextLegId++, index = legIds.push(id);
 el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(id, index, defaultOrigin));
 
 if(index === 1) { 
-    const dLink = el(`m_t${id}_desde`), dBtn = el(`lbtn_desde_${id}`); 
-    if(dLink) { dLink.dataset.linked = "false"; dLink.classList.remove('inherited-input'); } 
-    if(dBtn) dBtn.style.display = "none"; 
-    
-    const fBtnDate = el(`lbtn_fecha_${id}`);
-    if(fBtnDate) fBtnDate.style.display = "none";
+    configureFirstLegControls(id);
 } else { 
     const dLink = el(`m_t${id}_desde`); 
     if(dLink) { dLink.dataset.linked = "true"; dLink.readOnly = true; dLink.classList.add('inherited-input'); } 
@@ -1198,24 +1267,34 @@ triggerUpdate();
 
 function removeLeg(id) {
 if(vueloCerrado) return;
+if (legIds.length <= 1) return;
 if (!confirm("¿Eliminar tramo? Actualizará continuidad.")) return;
 legIds = legIds.filter(l => l !== id); el(`leg_card_${id}`).remove();
 legIds.forEach((lId, i) => { 
-    const summarySpan = el(`leg_card_${lId}`).querySelector('summary > span');
+    const summarySpan = el(`leg_card_${lId}`)?.querySelector('.leg-title-span');
     if(summarySpan) summarySpan.innerHTML = `🛫 ${ordinals[i + 1] || (i+1) + '°'} TRAMO (Leg #${i+1})`; 
+    const remBtn = el(`btn_rem_${lId}`);
+    if (remBtn) remBtn.style.display = i === 0 ? 'none' : '';
 });
 if(legIds.length > 0) { 
-    const fId = legIds[0];
-    const dLink = el(`m_t${fId}_desde`), dBtn = el(`lbtn_desde_${fId}`); 
-    if(dLink) { dLink.dataset.linked = "false"; dLink.readOnly = false; dLink.classList.remove('inherited-input'); } 
-    if(dBtn) dBtn.style.display = "none"; 
-
-    const fBtnDate = el(`lbtn_fecha_${fId}`);
-    if(fBtnDate) fBtnDate.style.display = "none";
+    configureFirstLegControls(legIds[0]);
 }
 triggerUpdate();
 }
-function resetSecTime(dateKey, type) { if(vueloCerrado) return; secManualState[dateKey] = secManualState[dateKey] || {}; if(type === 'hinicio') secManualState[dateKey].hinicioManual = false; if(type === 'htermino') secManualState[dateKey].hterminoManual = false; triggerUpdate(); }
+function resetSecTime(dateKey, type) {
+    if(vueloCerrado) return;
+    secManualState[dateKey] = secManualState[dateKey] || {};
+    if(type === 'hinicio') { secManualState[dateKey].hinicioManual = false; delete secManualState[dateKey].customHInicio; }
+    if(type === 'htermino') { secManualState[dateKey].hterminoManual = false; delete secManualState[dateKey].customHTermino; }
+    triggerUpdate();
+}
+function resetSecPlace(dateKey, type) {
+    if(vueloCerrado) return;
+    secManualState[dateKey] = secManualState[dateKey] || {};
+    if(type === 'origen') { secManualState[dateKey].origenManual = false; delete secManualState[dateKey].customOrigen; }
+    if(type === 'destino') { secManualState[dateKey].destinoManual = false; delete secManualState[dateKey].customDestino; }
+    triggerUpdate();
+}
 
 function updateAll() {
 let gDate = val('m_fecha_gen');
@@ -1224,25 +1303,29 @@ let legDetails = [];
 legIds.forEach((id, i) => {
     if (el(`m_t${id}_fecha`)?.dataset.linked === "true") setVal(`m_t${id}_fecha`, gDate);
     if (i > 0 && el(`m_t${id}_desde`)?.dataset.linked === "true") setVal(`m_t${id}_desde`, val(`m_t${legIds[i-1]}_dest`));
-    const tDate = val(`m_t${id}_fecha`) || gDate || new Date().toISOString().split('T')[0];
-    const desde = val(`m_t${id}_desde`).toUpperCase(), dest = val(`m_t${id}_dest`).toUpperCase();
+    const tDate = val(`m_t${id}_fecha`) || gDate || getLocalDateISO();
+    const desde = val(`m_t${id}_desde`).trim().toUpperCase(), dest = val(`m_t${id}_dest`).trim().toUpperCase();
     const tOut = val(`m_t${id}_time_out`), tOff = val(`m_t${id}_time_off`), tOn = val(`m_t${id}_time_on`), tIn = val(`m_t${id}_time_in`);
     const bDiff = tOut && tIn ? timeDiffMins(tOut, tIn) : 0; const aDiff = tOff && tOn ? timeDiffMins(tOff, tOn) : 0;
     
     const hBot = el(`m_t${id}_horo_bot`), hTop = el(`m_t${id}_horo_top`);
-    if (i === 0) { hBot.readOnly = false; hBot.classList.remove('readonly-strict'); } 
-    else { const prevTop = parseFloat(val(`m_t${legIds[i-1]}_horo_top`)); hBot.readOnly = true; hBot.classList.add('readonly-strict'); hBot.value = !isNaN(prevTop) ? formatDec(prevTop) : ''; }
+    if (i === 0) { hBot.readOnly = false; hBot.classList.remove('inherited-input'); } 
+    else { const prevTop = parseFloat(val(`m_t${legIds[i-1]}_horo_top`)); hBot.readOnly = true; hBot.classList.add('inherited-input'); hBot.value = !isNaN(prevTop) ? formatDec(prevTop) : ''; }
 
     const valBot = parseFloat(hBot.value); 
-    if ((hTop.dataset.manual !== "true" || hTop.value === '') && document.activeElement !== hTop && !isNaN(valBot) && aDiff > 0) {
-        hTop.value = formatDec(valBot + (aDiff / 60));
-        hTop.dataset.manual = 'false';
+    if ((hTop.dataset.manual !== "true" || hTop.value === '') && document.activeElement !== hTop) {
+        if (!isNaN(valBot) && aDiff > 0) {
+            hTop.value = formatDec(valBot + (aDiff / 60));
+            hTop.dataset.manual = 'false';
+        } else if (hTop.dataset.manual !== "true") {
+            hTop.value = '';
+        }
     }
 
     const valTop = parseFloat(hTop.value); setVal(`m_t${id}_horo_diff`, !isNaN(valBot) && !isNaN(valTop) ? formatDec(valTop - valBot) : '');
     
     const fOn = el(`m_t${id}_fuel_on`), fOff = el(`m_t${id}_fuel_off`); 
-    fOn.readOnly = false; fOn.classList.remove('readonly-strict');
+    fOn.readOnly = false; fOn.classList.remove('inherited-input');
 
     const valOn = parseFloat(fOn.value), valOff = parseFloat(fOff.value);
     let diffF = (!isNaN(valOn) && !isNaN(valOff)) ? Math.max(0, valOn - valOff) : null;
@@ -1251,11 +1334,11 @@ legIds.forEach((id, i) => {
     const bStr = bDiff > 0 ? `${minsToTime(bDiff)} (${formatDec(bDiff/60).replace('.', ',')})` : ''; const aStr = aDiff > 0 ? `${minsToTime(aDiff)} (${formatDec(aDiff/60).replace('.', ',')})` : '';
     setVal(`m_t${id}_block_diff`, bStr); setVal(`m_t${id}_air_diff`, aStr); setTxt(`ui_t${id}_block_diff`, bStr || '--:--'); setTxt(`ui_t${id}_air_diff`, aStr || '--:--');
     
-    const lPax = parseInt(val(`m_t${id}_pax`)) || 0;
-    const pfRaw = val(`m_t${id}_pf`).trim().toUpperCase() || "SIN NOMBRE";
+    const lPax = parseInt(val(`m_t${id}_pax`), 10) || 0;
+    const pfRaw = val(`m_t${id}_pf`).trim().toUpperCase();
     const pmRaw = val(`m_t${id}_pm`).trim().toUpperCase();
-    const pfArr = pfRaw.split('/').map(s => s.trim()).filter(Boolean);
-    const pmArr = pmRaw.split('/').map(s => s.trim()).filter(Boolean);
+    const pfArr = pfRaw ? pfRaw.split('/').map(s => s.trim()).filter(Boolean) : [];
+    const pmArr = pmRaw ? pmRaw.split('/').map(s => s.trim()).filter(Boolean) : [];
 
     legDetails.push({ id, date: tDate, desde, dest, tOut, tIn, tOff, tOn, bDiff, aDiff, fDiff: diffF||0, fuelOn: valOn, fuelOff: valOff, pax: lPax, pf: pfRaw, pm: pmRaw, pfArr, pmArr, pfCount: pfArr.length||1, pmCount: pmArr.length||1, horoBot: hBot.value, horoTop: hTop.value });
 });
@@ -1266,7 +1349,7 @@ legIds.forEach((id, i) => {
     let refuelEl = el(`m_t${id}_fuel_refuel`);
     if (i < legIds.length - 1) {
         let nextFOn = legDetails[i+1].fuelOn;
-        if (refuelEl.dataset.manual !== 'true' || refuelEl.value === '') {
+        if ((refuelEl.dataset.manual !== 'true' || refuelEl.value === '') && document.activeElement !== refuelEl) {
             if (!isNaN(fOff) && !isNaN(nextFOn)) {
                 let diff = Math.max(0, nextFOn - fOff);
                 refuelEl.value = formatDec(diff);
@@ -1299,13 +1382,20 @@ sortedDates.forEach((date, i) => {
         } else if (last.tIn && document.activeElement !== globalEndEl) { 
             dEnd = addMins(last.tIn, 30); 
             globalEndEl.value = dEnd; 
-        } 
+        } else if (!last.tIn && globalEndEl.dataset.manual !== "true" && document.activeElement !== globalEndEl) {
+            globalEndEl.value = '';
+        }
     } else { 
         if (first.tOff) dStart = addMins(first.tOff, -60); 
         if (last.tIn) dEnd = addMins(last.tIn, 30); 
     }
     let dur = (dStart && dEnd) ? timeDiffMins(dStart, dEnd) : 0; 
     dailyStats[date] = { start: dStart, end: dEnd, duration: dur };
+});
+
+// Limpiar fechas obsoletas en secManualState
+Object.keys(secManualState).forEach(k => {
+    if (!sortedDates.includes(k)) delete secManualState[k];
 });
 
 let folioGroups = [];
@@ -1437,8 +1527,9 @@ folioGroups.forEach(group => {
 
 let gDutyStr = gDuty > 0 ? `${minsToTime(gDuty)}` : '--:--';
 let gAirStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
+let gBlockStr = gBlock > 0 ? `${minsToTime(gBlock)} (${formatDec(gBlock/60).replace('.', ',')})` : '--:--';
 folioTableHtml += `<tr style="background:var(--overlay-bg); font-weight:bold; border-top:2px solid var(--accent);">
-<td style="padding:6px 8px; text-align:left; color:var(--accent);">TOTAL GLOBAL</td><td style="padding:6px 8px; color:var(--accent);">${gPax}</td><td style="padding:6px 8px; color:var(--accent);">${gAirStr}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--danger);">${gFuelUsed}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--success);">+${globalRefuel}</td><td colspan="4"></td><td style="padding:6px 8px; color:var(--accent);">${gDutyStr}</td><td colspan="${2 + pfCols}"></td>
+<td style="padding:6px 8px; text-align:left; color:var(--accent);">TOTAL GLOBAL</td><td style="padding:6px 8px; color:var(--accent);">${gPax}</td><td style="padding:6px 8px; color:var(--accent);">${gAirStr}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--danger);">${Math.round(gFuelUsed)}</td><td style="padding:6px 8px;"></td><td style="padding:6px 8px; color:var(--success);">+${Math.round(globalRefuel)}</td><td colspan="4"></td><td style="padding:6px 8px; color:var(--accent);">${gDutyStr}</td><td style="padding:6px 8px; color:var(--accent);">${gBlockStr}</td><td colspan="${pfCols}"></td>
 </tr></tbody></table>`;
 if(el('ui_resumen_diario')) el('ui_resumen_diario').innerHTML = folioTableHtml;
 
@@ -1450,7 +1541,7 @@ bitacoraHtml += `</tr></thead><tbody>`;
 const bitRows = [
     { label: 'FECHA', key: l => formatDatePdf(l.date) },
     { label: 'CAPITAN', key: l => picIni || '--' },
-    { label: 'FO', key: l => sicIni + (hasSic2 ? '/' + sic2Ini : '') || '--' },
+    { label: 'FO', key: l => [sicIni, sic2Ini].filter(Boolean).join('/') || '--' },
     { label: 'DESDE', key: l => l.desde },
     { label: 'DESTINO', key: l => l.dest },
     { label: 'AIR ON', key: l => l.tOn || '--:--' },
@@ -1498,21 +1589,66 @@ aplicarEstadoCierre();
 autoSave(); 
 }
 
+let renderedSecDatesSig = "";
 function renderSecurityForms(activeDates, legsByDate) {
 const container = el('sec-forms-wrapper'), printContainer = el('print-sec-forms-wrapper');
 if(!container || !printContainer) return;
+
+const newSig = activeDates.join('|');
+const needsRebuild = (renderedSecDatesSig !== newSig);
+
+// Preservar estado abierto/cerrado de cada tarjeta <details>
+const openStates = {};
+if (needsRebuild) {
+    container.querySelectorAll('details[data-sec-date]').forEach(d => {
+        openStates[d.dataset.secDate] = d.open;
+    });
+}
+
 let webHtml = '', printHtml = '';
-activeDates.forEach((dateKey, index) => {
+activeDates.forEach((dateKey) => {
 secManualState[dateKey] = secManualState[dateKey] || { sinObs: false, hinicioManual: false, hterminoManual: false };
 let st = secManualState[dateKey]; let dayLegs = legsByDate[dateKey] || [];
-let autoHInicio = dayLegs.length > 0 && dayLegs[0].tOut ? dayLegs[0].tOut : ''; let autoHTermino = dayLegs.length > 0 && dayLegs[dayLegs.length-1].tIn ? dayLegs[dayLegs.length-1].tIn : '';
-let autoOrigen = dayLegs.length > 0 ? dayLegs[0].desde : ''; let autoDestino = dayLegs.length > 0 ? dayLegs[dayLegs.length-1].dest : '';
-let currentHInicio = st.hinicioManual && st.customHInicio !== undefined ? st.customHInicio : autoHInicio; let currentHTermino = st.hterminoManual && st.customHTermino !== undefined ? st.customHTermino : autoHTermino;
-let defaultEst = (autoOrigen.trim().toUpperCase() === 'SCEL') ? 'AEROCARDAL' : ''; let currentEst = st.estacionamiento !== undefined ? st.estacionamiento : defaultEst;
+let autoHInicio = dayLegs.length > 0 && dayLegs[0].tOut ? dayLegs[0].tOut : '';
+let autoHTermino = dayLegs.length > 0 && dayLegs[dayLegs.length-1].tIn ? dayLegs[dayLegs.length-1].tIn : '';
+let autoOrigen = dayLegs.length > 0 ? dayLegs[0].desde : '';
+let autoDestino = dayLegs.length > 0 ? dayLegs[dayLegs.length-1].dest : '';
+
+let currentOrigen = st.origenManual && st.customOrigen !== undefined ? st.customOrigen : autoOrigen;
+let currentDestino = st.destinoManual && st.customDestino !== undefined ? st.customDestino : autoDestino;
+let currentHInicio = st.hinicioManual && st.customHInicio !== undefined ? st.customHInicio : autoHInicio;
+let currentHTermino = st.hterminoManual && st.customHTermino !== undefined ? st.customHTermino : autoHTermino;
+let defaultEst = (currentOrigen.trim().toUpperCase() === 'SCEL') ? 'AEROCARDAL' : '';
+let currentEst = st.estacionamiento !== undefined ? st.estacionamiento : defaultEst;
 let currentAlerta = st.alerta !== undefined ? st.alerta : '';
-webHtml += `<details class="card" style="border-color: var(--accent);"><summary style="display:flex; justify-content:space-between; align-items:center;"><span style="flex:1;">🔎 INSPECCIÓN DE SEGURIDAD (${dateKey})</span><div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();"><label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sec_sin_obs_${dateKey}" ${st.sinObs ? 'checked' : ''} onchange="toggleSecSinObs('${dateKey}')"> <span>Sin obs</span></label><span class="arrow"></span></div></summary><div class="card-content"><div style="margin-bottom: 12px; padding:10px; background:var(--overlay-bg); border-radius:6px;"><div class="grid-3"><div class="form-group"><label>Origen</label><input type="text" id="m_sec_origen_${dateKey}" value="${autoOrigen}" oninput="triggerUpdate()"></div><div class="form-group"><label>Destino</label><input type="text" id="m_sec_destino_${dateKey}" value="${autoDestino}" oninput="triggerUpdate()"></div><div class="form-group"><label>Estacionamiento</label><input type="text" id="m_sec_est_${dateKey}" value="${currentEst}" oninput="secManualState['${dateKey}'].estacionamiento=this.value; triggerUpdate()"></div></div><div class="grid-3" style="margin-top:5px;"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Inicio (Out)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'hinicio')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_hinicio_${dateKey}" value="${currentHInicio}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hinicioManual=true; secManualState['${dateKey}'].customHInicio=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Término (In)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'htermino')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_htermino_${dateKey}" value="${currentHTermino}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hterminoManual=true; secManualState['${dateKey}'].customHTermino=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label>Alerta</label><input type="text" id="m_sec_alerta_${dateKey}" value="${currentAlerta}" oninput="secManualState['${dateKey}'].alerta=this.value; triggerUpdate()"></div></div></div><div id="sec_form_container_${dateKey}">`;
-secData.forEach(item => { let isChecked = st[item.id] !== undefined ? st[item.id] : st.sinObs; webHtml += `<label class="checkbox-item"><input type="checkbox" id="m_sec_${dateKey}_${item.id}" ${isChecked ? 'checked' : ''} ${st.sinObs ? 'disabled' : ''} onchange="handleSecCheckboxChange('${dateKey}', '${item.id}')"> <span><b>${item.id}.</b> ${item.text}</span></label>`; });
-webHtml += `</div><div class="signature-block"><div>III. COMANDANTE DE LA AERONAVE:</div><div class="grid-3" style="margin-top:8px;"><div>Nombre: <strong id="sec_ui_nombre_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>RUT: <strong id="sec_ui_rut_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>Licencia: <strong id="sec_ui_licencia_${dateKey}" style="color:var(--accent);">______________________</strong></div></div></div></div></details>`;
+
+if (needsRebuild) {
+    const isOpenAttr = openStates[dateKey] ? 'open' : '';
+    webHtml += `<details class="card" data-sec-date="${dateKey}" ${isOpenAttr} style="border-color: var(--accent);"><summary style="display:flex; justify-content:space-between; align-items:center;"><span style="flex:1;">🔎 INSPECCIÓN DE SEGURIDAD (${dateKey})</span><div style="display:flex; align-items:center; gap:12px; padding-left:10px; border-left:1px solid var(--border-color);" onclick="event.stopPropagation();"><label style="font-size:0.75rem; color:var(--accent); display:flex; align-items:center; gap:5px; margin:0; cursor:pointer;"><input type="checkbox" id="m_sec_sin_obs_${dateKey}" ${st.sinObs ? 'checked' : ''} onchange="toggleSecSinObs('${dateKey}')"> <span>Sin obs</span></label><span class="arrow"></span></div></summary><div class="card-content"><div style="margin-bottom: 12px; padding:10px; background:var(--overlay-bg); border-radius:6px;"><div class="grid-3"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Origen</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecPlace('${dateKey}', 'origen')">🔄 Auto</span></label><input type="text" id="m_sec_origen_${dateKey}" value="${currentOrigen}" style="text-transform: uppercase;" oninput="secManualState['${dateKey}'].origenManual=true; secManualState['${dateKey}'].customOrigen=this.value; triggerUpdate()"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Destino</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecPlace('${dateKey}', 'destino')">🔄 Auto</span></label><input type="text" id="m_sec_destino_${dateKey}" value="${currentDestino}" style="text-transform: uppercase;" oninput="secManualState['${dateKey}'].destinoManual=true; secManualState['${dateKey}'].customDestino=this.value; triggerUpdate()"></div><div class="form-group"><label>Estacionamiento</label><input type="text" id="m_sec_est_${dateKey}" value="${currentEst}" style="text-transform: uppercase;" oninput="secManualState['${dateKey}'].estacionamiento=this.value; triggerUpdate()"></div></div><div class="grid-3" style="margin-top:5px;"><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Inicio (Out)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'hinicio')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_hinicio_${dateKey}" value="${currentHInicio}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hinicioManual=true; secManualState['${dateKey}'].customHInicio=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label style="display:flex; justify-content:space-between;"><span>Término (In)</span><span style="cursor:pointer; color:var(--success); font-size:0.65rem;" onclick="resetSecTime('${dateKey}', 'htermino')">🔄 Auto</span></label><input type="text" class="time-input" id="m_sec_htermino_${dateKey}" value="${currentHTermino}" maxlength="5" inputmode="numeric" oninput="secManualState['${dateKey}'].hterminoManual=true; secManualState['${dateKey}'].customHTermino=this.value; formatTime(this)" onblur="validateTime(this)"></div><div class="form-group"><label>Alerta</label><input type="text" id="m_sec_alerta_${dateKey}" value="${currentAlerta}" style="text-transform: uppercase;" oninput="secManualState['${dateKey}'].alerta=this.value; triggerUpdate()"></div></div></div><div id="sec_form_container_${dateKey}">`;
+    secData.forEach(item => { let isChecked = st[item.id] !== undefined ? st[item.id] : st.sinObs; webHtml += `<label class="checkbox-item"><input type="checkbox" id="m_sec_${dateKey}_${item.id}" ${isChecked ? 'checked' : ''} ${st.sinObs ? 'disabled' : ''} onchange="handleSecCheckboxChange('${dateKey}', '${item.id}')"> <span><b>${item.id}.</b> ${item.text}</span></label>`; });
+    webHtml += `</div><div class="signature-block"><div>III. COMANDANTE DE LA AERONAVE:</div><div class="grid-3" style="margin-top:8px;"><div>Nombre: <strong id="sec_ui_nombre_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>RUT: <strong id="sec_ui_rut_${dateKey}" style="color:var(--accent);">______________________</strong></div><div>Licencia: <strong id="sec_ui_licencia_${dateKey}" style="color:var(--accent);">______________________</strong></div></div></div></div></details>`;
+} else {
+    // Actualizar en sitio sin destruir DOM ni perder foco
+    const syncField = (elId, newVal) => {
+        const inp = el(elId);
+        if (inp && document.activeElement !== inp) inp.value = newVal;
+    };
+    syncField(`m_sec_origen_${dateKey}`, currentOrigen);
+    syncField(`m_sec_destino_${dateKey}`, currentDestino);
+    syncField(`m_sec_est_${dateKey}`, currentEst);
+    syncField(`m_sec_hinicio_${dateKey}`, currentHInicio);
+    syncField(`m_sec_htermino_${dateKey}`, currentHTermino);
+    syncField(`m_sec_alerta_${dateKey}`, currentAlerta);
+    const sinObsCb = el(`m_sec_sin_obs_${dateKey}`);
+    if (sinObsCb) sinObsCb.checked = !!st.sinObs;
+    secData.forEach(item => {
+        const cb = el(`m_sec_${dateKey}_${item.id}`);
+        if (cb) {
+            cb.checked = st[item.id] !== undefined ? !!st[item.id] : !!st.sinObs;
+            cb.disabled = !!st.sinObs || vueloCerrado;
+        }
+    });
+}
 
 let pSecHtml = `
 <div class="pdf-page" id="print_sec_container_${dateKey}" style="font-family:Arial, sans-serif; box-sizing:border-box;">
@@ -1554,7 +1690,13 @@ pSecHtml += `</table>
 </div>`;
 printHtml += pSecHtml;
 });
-container.innerHTML = webHtml; printContainer.innerHTML = printHtml; updateFormFooters();
+
+if (needsRebuild) {
+    container.innerHTML = webHtml;
+    renderedSecDatesSig = newSig;
+}
+printContainer.innerHTML = printHtml;
+updateFormFooters();
 }
 
 function syncPrintData(folioGroups, dailyStats, gDuty, gAir, gBlock, gFuelUsed, globalRefuel, gPax, hasSic2, picIni, sicIni, sic2Ini) {
@@ -1599,7 +1741,7 @@ folioGroups.forEach(group => {
         <td colspan="2" style="width:11%;" class="text-center"><b>HOROMETRO</b></td>
         <td colspan="3" style="width:16%;" class="text-center"><b>DUTY</b></td>
         <td rowspan="2" style="width:7%; vertical-align:middle;" class="text-center"><b>BLOCK</b></td>
-        <td colspan="${pfCols}" style="width:${hasSic2 ? '28%' : '28%'};" class="text-center"><b>PILOT FLYING</b></td>
+        <td colspan="${pfCols}" style="width:28%;" class="text-center"><b>PILOT FLYING</b></td>
         </tr>
         <tr class="gray-bg compact-th">
         <td class="text-center"><b>INICIAL</b></td><td class="text-center"><b>CONS.</b></td><td class="text-center"><b>REMAN.</b></td><td class="text-center"><b>RECARGA</b></td>
@@ -1634,9 +1776,9 @@ folioGroups.forEach(group => {
 
     let isSingleDaySingleFolio = (folioGroups.length === 1 && folioGroups[0].dateStats.length === 1);
     if (group.folioNum === folioGroups.length && folioGroups.length > 0 && !isSingleDaySingleFolio) {
-        let p1TotPFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP1PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP1PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP1Dep} L:${totP1Arr}</b></div>` : '--'; 
-        let p2TotPFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP2PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP2PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP2Dep} L:${totP2Arr}</b></div>` : '--';
-        let p3TotPFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP3PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP3PFBlock/60).replace('.', ',')})<br><b style="color:var(--text-main);">T:${totP3Dep} L:${totP3Arr}</b></div>` : '--';
+        let p1TotPFStr = (totP1PFBlock > 0 || totP1PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP1PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP1PFBlock/60).replace('.', ',')})<br><b>T:${totP1Dep} L:${totP1Arr}</b></div>` : '--'; 
+        let p2TotPFStr = (totP2PFBlock > 0 || totP2PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP2PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP2PFBlock/60).replace('.', ',')})<br><b>T:${totP2Dep} L:${totP2Arr}</b></div>` : '--';
+        let p3TotPFStr = (totP3PFBlock > 0 || totP3PFAir > 0) ? `<div style="line-height:1.2; font-size:7.5px; text-align:left; padding-left:2px;">AIR: (${formatDec(totP3PFAir/60).replace('.', ',')})<br>BLK: (${formatDec(totP3PFBlock/60).replace('.', ',')})<br><b>T:${totP3Dep} L:${totP3Arr}</b></div>` : '--';
         let totDStr = gDuty > 0 ? `${minsToTime(gDuty)} (${formatDec(gDuty/60).replace('.', ',')})` : '--:--';
         let totAStr = gAir > 0 ? `${minsToTime(gAir)} (${formatDec(gAir/60).replace('.', ',')})` : '--:--';
         let totBStr = gBlock > 0 ? `${minsToTime(gBlock)} (${formatDec(gBlock/60).replace('.', ',')})` : '--:--';
@@ -1676,7 +1818,12 @@ legIds.forEach(id => {
     setTxtUpper(`p_t${id}_pnp_text`, pnpVal === 'P' ? 'PRECISIÓN' : (pnpVal === 'NP' ? 'NO PRECISIÓN' : (pnpVal === 'V' ? 'VISUAL' : '')));
 });
 
-const sinObs = el('m_sms_sin_obs')?.checked; setTxtUpper('sms_p_fecha', formatDatePdf(val('m_fecha_gen'))); setTxtUpper('sms_p_pov', val('m_pov')); setTxtUpper('sms_p_matricula', val('m_matricula')); setTxtUpper('sms_p_material', val('m_material'));
+const sinObs = el('m_sms_sin_obs')?.checked;
+const smsDateVal = val('m_fecha_gen') || getLocalDateISO();
+setTxtUpper('sms_p_fecha', formatDatePdf(smsDateVal));
+setTxtUpper('sms_p_pov', val('m_pov'));
+setTxtUpper('sms_p_matricula', val('m_matricula'));
+setTxtUpper('sms_p_material', val('m_material'));
 for(let i=1; i<=47; i++) { const cell = el(`p_sms_${i}`); if(cell) { if(sinObs) { cell.innerHTML = ""; cell.classList.add('strike-cell'); } else { cell.classList.remove('strike-cell'); setTxtUpper(`p_sms_${i}`, el(`m_sms_${i}`)?.checked ? '✓' : ''); } } } setTxtUpper('p_sms_obs', val('m_sms_obs'));
 
 let activeDatesKeys = Object.keys(secManualState).sort();
@@ -1686,7 +1833,6 @@ setTxtUpper(`sec_p_vuelo_${dateKey}`, val('m_pov')); setTxtUpper(`sec_p_material
 setTxtUpper(`sec_p_nombre_${dateKey}`, capitanActual.nombre || ""); setTxtUpper(`sec_p_rut_${dateKey}`, capitanActual.rut || ""); setTxtUpper(`sec_p_licencia_${dateKey}`, capitanActual.licencia || "");
 });
 
-// ==== INYECCIÓN DE FIRMA DIGITAL EN PDF ====
 const firmaBase64 = val('m_firma_data');
 const smsFirmaPl = el('sms_firma_placeholder');
 if (smsFirmaPl) {
@@ -1742,16 +1888,20 @@ function clearAllData() {
 
 function loadDataIntoApp(data) {
 if (!data) return;
-vueloCerrado = (data.globals.vuelo_cerrado === true || data.globals.vuelo_cerrado === "true");
-haSidoGuardado = (data.globals.haSidoGuardado === true || data.globals.haSidoGuardado === "true");
+vueloCerrado = !!(data.globals && (data.globals.vuelo_cerrado === true || data.globals.vuelo_cerrado === "true"));
+haSidoGuardado = !!(data.globals && (data.globals.haSidoGuardado === true || data.globals.haSidoGuardado === "true"));
 
 if (data.globals) { for (let key in data.globals) { let element = el(key); if (element) { if(element.type === 'checkbox') element.checked = (data.globals[key] === true || data.globals[key] === "true"); else setVal(key, data.globals[key]); } } }
-if(data.secManualState) secManualState = data.secManualState;
+if (!val('m_fecha_gen')) setVal('m_fecha_gen', getLocalDateISO());
+secManualState = data.secManualState || {};
+renderedSecDatesSig = "";
+
 el('tramos-container').innerHTML = ''; el('print-folios-wrapper').innerHTML = ''; legIds = []; nextLegId = 1; 
-let legCount = data.legs || 1;
+let legCount = Math.max(1, data.legs || 1);
 for(let i=0; i<legCount; i++) {
-let newId = nextLegId++; legIds.push(newId); let index = legIds.length;
-el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(newId, index, i === 0 ? 'SCEL' : ''));
+    let newId = nextLegId++; legIds.push(newId); let index = legIds.length;
+    el('tramos-container').insertAdjacentHTML('beforeend', getLegHTML(newId, index, i === 0 ? 'SCEL' : ''));
+    if (i === 0) configureFirstLegControls(newId);
 }
 if (data.legData) {
 let savedIds = Object.keys(data.legData);
@@ -1770,17 +1920,23 @@ if (element) {
         element.dataset.manual = savedLeg[inputId].manual;
     }
     
-    if (savedLeg[inputId].linked) { 
-        element.dataset.linked = savedLeg[inputId].linked; 
-        if(savedLeg[inputId].linked === "false") { 
-            element.readOnly = false; element.classList.remove('inherited-input'); 
-            let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
-            if(btn) { btn.textContent = "🔓"; btn.title = "Restablecer herencia"; } 
-        } else { 
-            element.readOnly = true; element.classList.add('inherited-input'); 
-            let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
-            if(btn) { btn.textContent = "🔗"; btn.title = "Desvincular"; } 
-        } 
+    if (savedLeg[inputId].linked) {
+        if (i === 0 && targetId.endsWith('_desde')) {
+            element.dataset.linked = "false";
+            element.readOnly = false;
+            element.classList.remove('inherited-input');
+        } else {
+            element.dataset.linked = savedLeg[inputId].linked; 
+            if(savedLeg[inputId].linked === "false") { 
+                element.readOnly = false; element.classList.remove('inherited-input'); 
+                let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
+                if(btn) { btn.textContent = "🔓"; btn.title = "Restablecer herencia"; } 
+            } else { 
+                element.readOnly = true; element.classList.add('inherited-input'); 
+                let btn = el(`lbtn_${targetId.split('_').pop()}_${currentId}`); 
+                if(btn) { btn.textContent = "🔗"; btn.title = "Desvincular"; } 
+            }
+        }
     }
 }
 }
@@ -1788,7 +1944,7 @@ if (element) {
 }
 
 lookupAircraft(); toggleSinObservaciones(); lookupPilots(); 
-cargarFirmaEnCanvas(val('m_firma_data'));
+if (val('m_firma_data')) cargarFirmaEnCanvas(val('m_firma_data'));
 
 updateAll();
 aplicarEstadoCierre();
@@ -1799,10 +1955,8 @@ aplicarEstadoCierre();
 // ==========================================
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-        // Forzar guardado local exacto antes de suspender
         autoSave();
     } else if (document.visibilityState === 'visible') {
-        // Recuperar foco: verificar silenciosamente en la nube si hay red
         if (navigator.onLine && val('m_pov') && !vueloCerrado && accessToken) {
             verificarEstadoNube();
         }
@@ -1827,19 +1981,33 @@ async function verificarEstadoNube() {
     }
 }
 
+function startFreshFlight() {
+    setVal('m_fecha_gen', getLocalDateISO());
+    addLeg('SCEL');
+    toggleSinObservaciones();
+    lookupPilots();
+}
+
 window.onload = () => { 
     buildForms(); 
     initSignaturePad();
     let saved = localStorage.getItem('aerocardal_flight_data'); 
     if (saved) { 
-        if(confirm("Se encontró un vuelo en progreso guardado localmente en este iPad. ¿Deseas recuperarlo?")) { 
-            loadDataIntoApp(JSON.parse(saved)); 
-        } else { 
-            localStorage.removeItem('aerocardal_flight_data'); 
-            addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); 
-        } 
+        try {
+            const parsed = JSON.parse(saved);
+            if(confirm("Se encontró un vuelo en progreso guardado localmente en este iPad. ¿Deseas recuperarlo?")) { 
+                loadDataIntoApp(parsed); 
+            } else { 
+                localStorage.removeItem('aerocardal_flight_data'); 
+                startFreshFlight();
+            } 
+        } catch (err) {
+            console.error("Datos locales corruptos, reiniciando formulario:", err);
+            localStorage.removeItem('aerocardal_flight_data');
+            startFreshFlight();
+        }
     } else { 
-        addLeg('SCEL'); toggleSinObservaciones(); lookupPilots(); 
+        startFreshFlight();
     } 
 
     if ('serviceWorker' in navigator) {
