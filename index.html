@@ -655,15 +655,15 @@ async function despacharVueloCerrado() {
         let bodyText = `Link respaldo consolidado Drive: ${driveLink}`;
 
         mostrarCargando("Enviando correo Operaciones...");
-        if(pdfPlan) await sendGmailEmail('jose.oyarzun@aerocardal.com', `POV_${pov} - PLANIFICACIÓN OPERACIONAL`, bodyText, pdfPlan, `POV_${pov}_PLAN.pdf`);
+        if(pdfPlan) await sendGmailEmail('jose.oyarzun@aerocardal.com, 516JOM@GMAIL.COM, operaciones@aerocardal.com', `POV_${pov} - PLANIFICACIÓN OPERACIONAL`, bodyText, pdfPlan, `POV_${pov}_PLAN.pdf`);
 
         mostrarCargando("Enviando correo SMS...");
         let subjSms = smsSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SMS CON OBSERVACIONES)`;
-        if(pdfSms) await sendGmailEmail('516jom@gmail.com', subjSms, bodyText, pdfSms, `POV_${pov}_SMS.pdf`);
+        if(pdfSms) await sendGmailEmail('jose.oyarzun@aerocardal.com, 516JOM@GMAIL.COM', subjSms, bodyText, pdfSms, `POV_${pov}_SMS.pdf`);
 
         mostrarCargando("Enviando correo Seguridad...");
         let subjSec = secSinObs ? `POV_${pov} / SIN OBSERVACIONES` : `POV_${pov} / ⚠️ REVISAR (SEGURIDAD CON OBSERVACIONES)`;
-        if(pdfSec) await sendGmailEmail('academics.viper@gmail.com', subjSec, bodyText, pdfSec, `POV_${pov}_SEG.pdf`);
+        if(pdfSec) await sendGmailEmail('jose.oyarzun@aerocardal.com, 516JOM@GMAIL.COM', subjSec, bodyText, pdfSec, `POV_${pov}_SEG.pdf`);
 
         haSidoGuardado = true;
         autoSave();
@@ -953,7 +953,7 @@ function formatDatePdf(dateStr) {
 const aeronavesDB = [
 { trigram: "AOA", matricula: "CC-AOA", material: "G-150" }, { trigram: "CWK", matricula: "CC-CWK", material: "G-150" }, { trigram: "CWC", matricula: "CC-CWC", material: "D-228" }, { trigram: "CWX", matricula: "CC-CWX", material: "D-228" },
 { trigram: "ANY", matricula: "CC-ANY", material: "PC-12" }, { trigram: "DLI", matricula: "CC-DLI", material: "L-410" }, { trigram: "DPA", matricula: "CC-DPA", material: "L-410" }, { trigram: "DPB", matricula: "CC-DPB", material: "L-410" },
-{ trigram: "DRS", matricula: "CC-DRS", material: "PC-24" }, { trigram: "AJS", matricula: "CC-AJS", material: "RJ85" }
+{ trigram: "DRS", matricula: "CC-DRS", material: "PC-24" }, { trigram: "AHY", matricula: "CC-AHY", material: "A109SP" }, { trigram: "ANZ", matricula: "CC-ANZ", material: "A109S" }, { trigram: "ACK", matricula: "CC-ACK", material: "A109S" }
 ];
 function lookupAircraft() {
 const suffix = val('m_matricula_suffix').trim().toUpperCase(); const matInput = el('m_material'); const fullMatInput = el('m_matricula'); const msgDiv = el('ui_mat_msg');
