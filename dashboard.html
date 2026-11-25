@@ -533,7 +533,7 @@
       font-size: 11.5px;
     }
 
-    /* ==================== MODALS (96H REPORT / DRIVE CONFIG) ==================== */
+    /* ==================== MODALS ==================== */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -550,7 +550,7 @@
       border: 1px solid var(--border-light);
       border-radius: 12px;
       width: 100%;
-      max-width: 680px;
+      max-width: 720px;
       max-height: 90vh;
       overflow-y: auto;
       padding: 18px;
@@ -577,6 +577,7 @@
     <div class="topbar-right">
       <div class="toolbar-actions">
         <button class="btn btn-blue" onclick="syncFromGoogleDrive()" id="btnDriveSync">☁️ Sincronizar Drive (POV)</button>
+        <button class="btn" onclick="openPovsModal()" id="btnViewPovs">📋 POVs (0)</button>
         <button class="btn" onclick="document.getElementById('jsonImportInput').click()">📥 Importar JSON</button>
         <input type="file" id="jsonImportInput" accept=".json" multiple style="display:none" onchange="handleJsonImport(event)" />
         <button class="btn" onclick="exportSigoCSV()">📑 Exportar SIGO</button>
@@ -776,6 +777,38 @@
     </aside>
   </div>
 
+  <!-- MODAL: VUELOS POV SINCRONIZADOS -->
+  <div class="modal-backdrop" id="modalPovs">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>📋 Vuelos POV Cargados en Memoria</h3>
+        <button class="btn btn-sm" onclick="closeModal('modalPovs')">✕</button>
+      </div>
+      <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">
+        Horas convertidas automáticamente desde UTC (EFB) a hora local Chile (CLT).
+      </div>
+      <div class="table-scroll" style="margin-bottom:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th>P.O.V.</th>
+              <th>Aeronave</th>
+              <th>Tripulación</th>
+              <th>Inicio PSV (CLT)</th>
+              <th>Fin Est./Real (CLT)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="povsTableBody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex; justify-content:space-between; gap:8px;">
+        <button class="btn btn-sm" style="color:#F87171;" onclick="clearAllLocalData()">🗑️ Vaciar Todo</button>
+        <button class="btn" onclick="closeModal('modalPovs')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: INFORME EXCESO 96 HORAS (DAN 135.605 a 5) -->
   <div class="modal-backdrop" id="modalExcess96">
     <div class="modal-card">
@@ -821,8 +854,11 @@
         <label>Google OAuth 2.0 Client ID (Proyecto EFB Aerocardal)</label>
         <input type="text" id="clientIdInput" placeholder="564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com" />
       </div>
-      <div style="display:flex; justify-content:space-between; gap:8px;">
-        <button class="btn btn-sm" style="color:#F87171;" onclick="clearAllLocalData()">🗑️ Limpiar Datos Prueba</button>
+      <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-sm" style="color:#F87171;" onclick="clearAllLocalData()">🗑️ Limpiar Datos</button>
+          <button class="btn btn-sm" onclick="switchDriveAccount()">🔄 Cambiar Cuenta</button>
+        </div>
         <div style="display:flex; gap:8px;">
           <button class="btn" onclick="closeModal('modalConfig')">Cancelar</button>
           <button class="btn btn-blue" onclick="saveClientIdConfig()">Guardar</button>
@@ -934,13 +970,27 @@
     };
 
     /* =========================================================================
-       3. UTILIDADES DE TIEMPO Y FORMATO CLT
+       3. UTILIDADES DE TIEMPO, FECHAS Y FORMATO CLT
        ========================================================================= */
     const DIAS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const MESES_ES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
     function getEvalTimestampMs() {
       return useLiveClock ? Date.now() : (customEvalMs || Date.now());
+    }
+
+    function normalizeDateToISO(dateStr) {
+      if (!dateStr) return new Date().toISOString().slice(0, 10);
+      const s = dateStr.toString().trim();
+      const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+      if (isoMatch) {
+        return `${isoMatch[1]}-${isoMatch[2].padStart(2, "0")}-${isoMatch[3].padStart(2, "0")}`;
+      }
+      const dmyMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+      if (dmyMatch) {
+        return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, "0")}-${dmyMatch[1].padStart(2, "0")}`;
+      }
+      return new Date().toISOString().slice(0, 10);
     }
 
     function updateClockTick() {
@@ -961,6 +1011,7 @@
     }
 
     function formatCltDateTime(ms) {
+      if (!ms || isNaN(ms)) return "Fecha inválida";
       const d = new Date(ms);
       const dia = DIAS_ES[d.getDay()];
       const dd = String(d.getDate()).padStart(2, "0");
@@ -1016,26 +1067,31 @@
     }
 
     function parseEfbProgressJson(raw) {
-      if (!raw) return [];
-      const pov = (raw.pov || raw.povNumber || raw.numeroPov || "SIN-POV").toString().trim();
-      const aircraft = (raw.matricula || raw.aircraft || "CC-XXX").toString().trim().toUpperCase();
-      const cap = resolvePilotIni(raw.capitan || raw.pic);
-      const fo = resolvePilotIni(raw.fo || raw.sic);
-      const fo2 = resolvePilotIni(raw.fo2 || raw.sic2);
+      if (!raw || typeof raw !== "object") return [];
+      const src = raw.datosVuelo ? { ...raw, ...raw.datosVuelo } : raw;
+
+      const pov = (src.pov || src.povNumber || src.numeroPov || src.nroPov || "SIN-POV").toString().trim();
+      const matRaw = (src.matricula || src.aircraft || src.avion || "XXX").toString().trim().toUpperCase();
+      const aircraft = matRaw.startsWith("CC-") ? matRaw : `CC-${matRaw}`;
+
+      const cap = resolvePilotIni(src.capitan || src.cap || src.pic || src.comandante);
+      const fo = resolvePilotIni(src.fo || src.sic || src.copiloto || src.primerOficial);
+      const fo2 = resolvePilotIni(src.fo2 || src.sic2 || src.refuerzo || src.tripReforzada);
       const crew = Array.from(new Set([cap, fo, fo2].filter(Boolean)));
-      const baseDate = raw.fecha || new Date().toISOString().slice(0, 10);
-      const tramos = Array.isArray(raw.tramos) ? raw.tramos : [];
+
+      const baseDate = normalizeDateToISO(src.fecha || src.fechaInicial || src.fechaVuelo || src.date);
+      const tramos = Array.isArray(src.tramos) ? src.tramos : (Array.isArray(src.legs) ? src.legs : []);
 
       if (crew.length === 0) return [];
 
       const byDate = {};
       tramos.forEach(t => {
-        const d = t.fecha || baseDate;
+        const d = normalizeDateToISO(t.fecha || t.date || baseDate);
         if (!byDate[d]) byDate[d] = [];
-        const bOut = parseHHMMToMin(t.blockOut || t.etd);
-        const aOff = parseHHMMToMin(t.airOff);
-        const aOn = parseHHMMToMin(t.airOn);
-        const bIn = parseHHMMToMin(t.blockIn || t.eta);
+        const bOut = parseHHMMToMin(t.blockOut || t.salidaCalzos || t.etd);
+        const aOff = parseHHMMToMin(t.airOff || t.despegue);
+        const aOn = parseHHMMToMin(t.airOn || t.aterrizaje);
+        const bIn = parseHHMMToMin(t.blockIn || t.llegadaCalzos || t.eta);
         let blockMin = (bOut !== null && bIn !== null) ? (bIn - bOut + 1440) % 1440 : 0;
         byDate[d].push({ ...t, bOut, aOff, aOn, bIn, blockMin });
       });
@@ -1045,7 +1101,7 @@
 
       return dates.map((d, idx) => {
         const legs = byDate[d] || [];
-        let startMin = idx === 0 ? parseHHMMToMin(raw.dutyInicio) : null;
+        let startMin = idx === 0 ? parseHHMMToMin(src.dutyInicio || src.inicioDuty || src.dutyStart) : null;
         if (startMin === null && legs[0]?.bOut !== null && legs[0]?.bOut !== undefined) startMin = (legs[0].bOut - 45 + 1440) % 1440;
         if (startMin === null && legs[0]?.aOff !== null && legs[0]?.aOff !== undefined) startMin = (legs[0].aOff - 60 + 1440) % 1440;
         if (startMin === null) {
@@ -1054,18 +1110,19 @@
         }
 
         const lastLeg = legs[legs.length - 1];
-        let endMin = idx === 0 ? parseHHMMToMin(raw.dutyFin) : null;
+        let endMin = idx === 0 ? parseHHMMToMin(src.dutyFin || src.finDuty || src.terminoDuty || src.dutyEnd) : null;
         if (endMin === null && lastLeg?.bIn !== null && lastLeg?.bIn !== undefined) endMin = (lastLeg.bIn + 30) % 1440;
         if (endMin === null) endMin = (startMin + 360) % 1440;
 
-        // IMPORTANTE: La EFB registra horas en UTC -> sufijo "Z" para convertir exactamente a CLT
+        // La EFB registra horas en UTC -> sufijo "Z" para convertir exactamente a CLT
         const startMs = new Date(`${d}T${formatHHMM(startMin)}:00Z`).getTime();
         let endMs = new Date(`${d}T${formatHHMM(endMin)}:00Z`).getTime();
+        if (isNaN(startMs) || isNaN(endMs)) return null;
         if (endMs <= startMs) endMs += 86400000;
 
         const psvMin = Math.round((endMs - startMs) / 60000);
         const blockMin = legs.reduce((s, l) => s + l.blockMin, 0);
-        const lastDest = (lastLeg?.destino || "SCEL").toString().toUpperCase();
+        const lastDest = (lastLeg?.destino || lastLeg?.to || "SCEL").toString().toUpperCase();
         const baseType = lastDest === "SCEL" ? "BASE" : "POSTA";
 
         return {
@@ -1080,17 +1137,21 @@
           blockMin,
           baseType
         };
-      });
+      }).filter(Boolean);
     }
 
     function upsertFlights(newEntries) {
       const map = new Map(getFlights().map(f => [f.id, f]));
-      newEntries.forEach(e => map.set(e.id, e));
+      newEntries.forEach(e => {
+        if (e && !isNaN(e.startMs) && !isNaN(e.endMs)) {
+          map.set(e.id, e);
+        }
+      });
       saveFlights(Array.from(map.values()).sort((a, b) => a.startMs - b.startMs));
     }
 
     /* =========================================================================
-       5. SINCRONIZACIÓN GOOGLE DRIVE CON CACHÉ DE SESIÓN (SIN PEDIR LOGIN CADA VEZ)
+       5. SINCRONIZACIÓN GOOGLE DRIVE CON CACHÉ DE SESIÓN
        ========================================================================= */
     function getEffectiveClientId() {
       const saved = (localStorage.getItem(KEYS.CLIENT_ID) || "").trim();
@@ -1120,6 +1181,13 @@
       sessionStorage.removeItem(KEYS.SESSION_TOKEN_EXP);
     }
 
+    function switchDriveAccount() {
+      clearCachedDriveToken();
+      localStorage.removeItem(KEYS.SESSION_HAS_AUTH);
+      closeModal("modalConfig");
+      syncFromGoogleDrive(true);
+    }
+
     async function syncFromGoogleDrive(forceInteractive = false) {
       const lbl = document.getElementById("syncStatusLabel");
       const clientId = getEffectiveClientId();
@@ -1128,7 +1196,6 @@
         return;
       }
 
-      // 1. Si ya tenemos token vigente en la sesión, sincronizar directo sin popup
       if (!forceInteractive) {
         const cachedToken = getCachedDriveToken();
         if (cachedToken) {
@@ -1152,7 +1219,6 @@
           scope: "https://www.googleapis.com/auth/drive.readonly",
           callback: async (resp) => {
             if (resp.error) {
-              // Si el refresco silencioso falló, abrir selector interactivo una vez
               if (!forceInteractive && previouslyAuthed) {
                 syncFromGoogleDrive(true);
                 return;
@@ -1174,7 +1240,6 @@
           }
         });
 
-        // Si ya autorizó antes y no forzamos interacción, intentar renovación silenciosa primero
         tokenClient.requestAccessToken({
           prompt: (!forceInteractive && previouslyAuthed) ? "" : "select_account"
         });
@@ -1193,7 +1258,6 @@
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        // Si el token expiró antes de tiempo, limpiar caché y re-autenticar una vez
         if (res.status === 401 && fromCache) {
           clearCachedDriveToken();
           await syncFromGoogleDrive(true);
@@ -1206,20 +1270,34 @@
         const data = await res.json();
         const files = data.files || [];
         let loadedCount = 0;
+        let sampleKeys = null;
+
         for (const f of files) {
           const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (fRes.ok) {
-            const parsed = parseEfbProgressJson(await fRes.json());
+            const rawJson = await fRes.json();
+            if (!sampleKeys && rawJson && typeof rawJson === "object") {
+              sampleKeys = Object.keys(rawJson).join(", ");
+            }
+            const parsed = parseEfbProgressJson(rawJson);
             if (parsed.length > 0) {
               upsertFlights(parsed);
               loadedCount++;
             }
           }
         }
+
         const nowClt = new Date().toTimeString().slice(0, 5);
-        lbl.textContent = `Drive OK (${loadedCount} POV · ${nowClt} CLT)`;
+        if (files.length === 0) {
+          lbl.textContent = `Drive OK · 0 archivos Progreso.json (${nowClt} CLT)`;
+        } else if (loadedCount === 0 && sampleKeys) {
+          lbl.textContent = `Drive: ${files.length} archivos sin leer`;
+          alert(`Se encontraron ${files.length} archivo(s) Progreso.json en Drive, pero no se pudieron interpretar.\nCampos detectados: ${sampleKeys}`);
+        } else {
+          lbl.textContent = `Drive OK (${loadedCount}/${files.length} POV · ${nowClt} CLT)`;
+        }
         renderDashboard();
       } catch (err) {
         lbl.textContent = "Error al leer Drive";
@@ -1230,16 +1308,21 @@
     function handleJsonImport(evt) {
       const files = Array.from(evt.target.files || []);
       let done = 0;
+      let importedFlights = 0;
       files.forEach(file => {
         const r = new FileReader();
         r.onload = (e) => {
           try {
             const obj = JSON.parse(e.target.result);
-            upsertFlights(Array.isArray(obj) ? obj : parseEfbProgressJson(obj));
+            const entries = Array.isArray(obj) ? obj : parseEfbProgressJson(obj);
+            if (entries.length > 0) {
+              upsertFlights(entries);
+              importedFlights += entries.length;
+            }
           } catch {}
           done++;
           if (done === files.length) {
-            document.getElementById("syncStatusLabel").textContent = `${files.length} archivo(s) JSON importados`;
+            document.getElementById("syncStatusLabel").textContent = `${importedFlights} vuelo(s) JSON importados`;
             renderDashboard();
           }
         };
@@ -1253,7 +1336,10 @@
        ========================================================================= */
     function computePilotStatus(pilot, evalMs, matFilter) {
       const pilotIniUpper = pilot.ini.toUpperCase();
-      const allFlights = getFlights().filter(f => Array.isArray(f.crew) && f.crew.some(c => c.toUpperCase() === pilotIniUpper));
+      const allFlights = getFlights().filter(f =>
+        !isNaN(f.startMs) && !isNaN(f.endMs) &&
+        Array.isArray(f.crew) && f.crew.some(c => c.toUpperCase() === pilotIniUpper)
+      );
       const allActs = getActivities().filter(a => a.pilotIni && a.pilotIni.toUpperCase() === pilotIniUpper);
       const effectiveRole = getPilotRoleForMaterial(pilot, matFilter);
 
@@ -1517,6 +1603,9 @@
       const evalMs = getEvalTimestampMs();
       const query = document.getElementById("searchPilotInput").value.trim().toLowerCase();
 
+      const validFlights = getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs));
+      document.getElementById("btnViewPovs").textContent = `📋 POVs (${validFlights.length})`;
+
       const fleetPilots = PILOTOS_DB.filter(p => {
         if (selectedMaterial === "TODOS") return true;
         if (selectedMaterial === "A109") return p.hab.some(h => h.startsWith("A109"));
@@ -1623,6 +1712,32 @@
       }
 
       renderSidebarActivities(evalMs);
+    }
+
+    function openPovsModal() {
+      const list = getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs));
+      const tbody = document.getElementById("povsTableBody");
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:14px;">No hay vuelos POV cargados actualmente.</td></tr>`;
+      } else {
+        tbody.innerHTML = list.map(f => `
+          <tr>
+            <td><strong>${f.pov}</strong></td>
+            <td>${f.aircraft}</td>
+            <td>${(f.crew || []).join(" / ")}</td>
+            <td>${formatCltDateTime(f.startMs)}</td>
+            <td>${formatCltDateTime(f.endMs)}</td>
+            <td><button class="btn btn-sm" onclick="deleteSingleFlight('${f.id}')">✕</button></td>
+          </tr>
+        `).join("");
+      }
+      openModal("modalPovs");
+    }
+
+    function deleteSingleFlight(id) {
+      saveFlights(getFlights().filter(f => f.id !== id));
+      renderDashboard();
+      openPovsModal();
     }
 
     /* =========================================================================
@@ -1772,6 +1887,7 @@
         localStorage.removeItem(KEYS.FLIGHTS);
         localStorage.removeItem(KEYS.ACTIVITIES);
         closeModal("modalConfig");
+        closeModal("modalPovs");
         renderDashboard();
       }
     }
@@ -1828,6 +1944,10 @@
 
       const savedCid = localStorage.getItem(KEYS.CLIENT_ID);
       if (savedCid) document.getElementById("clientIdInput").value = savedCid;
+
+      // Limpiar registros corruptos con fechas NaN de versiones previas
+      const cleanFlights = getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs));
+      saveFlights(cleanFlights);
 
       updateClockTick();
       updateSortIndicators();
