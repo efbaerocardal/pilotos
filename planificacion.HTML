@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEROCARDAL — Planificación Operacional y Calendario de Vuelos</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    :root {
+      --bg-main: #0B1324;
+      --bg-panel: #131E36;
+      --bg-card: #182644;
+      --bg-card-hover: #1E2F54;
+      --bg-input: #0E172B;
+      --border: #26385E;
+      --border-light: #334A7A;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --accent-blue: #2563EB;
+      --accent-blue-hover: #1D4ED8;
+      --accent-cyan: #38BDF8;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg-main); color: var(--text-main); font-size: 13px; line-height: 1.4; }
+    .topbar { background: linear-gradient(90deg, #091020 0%, #111C35 60%, #0D162B 100%); border-bottom: 1px solid var(--border); padding: 11px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .topbar-left h1 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: 0.4px; color: #FFF; }
+    .nav-tabs { display: flex; gap: 6px; }
+    .nav-link { text-decoration: none; background: var(--bg-card); color: #CBD5E1; border: 1px solid var(--border-light); border-radius: 7px; padding: 6px 11px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+    .nav-link:hover { border-color: var(--accent-cyan); color: #FFF; }
+    .nav-link.active { background: var(--accent-blue); border-color: #60A5FA; color: #FFF; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .brand-logo { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 16px; color: #FFF; }
+    .brand-triangle { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #E11D48; position: relative; }
+    .brand-triangle::after { content: ""; position: absolute; left: -5px; top: 6px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 10px solid #0B1324; }
+    .btn { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-light); border-radius: 7px; padding: 6px 11px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+    .btn:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); }
+    .btn-blue { background: var(--accent-blue); border-color: var(--accent-blue); color: #FFF; }
+    .btn-blue:hover { background: var(--accent-blue-hover); }
+    .btn-green { background: #15803D; border-color: #22C55E; color: #FFF; }
+    .btn-green:hover { background: #166534; }
+    .btn-sm { padding: 4px 8px; font-size: 11px; }
+    .container { max-width: 1740px; margin: 0 auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Control Bar */
+    .control-bar { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .seg-group { display: inline-flex; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 7px; padding: 2px; }
+    .seg-btn { background: transparent; border: none; color: #94A3B8; padding: 5px 11px; border-radius: 5px; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .seg-btn.active { background: var(--accent-blue); color: #FFF; }
+    .date-nav { display: flex; align-items: center; gap: 6px; }
+    .date-nav input[type="date"] { background: var(--bg-input); color: #FFF; border: 1px solid var(--border-light); border-radius: 6px; padding: 5px 9px; font-size: 12.5px; font-weight: 700; }
+
+    /* Material Pills & Fleet Strip */
+    .filter-strip { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; display: flex; flex-direction: column; gap: 9px; }
+    .filter-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .mat-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .mat-pill { background: var(--bg-card); border: 1px solid var(--border-light); color: #CBD5E1; padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; }
+    .mat-pill.active { background: linear-gradient(180deg, #3B82F6 0%, #1D4ED8 100%); border-color: #60A5FA; color: #FFF; }
+    .fleet-chips { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .fleet-chip { background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .fleet-chip:hover { border-color: var(--accent-cyan); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot-ok { background: #22C55E; }
+    .dot-prog { background: #38BDF8; }
+    .dot-maint { background: #F59E0B; }
+    .dot-aog { background: #EF4444; }
+
+    /* Excel-like Grid */
+    .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .panel-head h2 { margin: 0; font-size: 13.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: #FFF; }
+    .grid-wrap { overflow-x: auto; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-input); }
+    table.excel-grid { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    table.excel-grid th { background: #16233E; color: #94A3B8; font-size: 10.5px; font-weight: 800; text-transform: uppercase; padding: 7px 8px; border-bottom: 1px solid var(--border-light); border-right: 1px solid rgba(51, 74, 122, 0.4); text-align: left; white-space: nowrap; }
+    table.excel-grid td { padding: 4px 5px; border-bottom: 1px solid rgba(38, 56, 94, 0.75); border-right: 1px solid rgba(38, 56, 94, 0.5); vertical-align: middle; }
+    table.excel-grid tr:hover td { background: rgba(30, 47, 84, 0.45); }
+    table.excel-grid tr.row-draft td { background: rgba(148, 163, 184, 0.06); }
+    table.excel-grid tr.row-cancelled td { opacity: 0.55; text-decoration: line-through; }
+    table.excel-grid tr.new-entry-row td { background: rgba(37, 99, 235, 0.12); border-top: 2px solid var(--accent-blue); }
+
+    .cell-input, .cell-select { width: 100%; background: transparent; color: #F8FAFC; border: 1px solid transparent; border-radius: 4px; padding: 4px 6px; font-size: 12px; font-family: inherit; }
+    .cell-input:hover, .cell-select:hover { border-color: var(--border-light); background: rgba(15, 23, 42, 0.7); }
+    .cell-input:focus, .cell-select:focus { outline: none; border-color: var(--accent-cyan); background: #0B1324; }
+    .cell-select option { background: #0E172B; color: #F1F5F9; }
+    .w-pov { width: 72px; font-weight: 800; }
+    .w-st { width: 125px; font-weight: 700; }
+    .w-mat { width: 84px; }
+    .w-ac { width: 96px; font-weight: 700; }
+    .w-crew { width: 145px; }
+    .w-route { width: 145px; text-transform: uppercase; font-weight: 700; }
+    .w-time { width: 76px; }
+    .w-srv { width: 125px; }
+    .w-obs { min-width: 150px; }
+
+    /* Validation Banner */
+    .val-bar { margin-top: 8px; padding: 7px 11px; border-radius: 7px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .val-ok { background: rgba(22, 163, 74, 0.16); border: 1px solid rgba(74, 222, 128, 0.35); color: #4ADE80; }
+    .val-warn { background: rgba(217, 119, 6, 0.18); border: 1px solid rgba(251, 191, 36, 0.45); color: #FBBF24; }
+    .val-err { background: rgba(220, 38, 38, 0.20); border: 1px solid rgba(248, 113, 113, 0.5); color: #F87171; }
+
+    /* Timeline Gantt (Daily) */
+    .timeline-box { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-input); }
+    .tl-header { display: grid; grid-template-columns: 165px 1fr; border-bottom: 1px solid var(--border-light); background: #16233E; font-size: 10.5px; font-weight: 800; color: var(--text-muted); }
+    .tl-hours { display: grid; grid-template-columns: repeat(24, 1fr); }
+    .tl-hours div { padding: 5px 2px; text-align: center; border-left: 1px solid rgba(51, 74, 122, 0.35); }
+    .tl-row { display: grid; grid-template-columns: 165px 1fr; border-bottom: 1px solid rgba(38, 56, 94, 0.65); min-height: 34px; align-items: center; }
+    .tl-label { padding: 5px 10px; font-weight: 700; font-size: 11.5px; border-right: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tl-track { position: relative; height: 32px; background-image: linear-gradient(to right, rgba(51, 74, 122, 0.22) 1px, transparent 1px); background-size: calc(100% / 24) 100%; }
+    .tl-bar { position: absolute; top: 4px; height: 24px; border-radius: 5px; padding: 0 7px; font-size: 11px; font-weight: 800; color: #FFF; display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
+    .tl-bar-prog { background: linear-gradient(90deg, #2563EB, #0284C7); border: 1px solid #60A5FA; }
+    .tl-bar-conf { background: linear-gradient(90deg, #15803D, #0D9488); border: 1px solid #4ADE80; }
+    .tl-bar-draft { background: rgba(100, 116, 139, 0.45); border: 1px dashed #CBD5E1; }
+    .tl-bar-rest { background: rgba(245, 158, 11, 0.22); border: 1px dashed #FBBF24; color: #FDE68A; font-weight: 700; }
+    .tl-bar-maint { background: repeating-linear-gradient(45deg, rgba(220, 38, 38, 0.35), rgba(220, 38, 38, 0.35) 8px, rgba(127, 29, 29, 0.45) 8px, rgba(127, 29, 29, 0.45) 16px); border: 1px solid #F87171; color: #FECACA; }
+
+    /* Weekly & Monthly Views */
+    .week-table { width: 100%; border-collapse: collapse; }
+    .week-table th { background: #16233E; padding: 8px; border: 1px solid var(--border); font-size: 11px; text-transform: uppercase; color: #CBD5E1; }
+    .week-table td { border: 1px solid var(--border); padding: 6px; vertical-align: top; min-width: 135px; background: var(--bg-input); }
+    .wk-pill { display: block; padding: 4px 6px; border-radius: 5px; margin-bottom: 4px; font-size: 11px; font-weight: 700; cursor: pointer; border-left: 3px solid #38BDF8; background: var(--bg-card); }
+    .wk-pill.rest { border-left-color: #FBBF24; background: rgba(217, 119, 6, 0.16); color: #FDE68A; }
+    .wk-pill.block { border-left-color: #C084FC; background: rgba(124, 58, 237, 0.18); color: #E9D5FF; }
+
+    .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .month-head { text-align: center; font-size: 11px; font-weight: 800; color: var(--text-muted); padding: 4px; text-transform: uppercase; }
+    .month-cell { background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; min-height: 105px; padding: 7px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
+    .month-cell:hover { border-color: var(--accent-cyan); }
+    .month-cell.today { border-color: #38BDF8; box-shadow: inset 0 0 0 1px #38BDF8; }
+    .month-cell.other-month { opacity: 0.4; }
+    .mc-top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 12px; }
+    .mc-badge { font-size: 10px; padding: 1px 6px; border-radius: 99px; background: rgba(56, 189, 248, 0.18); color: #7DD3FC; }
+
+    /* Sub-legs row */
+    .sublegs-box { background: #0B1324; padding: 8px 12px; border-left: 3px solid var(--accent-cyan); }
+    .sublegs-box table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .sublegs-box th { color: var(--accent-cyan); font-size: 10px; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+    .sublegs-box td { padding: 3px 5px; border-bottom: 1px solid rgba(38,56,94,0.4); }
+
+    /* Modal */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.82); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+    .modal-backdrop.open { display: flex; }
+    .modal-card { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: 12px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; padding: 18px; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px; }
+    .modal-head h3 { margin: 0; font-size: 15px; color: #FFF; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .form-field label { display: block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .form-field input, .form-field select { width: 100%; background: var(--bg-input); color: #FFF; border: 1px solid var(--border-light); border-radius: 6px; padding: 7px 9px; font-size: 12.5px; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>AEROCARDAL — PLANIFICACIÓN OPERACIONAL</h1>
+      <nav class="nav-tabs">
+        <a href="planificacion.html" class="nav-link active">🗓️ Planificación</a>
+        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+        <a href="index.html" class="nav-link">✈️ EFB Cabina</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-blue" onclick="syncDriveAll(false)">☁️ Sincronizar Drive (00_POV)</button>
+      <button class="btn" onclick="openFleetModal()">🛠️ Estado Flota / Mantto</button>
+      <button class="btn" onclick="openRulesModal()">⚙️ Parámetros</button>
+      <span id="syncStatus" style="font-size:11.5px; font-weight:700; color:var(--accent-cyan);">Listo</span>
+      <div class="brand-logo">
+        <div class="brand-triangle"></div>
+        <span>Aerocardal</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- BARRA DE CONTROL TEMPORAL Y MODOS -->
+    <div class="control-bar">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div class="seg-group">
+          <button class="seg-btn active" id="viewBtnDAY" onclick="setCalendarView('DAY')">📅 Vista Diaria</button>
+          <button class="seg-btn" id="viewBtnWEEK" onclick="setCalendarView('WEEK')">📆 Vista Semanal</button>
+          <button class="seg-btn" id="viewBtnMONTH" onclick="setCalendarView('MONTH')">🗓️ Vista Mensual</button>
+        </div>
+
+        <div class="seg-group" id="modeGroup">
+          <button class="seg-btn active" id="modeBtnMIXED" onclick="setDisplayMode('MIXED')">📊 Excel + Timeline</button>
+          <button class="seg-btn" id="modeBtnGRID" onclick="setDisplayMode('GRID')">📋 Solo Grilla Excel</button>
+          <button class="seg-btn" id="modeBtnCAL" onclick="setDisplayMode('CAL')">🕒 Solo Timeline</button>
+        </div>
+
+        <div class="seg-group" title="Elige si ingresar y ver horas en Hora Local Chile o UTC Zulú">
+          <button class="seg-btn active" id="tzBtnLOCAL" onclick="setTimezoneMode('LOCAL')">🇨🇱 Hora Local (CLT)</button>
+          <button class="seg-btn" id="tzBtnUTC" onclick="setTimezoneMode('UTC')">🌐 Hora UTC (Z)</button>
+        </div>
+      </div>
+
+      <div class="date-nav">
+        <button class="btn btn-sm" onclick="shiftAnchorDate(-1)">◀ Anterior</button>
+        <input type="date" id="anchorDateInput" onchange="onAnchorDateChange()" />
+        <button class="btn btn-sm" onclick="goToToday()">Hoy</button>
+        <button class="btn btn-sm" onclick="shiftAnchorDate(1)">Siguiente ▶</button>
+      </div>
+    </div>
+
+    <!-- FILTRO DE MATERIALES Y ESTADO FLOTA EN VIVO -->
+    <div class="filter-strip">
+      <div class="filter-row">
+        <div class="mat-pills" id="materialPills">
+          <button class="mat-pill active" onclick="setMaterialFilter('TODOS', this)">TODOS</button>
+          <button class="mat-pill" onclick="setMaterialFilter('PC-24', this)">PC-24</button>
+          <button class="mat-pill" onclick="setMaterialFilter('L-410', this)">L-410</button>
+          <button class="mat-pill" onclick="setMaterialFilter('G-150', this)">G-150</button>
+          <button class="mat-pill" onclick="setMaterialFilter('D-228', this)">D-228</button>
+          <button class="mat-pill" onclick="setMaterialFilter('PC-12', this)">PC-12</button>
+          <button class="mat-pill" onclick="setMaterialFilter('A109', this)">A109S/SP</button>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="globalSearch" placeholder="Buscar POV, matrícula, piloto, ruta, cliente..." style="width:260px; background:var(--bg-input); color:#FFF; border:1px solid var(--border-light); border-radius:6px; padding:5px 10px; font-size:12px;" oninput="renderAll()" />
+        </div>
+      </div>
+      <div class="fleet-chips" id="fleetStatusChips"></div>
+    </div>
+
+    <!-- CONTENIDO DINÁMICO SEGÚN VISTA (DÍA / SEMANA / MES) -->
+    <div id="viewContainerDAY">
+      <!-- GRILLA TIPO EXCEL -->
+      <div class="panel" id="excelPanel">
+        <div class="panel-head">
+          <h2 id="dailyGridTitle">PROGRAMACIÓN OPERACIONAL — DÍA</h2>
+          <div style="display:flex; gap:7px; flex-wrap:wrap;">
+            <span style="font-size:11px; color:var(--text-muted); align-self:center;">Edición directa en celda · <strong>Enter</strong> guarda en Drive y prellena EFB</span>
+            <button class="btn btn-sm btn-green" onclick="focusQuickRow()">+ Nuevo Vuelo Rápido</button>
+          </div>
+        </div>
+
+        <div class="grid-wrap">
+          <table class="excel-grid">
+            <thead>
+              <tr>
+                <th>POV</th>
+                <th>ESTADO</th>
+                <th>MATERIAL</th>
+                <th>MATRÍCULA</th>
+                <th>PIC (COMANDANTE)</th>
+                <th>SIC (COPILOTO)</th>
+                <th>REFUERZO</th>
+                <th>RUTA (ORIGEN-DEST)</th>
+                <th id="thStart">INICIO (CLT)</th>
+                <th id="thEnd">TÉRMINO (CLT)</th>
+                <th>TIPO SERVICIO</th>
+                <th>CLIENTE / REF</th>
+                <th>OBSERVACIONES</th>
+                <th>ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody id="dailyExcelBody"></tbody>
+          </table>
+        </div>
+
+        <div class="val-bar val-ok" id="validationSummaryBar">
+          <span>✅ Sin conflictos de tripulación, descanso ni matrícula para la programación visible.</span>
+        </div>
+      </div>
+
+      <!-- TIMELINE VISUAL DIARIO -->
+      <div class="panel" id="timelinePanel" style="margin-top:12px;">
+        <div class="panel-head">
+          <h2 id="dailyTimelineTitle">TIMELINE VISUAL DE FLOTA Y TRIPULACIONES</h2>
+          <div style="display:flex; gap:10px; font-size:11px; color:var(--text-muted);">
+            <span>🟩 Confirmado</span>
+            <span>🟦 Programado</span>
+            <span>🟧 Descanso Post-Vuelo</span>
+            <span>🟥 Mantenimiento</span>
+          </div>
+        </div>
+        <div class="timeline-box" id="dailyTimelineContainer"></div>
+      </div>
+    </div>
+
+    <!-- VISTA SEMANAL -->
+    <div id="viewContainerWEEK" style="display:none;">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="weekTitle">PROGRAMACIÓN SEMANAL</h2>
+          <div class="seg-group">
+            <button class="seg-btn active" id="wkGroupAC" onclick="setWeekGroup('AIRCRAFT')">✈️ Agrupar por Aeronave</button>
+            <button class="seg-btn" id="wkGroupPILOT" onclick="setWeekGroup('PILOT')">👨‍✈️ Agrupar por Piloto</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="week-table" id="weekMatrixTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA MENSUAL -->
+    <div id="viewContainerMONTH" style="display:none;">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="monthTitle">CALENDARIO MENSUAL DE OPERACIONES</h2>
+          <span style="font-size:11.5px; color:var(--text-muted);">Haz clic en un día para abrir la planilla editable de esa fecha</span>
+        </div>
+        <div class="month-grid" id="monthGridContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ESTADO DE FLOTA Y MANTENIMIENTO -->
+  <div class="modal-backdrop" id="modalFleet">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>🛠️ Maestro de Flota y Bloqueos de Mantenimiento</h3>
+        <button class="btn btn-sm" onclick="closeModal('modalFleet')">✕</button>
+      </div>
+      <div id="fleetModalList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+      <div style="border-top:1px solid var(--border); padding-top:12px;">
+        <div style="font-weight:800; font-size:12px; margin-bottom:8px; color:var(--accent-cyan);">+ PROGRAMAR MANTENIMIENTO / RESTRICCIÓN DE AERONAVE</div>
+        <div class="form-grid">
+          <div class="form-field"><label>Matrícula</label><select id="mntAircraft"></select></div>
+          <div class="form-field"><label>Estado</label>
+            <select id="mntStatus">
+              <option value="MANTENIMIENTO">En Mantenimiento Programado</option>
+              <option value="FUERA_DE_SERVICIO">Fuera de Servicio (AOG)</option>
+              <option value="RESTRICCION">Restricción Operacional</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Inicio</label><input type="datetime-local" id="mntStart" /></div>
+          <div class="form-field"><label>Término Estimado</label><input type="datetime-local" id="mntEnd" /></div>
+        </div>
+        <div class="form-field" style="margin-top:8px;"><label>Motivo / Inspección</label><input type="text" id="mntReason" placeholder="Ej. Inspección 100 hrs / Cambio neumáticos" /></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+          <button class="btn" onclick="closeModal('modalFleet')">Cerrar</button>
+          <button class="btn btn-blue" onclick="saveMaintenanceBlock()">💾 Guardar Bloqueo de Flota</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PARÁMETROS Y CLIENT ID -->
+  <div class="modal-backdrop" id="modalRules">
+    <div class="modal-card" style="max-width:560px;">
+      <div class="modal-head">
+        <h3>⚙️ Parámetros de Planificación y Google Drive</h3>
+        <button class="btn btn-sm" onclick="closeModal('modalRules')">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Presentación previa ETD (min)</label>
+          <input type="number" id="rulePreDuty" value="45" />
+        </div>
+        <div class="form-field">
+          <label>Cierre posterior ETA (min)</label>
+          <input type="number" id="rulePostDuty" value="30" />
+        </div>
+        <div class="form-field">
+          <label>Descanso mínimo planificado (hrs)</label>
+          <input type="number" id="ruleMinRestH" value="12" />
+        </div>
+        <div class="form-field">
+          <label>Usuario Operaciones (Auditoría)</label>
+          <input type="text" id="ruleUserEmail" placeholder="operaciones@aerocardal.cl" />
+        </div>
+      </div>
+      <div class="form-field" style="margin-top:10px;">
+        <label>Google OAuth 2.0 Client ID</label>
+        <input type="text" id="ruleClientId" />
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:14px;">
+        <button class="btn btn-sm" onclick="switchDriveAccount()">🔄 Cambiar Cuenta Google</button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" onclick="closeModal('modalRules')">Cancelar</button>
+          <button class="btn btn-blue" onclick="saveRulesConfig()">Guardar Parámetros</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. CONSTANTES, FLOTA Y TRIPULACIONES AEROCARDAL
+       ========================================================================= */
+    const DEFAULT_CLIENT_ID = "564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com";
+    const STORAGE = {
+      OPS: "aerocardal_plan_v1_ops",
+      DRAFTS: "aerocardal_plan_v1_drafts",
+      FLEET_BLOCKS: "aerocardal_plan_v1_fleet_blocks",
+      CREW_BLOCKS: "aerocardal_ops_v2_activities",
+      RULES: "aerocardal_plan_v1_rules",
+      CLIENT_ID: "aerocardal_ops_google_client_id",
+      TOKEN: "aerocardal_ops_drive_token",
+      TOKEN_EXP: "aerocardal_ops_drive_token_exp",
+      HAS_AUTH: "aerocardal_ops_drive_has_auth"
+    };
+
+    const FLEET_MASTER = [
+      { mat: "CC-DRS", model: "PC-24", base: "SCEL" },
+      { mat: "CC-DLI", model: "L-410", base: "SCEL" },
+      { mat: "CC-DLB", model: "L-410", base: "SCEL" },
+      { mat: "CC-DLC", model: "L-410", base: "SCEL" },
+      { mat: "CC-CDV", model: "G-150", base: "SCEL" },
+      { mat: "CC-CZO", model: "D-228", base: "SCEL" },
+      { mat: "CC-DBB", model: "PC-12", base: "SCEL" },
+      { mat: "CC-AOV", model: "A109S", base: "SCEL" },
+      { mat: "CC-DCV", model: "A109SP", base: "SCEL" }
+    ];
+
+    const AIRPLANE_SIC_LIST = ["JO", "MV", "SS", "EM", "CV"];
+    const PILOTOS_DB = [
+      { ini: "JA", displayName: "Arellano, José", hab: ["D-228", "PC-12", "A109S", "A109SP"] },
+      { ini: "JPA", displayName: "Arevalo, Juan Pablo", hab: ["A109S", "A109SP"] },
+      { ini: "CB", displayName: "Briones, Cristobal", hab: ["PC-24"] },
+      { ini: "FC", displayName: "Casasempere, Felipe", hab: ["D-228", "L-410", "PC-12"] },
+      { ini: "AC", displayName: "Castro, Alfredo", hab: ["D-228", "G-150"] },
+      { ini: "FCh", displayName: "Chacana, Fernando", hab: ["PC-12"] },
+      { ini: "RE", displayName: "Espinosa, Ricardo", hab: ["D-228", "G-150"] },
+      { ini: "FE", displayName: "Esquivel, Francisco", hab: ["PC-24"] },
+      { ini: "IF", displayName: "Fabry, Iván", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "CG", displayName: "Gonzalez, Claudio", hab: ["A109S", "A109SP"] },
+      { ini: "FG", displayName: "Guiñez, Felipe", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "EI", displayName: "Inostroza, Esteban", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "AK", displayName: "Kaufmann, Alexander", hab: ["G-150", "PC-12"] },
+      { ini: "EM", displayName: "Mancini, Enrique", hab: ["D-228", "L-410", "PC-12"] },
+      { ini: "NM", displayName: "Mohr, Nicolás", hab: ["D-228", "G-150", "PC-12", "PC-24"] },
+      { ini: "CM", displayName: "Muñoz, Claudio", hab: ["D-228", "PC-12", "L-410"] },
+      { ini: "JO", displayName: "Oyarzún, José", hab: ["PC-24", "L-410"] },
+      { ini: "SS", displayName: "Saez, Sebastian", hab: ["L-410"] },
+      { ini: "MS", displayName: "Solano, Mauricio", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "CV", displayName: "Vásquez, Cristhian", hab: ["D-228", "L-410", "A109S", "A109SP"] },
+      { ini: "MV", displayName: "Vega, Matías", hab: ["L-410", "G-150"] },
+      { ini: "KW", displayName: "Wobbe, Klaus", hab: ["D-228", "G-150", "L-410", "PC-24"] }
+    ].sort((a, b) => a.displayName.localeCompare(b.displayName, "es"));
+
+    const ESTADOS_CICLO = ["BORRADOR", "PROGRAMADO", "CONFIRMADO", "EN PREPARACIÓN", "EN EJECUCIÓN", "COMPLETADO", "REPROGRAMADO", "CANCELADO"];
+    const TIPOS_SERVICIO = ["Charter Ejecutivo", "Minería / Contrato", "Ambulancia / Evac.", "Carga / Logística", "Instrucción / Chequeo", "Traslado / Ferry"];
+
+    let calendarView = "DAY";     // DAY | WEEK | MONTH
+    let displayMode = "MIXED";    // MIXED | GRID | CAL
+    let tzMode = "LOCAL";         // LOCAL | UTC
+    let weekGroup = "AIRCRAFT";   // AIRCRAFT | PILOT
+    let materialFilter = "TODOS";
+    let anchorDate = new Date().toISOString().slice(0, 10);
+    let expandedLegsPov = null;
+
+    // Cache de IDs de Google Drive para evitar duplicar carpetas POV
+    let driveRoot00PovId = null;
+    let driveOpsConfigId = null;
+    const drivePovFolderCache = new Map(); // pov -> { folderId, progFileId, rawJson }
+
+    /* =========================================================================
+       2. PERSISTENCIA Y REGLAS CONFIGURABLES
+       ========================================================================= */
+    function getRules() {
+      const def = { preDutyMin: 45, postDutyMin: 30, minRestHours: 12, userEmail: "operaciones@aerocardal.cl" };
+      try { return { ...def, ...(JSON.parse(localStorage.getItem(STORAGE.RULES)) || {}) }; } catch { return def; }
+    }
+    function getOpsList() { try { return JSON.parse(localStorage.getItem(STORAGE.OPS)) || []; } catch { return []; } }
+    function saveOpsList(list) { localStorage.setItem(STORAGE.OPS, JSON.stringify(list)); }
+    function getDraftsList() { try { return JSON.parse(localStorage.getItem(STORAGE.DRAFTS)) || []; } catch { return []; } }
+    function saveDraftsList(list) { localStorage.setItem(STORAGE.DRAFTS, JSON.stringify(list)); }
+    function getFleetBlocks() { try { return JSON.parse(localStorage.getItem(STORAGE.FLEET_BLOCKS)) || []; } catch { return []; } }
+    function saveFleetBlocks(list) { localStorage.setItem(STORAGE.FLEET_BLOCKS, JSON.stringify(list)); }
+    function getCrewBlocks() { try { return JSON.parse(localStorage.getItem(STORAGE.CREW_BLOCKS)) || []; } catch { return []; } }
+
+    function getAllCombinedOps() {
+      return [...getOpsList(), ...getDraftsList()].sort((a, b) => a.startMs - b.startMs);
+    }
+
+    function getNextCorrelativePov() {
+      const nums = getAllCombinedOps()
+        .map(o => parseInt(String(o.pov).replace(/\D/g, ""), 10))
+        .filter(n => !isNaN(n) && n >= 1000 && n < 99999);
+      const maxPov = nums.length > 0 ? Math.max(...nums) : 9003;
+      return String(maxPov + 1);
+    }
+
+    /* =========================================================================
+       3. CONVERSIÓN DE HORARIOS (UTC Z <-> LOCAL CLT)
+       ========================================================================= */
+    function formatTimeByTz(ms) {
+      if (!ms || isNaN(ms)) return "--:--";
+      const d = new Date(ms);
+      if (tzMode === "UTC") {
+        return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+      }
+      return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function parseInputTimeToMs(dateISO, hhmm) {
+      if (!dateISO || !hhmm || !hhmm.includes(":")) return null;
+      const [hh, mm] = hhmm.split(":").map(Number);
+      if (isNaN(hh) || isNaN(mm)) return null;
+      const str = `${dateISO}T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
+      return tzMode === "UTC" ? new Date(str + "Z").getTime() : new Date(str).getTime();
+    }
+
+    function msToUtcHHMM(ms) {
+      const d = new Date(ms);
+      return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+    }
+
+    function msToUtcDateISO(ms) {
+      return new Date(ms).toISOString().slice(0, 10);
+    }
+
+    /* =========================================================================
+       4. MOTOR DE VALIDACIÓN DE DISPONIBILIDAD (TRIPULACIONES Y AERONAVES)
+       ========================================================================= */
+    function validateOperation(op, ignoreId = null) {
+      const issues = []; // { level: 'ERR' | 'WARN', msg }
+      const rules = getRules();
+      const allOps = getAllCombinedOps().filter(o => o.id !== ignoreId && o.estado !== "CANCELADO");
+      const fleetBlocks = getFleetBlocks();
+      const crewBlocks = getCrewBlocks();
+
+      // 1. Validación de Aeronave
+      if (op.aircraft) {
+        const acOverlap = allOps.find(o => o.aircraft === op.aircraft && op.startMs < o.endMs && op.endMs > o.startMs);
+        if (acOverlap) {
+          issues.push({ level: "ERR", msg: `Conflicto matrícula ${op.aircraft}: ya asignada a POV ${acOverlap.pov} (${formatTimeByTz(acOverlap.startMs)}-${formatTimeByTz(acOverlap.endMs)}).` });
+        }
+        const mntOverlap = fleetBlocks.find(b => b.aircraft === op.aircraft && op.startMs < b.endMs && op.endMs > b.startMs);
+        if (mntOverlap) {
+          issues.push({ level: "ERR", msg: `Aeronave ${op.aircraft} en ${mntOverlap.status}: ${mntOverlap.reason}.` });
+        }
+      }
+
+      // 2. Validación de Tripulación (PIC, SIC, Refuerzo)
+      const assignedCrew = [
+        { role: "PIC", ini: op.picIni },
+        { role: "SIC", ini: op.sicIni },
+        { role: "Refuerzo", ini: op.refIni }
+      ].filter(c => c.ini);
+
+      assignedCrew.forEach(({ role, ini }) => {
+        const pilot = PILOTOS_DB.find(p => p.ini === ini);
+        const pName = pilot ? pilot.displayName : ini;
+
+        // Habilitación de material
+        if (pilot && op.material) {
+          const hasRating = op.material === "A109"
+            ? pilot.hab.some(h => h.startsWith("A109"))
+            : pilot.hab.includes(op.material);
+          if (!hasRating) {
+            issues.push({ level: "WARN", msg: `${pName} (${role}) no registra habilitación ${op.material}.` });
+          }
+        }
+
+        // Cruce con otro POV
+        const flightOverlap = allOps.find(o => [o.picIni, o.sicIni, o.refIni].includes(ini) && op.startMs < o.endMs && op.endMs > o.startMs);
+        if (flightOverlap) {
+          issues.push({ level: "ERR", msg: `Conflicto ${pName}: asignado a POV ${flightOverlap.pov} en horario superpuesto.` });
+        }
+
+        // Cruce con permisos / SIM / vacaciones
+        const actOverlap = crewBlocks.find(a => a.pilotIni === ini && op.startMs < a.endMs && op.endMs > a.startMs);
+        if (actOverlap) {
+          issues.push({ level: "ERR", msg: `${pName} no disponible (${actOverlap.type}${actOverlap.note ? ": " + actOverlap.note : ""}).` });
+        }
+
+        // Descanso post-servicio previo (regla configurable)
+        const prevFlights = allOps
+          .filter(o => [o.picIni, o.sicIni, o.refIni].includes(ini) && o.endMs <= op.startMs)
+          .sort((a, b) => b.endMs - a.endMs);
+
+        if (prevFlights.length > 0) {
+          const prev = prevFlights[0];
+          const minRestMs = (rules.minRestHours || 12) * 3600000;
+          const releaseMs = prev.endMs + minRestMs;
+          if (op.startMs < releaseMs) {
+            issues.push({ level: "ERR", msg: `${pName} en período de descanso tras POV ${prev.pov} (libera ${formatTimeByTz(releaseMs)} ${tzMode}).` });
+          }
+          if (!prev.isClosed && prev.estado === "EN EJECUCIÓN") {
+            issues.push({ level: "WARN", msg: `Disponibilidad de ${pName} pendiente de confirmar: POV ${prev.pov} aún abierto sin cierre real.` });
+          }
+        }
+      });
+
+      return issues;
+    }
+
+    function getPilotOptionLabel(pilot, material, startMs, endMs, ignoreId) {
+      const dummyOp = { material, picIni: pilot.ini, startMs, endMs };
+      const issues = validateOperation(dummyOp, ignoreId);
+      const err = issues.find(i => i.level === "ERR");
+      const warn = issues.find(i => i.level === "WARN");
+      if (err) return `🔴 ${pilot.displayName} (Ocupado/Descanso)`;
+      if (warn) return `🟡 ${pilot.displayName} (Revisar)`;
+      return `🟢 ${pilot.displayName}`;
+    }
+
+    /* =========================================================================
+       5. INTEGRACIÓN GOOGLE DRIVE: LECTURA Y ESCRITURA DE POV_XXXX / Progreso.json
+       ========================================================================= */
+    function getClientId() {
+      return (localStorage.getItem(STORAGE.CLIENT_ID) || "").trim() || DEFAULT_CLIENT_ID;
+    }
+
+    async function getDriveAccessToken(interactive = true) {
+      const cached = sessionStorage.getItem(STORAGE.TOKEN);
+      const exp = parseInt(sessionStorage.getItem(STORAGE.TOKEN_EXP) || "0", 10);
+      if (cached && Date.now() < exp - 60000) return cached;
+
+      return new Promise((resolve, reject) => {
+        if (typeof google === "undefined" || !google.accounts?.oauth2) {
+          reject(new Error("Google Identity Services no cargado."));
+          return;
+        }
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: getClientId(),
+          scope: "https://www.googleapis.com/auth/drive",
+          callback: (resp) => {
+            if (resp.error) { reject(new Error(resp.error)); return; }
+            sessionStorage.setItem(STORAGE.TOKEN, resp.access_token);
+            sessionStorage.setItem(STORAGE.TOKEN_EXP, String(Date.now() + (parseInt(resp.expires_in, 10) || 3500) * 1000));
+            localStorage.setItem(STORAGE.HAS_AUTH, "1");
+            resolve(resp.access_token);
+          },
+          error_callback: (e) => reject(new Error(e.type || "Popup bloqueado"))
+        });
+        const hasAuth = localStorage.getItem(STORAGE.HAS_AUTH) === "1";
+        client.requestAccessToken({ prompt: (!interactive && hasAuth) ? "" : "select_account" });
+      });
+    }
+
+    async function ensureFolder(token, name, parentId = null) {
+      const parentClause = parentId ? `'${parentId}' in parents and ` : "";
+      const q = encodeURIComponent(`${parentClause}name = '${name}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.files && data.files.length > 0) return data.files[0].id;
+
+      const meta = { name, mimeType: "application/vnd.google-apps.folder" };
+      if (parentId) meta.parents = [parentId];
+      const createRes = await fetch("https://www.googleapis.com/drive/v3/files?fields=id", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(meta)
+      });
+      const created = await createRes.json();
+      return created.id;
+    }
+
+    async function uploadJsonToDrive(token, folderId, fileName, jsonObj, existingFileId = null) {
+      const boundary = "aerocardal_efb_boundary_" + Date.now();
+      const metadata = existingFileId ? { name: fileName } : { name: fileName, parents: [folderId], mimeType: "application/json" };
+      const body =
+        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+        `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(jsonObj, null, 2)}\r\n` +
+        `--${boundary}--`;
+
+      const url = existingFileId
+        ? `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart&fields=id`
+        : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id`;
+
+      const res = await fetch(url, {
+        method: existingFileId ? "PATCH" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": `multipart/related; boundary=${boundary}`
+        },
+        body
+      });
+      if (!res.ok) throw new Error(`Error subiendo ${fileName} (HTTP ${res.status})`);
+      const out = await res.json();
+      return out.id;
+    }
+
+    function unwrapVal(v) {
+      if (v === null || v === undefined) return "";
+      if (typeof v === "object" && "value" in v) return String(v.value ?? "").trim();
+      return typeof v === "object" ? "" : String(v).trim();
+    }
+
+    function parseHHMMToMin(str) {
+      const clean = (str || "").toString().replace(/[^0-9]/g, "");
+      if (clean.length < 3) return null;
+      const p = clean.padStart(4, "0").slice(0, 4);
+      return parseInt(p.slice(0, 2), 10) * 60 + parseInt(p.slice(2, 4), 10);
+    }
+
+    async function syncDriveAll(silent = false) {
+      const lbl = document.getElementById("syncStatus");
+      try {
+        lbl.textContent = "Sincronizando 00_POV...";
+        const token = await getDriveAccessToken(!silent);
+        driveRoot00PovId = await ensureFolder(token, "00_POV");
+        driveOpsConfigId = await ensureFolder(token, "_OPS_CONFIG", driveRoot00PovId);
+
+        // 1. Leer subcarpetas POV_* y sus Progreso.json
+        const qSubs = encodeURIComponent(`'${driveRoot00PovId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
+        const resSubs = await fetch(`https://www.googleapis.com/drive/v3/files?q=${qSubs}&fields=files(id,name)&pageSize=500`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const subData = await resSubs.json();
+        const folderMap = new Map();
+        (subData.files || []).forEach(sf => {
+          if (sf.name !== "_OPS_CONFIG") {
+            const m = sf.name.match(/POV[_\-\s]*([A-Za-z0-9]+)/i);
+            folderMap.set(sf.id, m ? m[1] : sf.name);
+          }
+        });
+
+        const qProg = encodeURIComponent("name = 'Progreso.json' and trashed = false");
+        const resProg = await fetch(`https://www.googleapis.com/drive/v3/files?q=${qProg}&fields=files(id,name,parents,modifiedTime)&pageSize=400`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const progData = await resProg.json();
+        const loadedOps = [];
+        drivePovFolderCache.clear();
+
+        for (const f of (progData.files || [])) {
+          const parentId = (f.parents || []).find(pid => folderMap.has(pid));
+          if (!parentId) continue;
+          const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (!fRes.ok) continue;
+          const raw = await fRes.json();
+          const g = raw.globals || {};
+          const p = raw.planificacion || {};
+          const pov = unwrapVal(g.m_pov) || p.pov_id || folderMap.get(parentId);
+          drivePovFolderCache.set(pov, { folderId: parentId, progFileId: f.id, rawJson: raw });
+
+          const dateISO = unwrapVal(g.m_fecha_gen) || (p.tramos_planificados?.[0]?.fecha) || new Date().toISOString().slice(0, 10);
+          const startMin = parseHHMMToMin(unwrapVal(g.duty_start)) ?? parseHHMMToMin(p.tramos_planificados?.[0]?.etd_utc) ?? 720;
+          const endMin = parseHHMMToMin(unwrapVal(g.duty_end)) ?? parseHHMMToMin(p.tramos_planificados?.[p.tramos_planificados.length - 1]?.eta_utc) ?? ((startMin + 240) % 1440);
+
+          const startMs = new Date(`${dateISO}T${String(Math.floor(startMin / 60)).padStart(2, "0")}:${String(startMin % 60).padStart(2, "0")}:00Z`).getTime();
+          let endMs = new Date(`${dateISO}T${String(Math.floor(endMin / 60)).padStart(2, "0")}:${String(endMin % 60).padStart(2, "0")}:00Z`).getTime();
+          if (endMs <= startMs) endMs += 86400000;
+
+          const isClosed = g.vuelo_cerrado === true;
+          const hasEfbData = g.haSidoGuardado === true;
+          let estado = p.estado_ciclo || "PROGRAMADO";
+          if (isClosed) estado = "COMPLETADO";
+          else if (!isClosed && unwrapVal(g.duty_start) && hasEfbData && estado !== "CANCELADO") estado = "EN EJECUCIÓN";
+
+          const legs = Array.isArray(p.tramos_planificados) && p.tramos_planificados.length > 0
+            ? p.tramos_planificados
+            : extractLegsFromEfb(raw, dateISO);
+
+          const routeStr = legs.length > 0
+            ? [legs[0].origen, ...legs.map(l => l.destino)].filter(Boolean).join("-")
+            : "SCEL-SCEL";
+
+          loadedOps.push({
+            id: `POV_${pov}`,
+            pov,
+            estado,
+            date: dateISO,
+            material: unwrapVal(g.m_material).toUpperCase() || "PC-24",
+            aircraft: unwrapVal(g.m_matricula).toUpperCase() || "CC-DRS",
+            picIni: unwrapVal(g.m_pic_ini).toUpperCase(),
+            sicIni: unwrapVal(g.m_sic_ini).toUpperCase(),
+            refIni: unwrapVal(g.m_sic2_ini).toUpperCase(),
+            route: routeStr,
+            startMs,
+            endMs,
+            tipoServicio: p.tipo_servicio || "Charter Ejecutivo",
+            cliente: p.cliente_ref || "",
+            observaciones: p.observaciones_ops || "",
+            legs,
+            isClosed,
+            hasEfbData,
+            versionPlan: p.auditoria?.version_plan || 1
+          });
+        }
+
+        saveOpsList(loadedOps);
+
+        // 2. Leer archivos maestros de _OPS_CONFIG (borradores, flota_estado, tripulacion_eventos)
+        await loadConfigFileFromDrive(token, "borradores.json", STORAGE.DRAFTS);
+        await loadConfigFileFromDrive(token, "flota_estado.json", STORAGE.FLEET_BLOCKS);
+        await loadConfigFileFromDrive(token, "tripulacion_eventos.json", STORAGE.CREW_BLOCKS);
+
+        lbl.textContent = `Drive OK · ${loadedOps.length} POVs`;
+        renderAll();
+      } catch (e) {
+        lbl.textContent = "Error Sync";
+        if (!silent) alert("No se pudo sincronizar con Drive: " + e.message);
+      }
+    }
+
+    async function loadConfigFileFromDrive(token, fileName, storageKey) {
+      if (!driveOpsConfigId) return;
+      const q = encodeURIComponent(`'${driveOpsConfigId}' in parents and name = '${fileName}' and trashed = false`);
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (data.files && data.files.length > 0) {
+        const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${data.files[0].id}?alt=media`, { headers: { Authorization: `Bearer ${token}` } });
+        if (fRes.ok) {
+          const arr = await fRes.json();
+          if (Array.isArray(arr)) localStorage.setItem(storageKey, JSON.stringify(arr));
+        }
+      }
+    }
+
+    async function saveConfigFileToDrive(token, fileName, jsonArray) {
+      if (!driveRoot00PovId) driveRoot00PovId = await ensureFolder(token, "00_POV");
+      if (!driveOpsConfigId) driveOpsConfigId = await ensureFolder(token, "_OPS_CONFIG", driveRoot00PovId);
+      const q = encodeURIComponent(`'${driveOpsConfigId}' in parents and name = '${fileName}' and trashed = false`);
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      const existingId = data.files?.[0]?.id || null;
+      await uploadJsonToDrive(token, driveOpsConfigId, fileName, jsonArray, existingId);
+    }
+
+    function extractLegsFromEfb(raw, defaultDate) {
+      const ld = raw.legData || {};
+      const keys = Object.keys(ld).sort((a, b) => Number(a) - Number(b));
+      return keys.map((k, idx) => {
+        const item = ld[k] || {};
+        return {
+          leg: idx + 1,
+          fecha: unwrapVal(item[`m_t${k}_fecha`]) || defaultDate,
+          origen: unwrapVal(item[`m_t${k}_desde`]) || "SCEL",
+          destino: unwrapVal(item[`m_t${k}_dest`]) || "SCEL",
+          etd_utc: unwrapVal(item[`m_t${k}_time_out`]) || "",
+          eta_utc: unwrapVal(item[`m_t${k}_time_in`]) || "",
+          pax_est: Number(unwrapVal(item[`m_t${k}_pax`]) || 0)
+        };
+      });
+    }
+
+    function formatIniEfb(ini) {
+      if (!ini) return "";
+      const s = ini.trim();
+      return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+
+    /* =========================================================================
+       6. GUARDADO Y SINCRONIZACIÓN HACIA EFB (Progreso.json) Y DASHBOARD
+       ========================================================================= */
+    function parseRouteToLegs(routeStr, dateISO, startMs, endMs, existingLegs = []) {
+      const codes = (routeStr || "SCEL-SCEL").toUpperCase().split(/[\s\-\/>]+/).filter(Boolean);
+      if (codes.length < 2) codes.push("SCEL");
+      const legCount = codes.length - 1;
+      const totalSpan = Math.max(3600000, endMs - startMs);
+      const step = Math.floor(totalSpan / legCount);
+
+      return Array.from({ length: legCount }, (_, i) => {
+        const prev = existingLegs[i] || {};
+        const legStart = startMs + i * step;
+        const legEnd = i === legCount - 1 ? endMs : startMs + (i + 1) * step;
+        return {
+          leg: i + 1,
+          fecha: prev.fecha || dateISO,
+          origen: codes[i],
+          destino: codes[i + 1],
+          etd_utc: prev.etd_utc || msToUtcHHMM(legStart),
+          eta_utc: prev.eta_utc || msToUtcHHMM(legEnd),
+          pax_est: prev.pax_est || 0
+        };
+      });
+    }
+
+    async function persistOperation(op, isNew = false) {
+      const lbl = document.getElementById("syncStatus");
+      const rules = getRules();
+      const issues = validateOperation(op, isNew ? null : op.id);
+      const blocking = issues.filter(i => i.level === "ERR");
+
+      if (blocking.length > 0 && op.estado !== "BORRADOR" && op.estado !== "CANCELADO") {
+        const proceed = confirm(`⚠️ CONFLICTOS DETECTADOS:\n\n• ${blocking.map(b => b.msg).join("\n• ")}\n\n¿Desea guardar de todas formas bajo responsabilidad de Operaciones?`);
+        if (!proceed) return;
+      }
+
+      // Caso A: BORRADOR -> No crea carpeta POV_XXXX en Drive
+      if (op.estado === "BORRADOR") {
+        const drafts = getDraftsList().filter(d => d.id !== op.id);
+        drafts.push(op);
+        saveDraftsList(drafts);
+        renderAll();
+        try {
+          const token = await getDriveAccessToken(true);
+          await saveConfigFileToDrive(token, "borradores.json", drafts);
+          lbl.textContent = `Borrador POV ${op.pov} guardado`;
+        } catch (e) {
+          lbl.textContent = "Borrador guardado local";
+        }
+        return;
+      }
+
+      // Caso B: PROGRAMADO / CONFIRMADO / REPROGRAMADO / CANCELADO -> Crea o actualiza POV_XXXX/Progreso.json
+      const draftsRemaining = getDraftsList().filter(d => d.pov !== op.pov);
+      saveDraftsList(draftsRemaining);
+
+      const cachedDrive = drivePovFolderCache.get(op.pov);
+      const baseJson = cachedDrive?.rawJson ? JSON.parse(JSON.stringify(cachedDrive.rawJson)) : { globals: {}, legs: 1, legData: {}, secManualState: {} };
+      const pilotAlreadyEdited = baseJson.globals?.haSidoGuardado === true;
+      const nextVersion = (baseJson.planificacion?.auditoria?.version_plan || 0) + 1;
+
+      if (pilotAlreadyEdited && !isNew) {
+        const okOverwrite = confirm(`ℹ️ El piloto ya abrió el POV ${op.pov} en su EFB.\nSe actualizará la programación manteniendo sus datos de cabina y enviando un aviso de cambio (v${nextVersion}). ¿Continuar?`);
+        if (!okOverwrite) return;
+      }
+
+      // Construir bloque planificacion + prellenar cabecera globals y legData del EFB
+      const matSuffix = op.aircraft.replace(/^CC-/i, "");
+      const formattedSuffix = matSuffix.charAt(0).toUpperCase() + matSuffix.slice(1).toLowerCase();
+
+      baseJson.planificacion = {
+        pov_id: op.pov,
+        estado_ciclo: op.estado,
+        tipo_servicio: op.tipoServicio,
+        cliente_ref: op.cliente,
+        observaciones_ops: op.observaciones,
+        tramos_planificados: op.legs,
+        auditoria: {
+          creado_por: baseJson.planificacion?.auditoria?.creado_por || rules.userEmail,
+          creado_en: baseJson.planificacion?.auditoria?.creado_en || new Date().toISOString(),
+          modificado_por: rules.userEmail,
+          modificado_en: new Date().toISOString(),
+          version_plan: nextVersion,
+          alerta_cambio_pendiente_piloto: pilotAlreadyEdited
+        }
+      };
+
+      baseJson.globals = {
+        ...baseJson.globals,
+        m_pov: op.pov,
+        m_fecha_gen: op.date,
+        m_material: op.material,
+        m_matricula: op.aircraft,
+        m_matricula_suffix: formattedSuffix,
+        m_pic_ini: formatIniEfb(op.picIni),
+        m_sic_ini: formatIniEfb(op.sicIni),
+        m_sic2_ini: formatIniEfb(op.refIni),
+        duty_start: msToUtcHHMM(op.startMs),
+        duty_end: op.estado === "COMPLETADO" ? msToUtcHHMM(op.endMs) : (baseJson.globals?.duty_end || ""),
+        vuelo_cerrado: op.estado === "COMPLETADO" ? true : (baseJson.globals?.vuelo_cerrado || false),
+        haSidoGuardado: baseJson.globals?.haSidoGuardado || false
+      };
+
+      // Solo reconstruir legData si el piloto aún no ha escrito tiempos reales en cabina
+      if (!pilotAlreadyEdited || !baseJson.legData || Object.keys(baseJson.legData).length === 0) {
+        baseJson.legs = op.legs.length;
+        baseJson.legData = {};
+        op.legs.forEach((lg, idx) => {
+          const n = String(idx + 1);
+          baseJson.legData[n] = {
+            [`m_t${n}_fecha`]: { value: lg.fecha || op.date, linked: "true", manual: "false" },
+            [`m_t${n}_desde`]: { value: lg.origen, linked: "false", manual: "false" },
+            [`m_t${n}_dest`]: { value: lg.destino, linked: "false", manual: "false" },
+            [`m_t${n}_pax`]: { value: String(lg.pax_est || ""), linked: "false", manual: "false" }
+          };
+        });
+      }
+
+      const opsList = getOpsList().filter(o => o.pov !== op.pov);
+      opsList.push(op);
+      saveOpsList(opsList);
+      renderAll();
+
+      try {
+        lbl.textContent = `Guardando POV_${op.pov} en Drive...`;
+        const token = await getDriveAccessToken(true);
+        if (!driveRoot00PovId) driveRoot00PovId = await ensureFolder(token, "00_POV");
+        const folderId = cachedDrive?.folderId || await ensureFolder(token, `POV_${op.pov}`, driveRoot00PovId);
+        const fileId = await uploadJsonToDrive(token, folderId, "Progreso.json", baseJson, cachedDrive?.progFileId || null);
+        drivePovFolderCache.set(op.pov, { folderId, progFileId: fileId, rawJson: baseJson });
+        await saveConfigFileToDrive(token, "borradores.json", draftsRemaining);
+        lbl.textContent = `✅ POV_${op.pov} sincronizado con EFB y Dashboard`;
+      } catch (e) {
+        lbl.textContent = "Guardado local (pendiente Drive)";
+        alert("Guardado localmente, pero falló la subida a Drive: " + e.message);
+      }
+    }
+
+    /* =========================================================================
+       7. RENDERIZADO: GRILLA TIPO EXCEL, TIMELINE DIARIO, SEMANA Y MES
+       ========================================================================= */
+    function setCalendarView(v) {
+      calendarView = v;
+      ["DAY", "WEEK", "MONTH"].forEach(k => document.getElementById(`viewBtn${k}`).classList.toggle("active", k === v));
+      document.getElementById("viewContainerDAY").style.display = v === "DAY" ? "block" : "none";
+      document.getElementById("viewContainerWEEK").style.display = v === "WEEK" ? "block" : "none";
+      document.getElementById("viewContainerMONTH").style.display = v === "MONTH" ? "block" : "none";
+      document.getElementById("modeGroup").style.display = v === "DAY" ? "inline-flex" : "none";
+      renderAll();
+    }
+
+    function setDisplayMode(m) {
+      displayMode = m;
+      ["MIXED", "GRID", "CAL"].forEach(k => document.getElementById(`modeBtn${k}`).classList.toggle("active", k === m));
+      document.getElementById("excelPanel").style.display = (m === "MIXED" || m === "GRID") ? "block" : "none";
+      document.getElementById("timelinePanel").style.display = (m === "MIXED" || m === "CAL") ? "block" : "none";
+    }
+
+    function setTimezoneMode(tz) {
+      tzMode = tz;
+      document.getElementById("tzBtnLOCAL").classList.toggle("active", tz === "LOCAL");
+      document.getElementById("tzBtnUTC").classList.toggle("active", tz === "UTC");
+      document.getElementById("thStart").textContent = `INICIO (${tz})`;
+      document.getElementById("thEnd").textContent = `TÉRMINO (${tz})`;
+      renderAll();
+    }
+
+    function setWeekGroup(g) {
+      weekGroup = g;
+      document.getElementById("wkGroupAC").classList.toggle("active", g === "AIRCRAFT");
+      document.getElementById("wkGroupPILOT").classList.toggle("active", g === "PILOT");
+      renderWeekView();
+    }
+
+    function setMaterialFilter(mat, btn) {
+      materialFilter = mat;
+      document.querySelectorAll(".mat-pill").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      renderAll();
+    }
+
+    function onAnchorDateChange() {
+      anchorDate = document.getElementById("anchorDateInput").value || anchorDate;
+      renderAll();
+    }
+
+    function goToToday() {
+      anchorDate = new Date().toISOString().slice(0, 10);
+      document.getElementById("anchorDateInput").value = anchorDate;
+      renderAll();
+    }
+
+    function shiftAnchorDate(delta) {
+      const d = new Date(anchorDate + "T12:00:00");
+      const step = calendarView === "MONTH" ? delta * 30 : (calendarView === "WEEK" ? delta * 7 : delta);
+      d.setDate(d.getDate() + step);
+      anchorDate = d.toISOString().slice(0, 10);
+      document.getElementById("anchorDateInput").value = anchorDate;
+      renderAll();
+    }
+
+    function matchesFilters(op) {
+      if (materialFilter !== "TODOS") {
+        if (materialFilter === "A109" && !op.material.startsWith("A109")) return false;
+        if (materialFilter !== "A109" && op.material !== materialFilter) return false;
+      }
+      const q = document.getElementById("globalSearch").value.trim().toLowerCase();
+      if (!q) return true;
+      const hay = `${op.pov} ${op.aircraft} ${op.material} ${op.picIni} ${op.sicIni} ${op.route} ${op.cliente} ${op.observaciones}`.toLowerCase();
+      return hay.includes(q);
+    }
+
+    function renderFleetStrip() {
+      const dayStart = parseInputTimeToMs(anchorDate, "00:00");
+      const dayEnd = dayStart + 86400000;
+      const opsToday = getAllCombinedOps().filter(o => o.estado !== "CANCELADO" && o.startMs < dayEnd && o.endMs > dayStart);
+      const blocks = getFleetBlocks();
+
+      const filteredFleet = FLEET_MASTER.filter(f => materialFilter === "TODOS" || (materialFilter === "A109" ? f.model.startsWith("A109") : f.model === materialFilter));
+      document.getElementById("fleetStatusChips").innerHTML = `<span style="font-size:11px; font-weight:800; color:var(--text-muted);">FLOTA (${anchorDate}):</span>` +
+        filteredFleet.map(ac => {
+          const blk = blocks.find(b => b.aircraft === ac.mat && dayStart < b.endMs && dayEnd > b.startMs);
+          const flt = opsToday.find(o => o.aircraft === ac.mat);
+          let dotClass = "dot-ok", label = "Disponible";
+          if (blk) {
+            dotClass = blk.status === "FUERA_DE_SERVICIO" ? "dot-aog" : "dot-maint";
+            label = blk.status === "FUERA_DE_SERVICIO" ? "AOG / F. Serv." : "Mantto";
+          } else if (flt) {
+            dotClass = "dot-prog";
+            label = `POV ${flt.pov} (${formatTimeByTz(flt.startMs)})`;
+          }
+          return `<div class="fleet-chip" onclick="openFleetModal()" title="Clic para gestionar estado de ${ac.mat}"><span class="dot ${dotClass}"></span><strong>${ac.mat}</strong> <span style="color:var(--text-muted);">(${ac.model})</span>: ${label}</div>`;
+        }).join("");
+    }
+
+    function renderAll() {
+      renderFleetStrip();
+      if (calendarView === "DAY") renderDailyView();
+      else if (calendarView === "WEEK") renderWeekView();
+      else renderMonthView();
+    }
+
+    function renderDailyView() {
+      document.getElementById("dailyGridTitle").textContent = `PLANILLA OPERACIONAL — ${anchorDate} (${tzMode})`;
+      document.getElementById("dailyTimelineTitle").textContent = `TIMELINE DE FLOTA Y TRIPULACIONES — ${anchorDate} (${tzMode})`;
+
+      const dayOps = getAllCombinedOps().filter(o => o.date === anchorDate && matchesFilters(o));
+      const allIssues = [];
+      const tbody = document.getElementById("dailyExcelBody");
+
+      const rowsHtml = dayOps.map(op => {
+        const issues = validateOperation(op, op.id);
+        issues.forEach(i => allIssues.push(`POV ${op.pov}: ${i.msg}`));
+        const rowClass = op.estado === "BORRADOR" ? "row-draft" : (op.estado === "CANCELADO" ? "row-cancelled" : "");
+        const stColor = op.estado === "CONFIRMADO" ? "#4ADE80" : (op.estado === "CANCELADO" ? "#F87171" : (op.estado === "REPROGRAMADO" ? "#FB923C" : "#60A5FA"));
+
+        const acOptions = FLEET_MASTER
+          .filter(f => !op.material || (op.material === "A109" ? f.model.startsWith("A109") : f.model === op.material))
+          .map(f => `<option value="${f.mat}" ${f.mat === op.aircraft ? "selected" : ""}>${f.mat} (${f.model})</option>`).join("");
+
+        const picOptions = `<option value="">-- PIC --</option>` + PILOTOS_DB.map(p =>
+          `<option value="${p.ini}" ${p.ini === op.picIni ? "selected" : ""}>${getPilotOptionLabel(p, op.material, op.startMs, op.endMs, op.id)}</option>`
+        ).join("");
+
+        const sicOptions = `<option value="">-- SIC --</option>` + PILOTOS_DB.map(p =>
+          `<option value="${p.ini}" ${p.ini === op.sicIni ? "selected" : ""}>${getPilotOptionLabel(p, op.material, op.startMs, op.endMs, op.id)}</option>`
+        ).join("");
+
+        const refOptions = `<option value="">--</option>` + PILOTOS_DB.map(p =>
+          `<option value="${p.ini}" ${p.ini === op.refIni ? "selected" : ""}>${p.displayName}</option>`
+        ).join("");
+
+        const mainRow = `
+          <tr class="${rowClass}" data-pov="${op.pov}">
+            <td><input class="cell-input w-pov" value="${op.pov}" onchange="updateOpField('${op.pov}', 'pov', this.value)" /></td>
+            <td>
+              <select class="cell-select w-st" style="color:${stColor};" onchange="updateOpField('${op.pov}', 'estado', this.value)">
+                ${ESTADOS_CICLO.map(st => `<option value="${st}" ${st === op.estado ? "selected" : ""}>${st}</option>`).join("")}
+              </select>
+            </td>
+            <td>
+              <select class="cell-select w-mat" onchange="updateOpField('${op.pov}', 'material', this.value)">
+                ${["PC-24", "L-410", "G-150", "D-228", "PC-12", "A109S", "A109SP"].map(m => `<option value="${m}" ${m === op.material ? "selected" : ""}>${m}</option>`).join("")}
+              </select>
+            </td>
+            <td><select class="cell-select w-ac" onchange="updateOpField('${op.pov}', 'aircraft', this.value)">${acOptions}</select></td>
+            <td><select class="cell-select w-crew" onchange="updateOpField('${op.pov}', 'picIni', this.value)">${picOptions}</select></td>
+            <td><select class="cell-select w-crew" onchange="updateOpField('${op.pov}', 'sicIni', this.value)">${sicOptions}</select></td>
+            <td><select class="cell-select w-crew" onchange="updateOpField('${op.pov}', 'refIni', this.value)">${refOptions}</select></td>
+            <td>
+              <div style="display:flex; gap:3px; align-items:center;">
+                <input class="cell-input w-route" value="${op.route}" onchange="updateOpField('${op.pov}', 'route', this.value)" />
+                <button class="btn btn-sm" onclick="toggleSublegs('${op.pov}')" title="Editar tramos detallados">${op.legs?.length || 1}T</button>
+              </div>
+            </td>
+            <td><input type="time" class="cell-input w-time" value="${formatTimeByTz(op.startMs)}" onchange="updateOpField('${op.pov}', 'startTime', this.value)" /></td>
+            <td><input type="time" class="cell-input w-time" value="${formatTimeByTz(op.endMs)}" onchange="updateOpField('${op.pov}', 'endTime', this.value)" /></td>
+            <td>
+              <select class="cell-select w-srv" onchange="updateOpField('${op.pov}', 'tipoServicio', this.value)">
+                ${TIPOS_SERVICIO.map(t => `<option value="${t}" ${t === op.tipoServicio ? "selected" : ""}>${t}</option>`).join("")}
+              </select>
+            </td>
+            <td><input class="cell-input" style="width:125px;" value="${op.cliente || ""}" placeholder="Cliente..." onchange="updateOpField('${op.pov}', 'cliente', this.value)" /></td>
+            <td><input class="cell-input w-obs" value="${op.observaciones || ""}" placeholder="Observaciones..." onchange="updateOpField('${op.pov}', 'observaciones', this.value)" /></td>
+            <td style="white-space:nowrap;">
+              <button class="btn btn-sm" onclick="duplicateOp('${op.pov}')" title="Duplicar vuelo al día siguiente">📋</button>
+            </td>
+          </tr>
+        `;
+
+        const subRow = expandedLegsPov === op.pov ? `
+          <tr>
+            <td colspan="14" class="sublegs-box">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <strong>Detalle de Tramos — POV ${op.pov} (Hora UTC)</strong>
+                <button class="btn btn-sm btn-blue" onclick="addLegToOp('${op.pov}')">+ Agregar Tramo</button>
+              </div>
+              <table>
+                <thead><tr><th>Tramo</th><th>Fecha</th><th>Origen</th><th>Destino</th><th>ETD (UTC)</th><th>ETA (UTC)</th><th>PAX Est.</th></tr></thead>
+                <tbody>
+                  ${(op.legs || []).map((lg, i) => `
+                    <tr>
+                      <td>#${lg.leg}</td>
+                      <td><input type="date" class="cell-input" style="width:125px;" value="${lg.fecha || op.date}" onchange="updateLegField('${op.pov}', ${i}, 'fecha', this.value)" /></td>
+                      <td><input class="cell-input" style="width:70px; text-transform:uppercase;" value="${lg.origen}" onchange="updateLegField('${op.pov}', ${i}, 'origen', this.value)" /></td>
+                      <td><input class="cell-input" style="width:70px; text-transform:uppercase;" value="${lg.destino}" onchange="updateLegField('${op.pov}', ${i}, 'destino', this.value)" /></td>
+                      <td><input type="time" class="cell-input" style="width:85px;" value="${lg.etd_utc}" onchange="updateLegField('${op.pov}', ${i}, 'etd_utc', this.value)" /></td>
+                      <td><input type="time" class="cell-input" style="width:85px;" value="${lg.eta_utc}" onchange="updateLegField('${op.pov}', ${i}, 'eta_utc', this.value)" /></td>
+                      <td><input type="number" class="cell-input" style="width:60px;" value="${lg.pax_est || 0}" onchange="updateLegField('${op.pov}', ${i}, 'pax_est', this.value)" /></td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        ` : "";
+
+        return mainRow + subRow;
+      }).join("");
+
+      // Fila de ingreso rápido tipo Excel al final
+      const nextPov = getNextCorrelativePov();
+      const quickStartMs = parseInputTimeToMs(anchorDate, "08:30");
+      const quickEndMs = parseInputTimeToMs(anchorDate, "12:30");
+      const quickRow = `
+        <tr class="new-entry-row" id="quickEntryRow">
+          <td><input id="qPov" class="cell-input w-pov" value="${nextPov}" /></td>
+          <td>
+            <select id="qEstado" class="cell-select w-st" style="color:#4ADE80;">
+              <option value="PROGRAMADO">PROGRAMADO</option>
+              <option value="CONFIRMADO" selected>CONFIRMADO</option>
+              <option value="BORRADOR">BORRADOR</option>
+            </select>
+          </td>
+          <td>
+            <select id="qMat" class="cell-select w-mat" onchange="syncQuickAircraftOptions()">
+              ${["PC-24", "L-410", "G-150", "D-228", "PC-12", "A109S", "A109SP"].map(m => `<option value="${m}">${m}</option>`).join("")}
+            </select>
+          </td>
+          <td>
+            <select id="qAc" class="cell-select w-ac">
+              ${FLEET_MASTER.map(f => `<option value="${f.mat}">${f.mat}</option>`).join("")}
+            </select>
+          </td>
+          <td>
+            <select id="qPic" class="cell-select w-crew">
+              <option value="">-- PIC --</option>
+              ${PILOTOS_DB.map(p => `<option value="${p.ini}">${getPilotOptionLabel(p, "PC-24", quickStartMs, quickEndMs, null)}</option>`).join("")}
+            </select>
+          </td>
+          <td>
+            <select id="qSic" class="cell-select w-crew">
+              <option value="">-- SIC --</option>
+              ${PILOTOS_DB.map(p => `<option value="${p.ini}">${getPilotOptionLabel(p, "PC-24", quickStartMs, quickEndMs, null)}</option>`).join("")}
+            </select>
+          </td>
+          <td>
+            <select id="qRef" class="cell-select w-crew">
+              <option value="">--</option>
+              ${PILOTOS_DB.map(p => `<option value="${p.ini}">${p.displayName}</option>`).join("")}
+            </select>
+          </td>
+          <td><input id="qRoute" class="cell-input w-route" placeholder="SCEL-SCNK-SCEL" onkeydown="if(event.key==='Enter') commitQuickRow()" /></td>
+          <td><input id="qStart" type="time" class="cell-input w-time" value="08:30" onkeydown="if(event.key==='Enter') commitQuickRow()" /></td>
+          <td><input id="qEnd" type="time" class="cell-input w-time" value="12:30" onkeydown="if(event.key==='Enter') commitQuickRow()" /></td>
+          <td>
+            <select id="qSrv" class="cell-select w-srv">
+              ${TIPOS_SERVICIO.map(t => `<option value="${t}">${t}</option>`).join("")}
+            </select>
+          </td>
+          <td><input id="qCliente" class="cell-input" style="width:125px;" placeholder="Cliente..." onkeydown="if(event.key==='Enter') commitQuickRow()" /></td>
+          <td><input id="qObs" class="cell-input w-obs" placeholder="Observaciones..." onkeydown="if(event.key==='Enter') commitQuickRow()" /></td>
+          <td><button class="btn btn-sm btn-green" onclick="commitQuickRow()">💾 Crear</button></td>
+        </tr>
+      `;
+
+      tbody.innerHTML = rowsHtml + quickRow;
+
+      // Actualizar barra de validación
+      const valBar = document.getElementById("validationSummaryBar");
+      if (allIssues.length === 0) {
+        valBar.className = "val-bar val-ok";
+        valBar.innerHTML = `<span>✅ Sin conflictos de tripulación, descanso ni matrícula para el ${anchorDate}.</span>`;
+      } else {
+        valBar.className = "val-bar val-err";
+        valBar.innerHTML = `<span>⚠️ ${allIssues.length} alerta(s): ${allIssues.join(" · ")}</span>`;
+      }
+
+      renderDailyTimeline(dayOps);
+    }
+
+    function renderDailyTimeline(dayOps) {
+      const container = document.getElementById("dailyTimelineContainer");
+      const dayStart = parseInputTimeToMs(anchorDate, "00:00");
+      const dayEnd = dayStart + 86400000;
+      const rules = getRules();
+      const blocks = getFleetBlocks();
+
+      const hoursHeader = Array.from({ length: 24 }, (_, h) => `<div>${String(h).padStart(2, "0")}</div>`).join("");
+      const fleetRows = FLEET_MASTER
+        .filter(f => materialFilter === "TODOS" || (materialFilter === "A109" ? f.model.startsWith("A109") : f.model === materialFilter))
+        .map(ac => {
+          const acOps = dayOps.filter(o => o.aircraft === ac.mat && o.estado !== "CANCELADO");
+          const acMnt = blocks.filter(b => b.aircraft === ac.mat && dayStart < b.endMs && dayEnd > b.startMs);
+
+          const bars = [
+            ...acMnt.map(m => {
+              const left = Math.max(0, ((m.startMs - dayStart) / 86400000) * 100);
+              const width = Math.min(100 - left, ((Math.min(dayEnd, m.endMs) - Math.max(dayStart, m.startMs)) / 86400000) * 100);
+              return `<div class="tl-bar tl-bar-maint" style="left:${left}%; width:${Math.max(4, width)}%;" title="${m.reason}">🔧 ${m.status}: ${m.reason}</div>`;
+            }),
+            ...acOps.map(o => {
+              const left = Math.max(0, ((o.startMs - dayStart) / 86400000) * 100);
+              const width = Math.min(100 - left, ((Math.min(dayEnd, o.endMs) - Math.max(dayStart, o.startMs)) / 86400000) * 100);
+              const cls = o.estado === "BORRADOR" ? "tl-bar-draft" : (o.estado === "CONFIRMADO" ? "tl-bar-conf" : "tl-bar-prog");
+              return `<div class="tl-bar ${cls}" style="left:${left}%; width:${Math.max(5, width)}%;" title="POV ${o.pov} · ${o.route}">POV ${o.pov} (${o.picIni}/${o.sicIni}) · ${o.route}</div>`;
+            })
+          ].join("");
+
+          return `<div class="tl-row"><div class="tl-label">✈️ ${ac.mat} <span style="color:var(--text-muted); font-weight:400;">(${ac.model})</span></div><div class="tl-track">${bars}</div></div>`;
+        }).join("");
+
+      // Carriles de tripulaciones activas hoy (incluyendo descanso posterior)
+      const activeInis = Array.from(new Set(dayOps.flatMap(o => [o.picIni, o.sicIni, o.refIni]).filter(Boolean)));
+      const crewRows = activeInis.map(ini => {
+        const p = PILOTOS_DB.find(x => x.ini === ini);
+        const pOps = dayOps.filter(o => [o.picIni, o.sicIni, o.refIni].includes(ini) && o.estado !== "CANCELADO");
+        const bars = pOps.flatMap(o => {
+          const left = Math.max(0, ((o.startMs - dayStart) / 86400000) * 100);
+          const width = Math.min(100 - left, ((Math.min(dayEnd, o.endMs) - Math.max(dayStart, o.startMs)) / 86400000) * 100);
+          const restEnd = o.endMs + (rules.minRestHours || 12) * 3600000;
+          const rLeft = Math.min(100, ((o.endMs - dayStart) / 86400000) * 100);
+          const rWidth = Math.max(0, Math.min(100 - rLeft, ((Math.min(dayEnd, restEnd) - o.endMs) / 86400000) * 100));
+
+          const list = [`<div class="tl-bar tl-bar-conf" style="left:${left}%; width:${Math.max(4, width)}%;">PSV POV ${o.pov}</div>`];
+          if (rWidth > 1) list.push(`<div class="tl-bar tl-bar-rest" style="left:${rLeft}%; width:${rWidth}%;">Descanso</div>`);
+          return list;
+        }).join("");
+
+        return `<div class="tl-row"><div class="tl-label">👨‍✈️ ${p ? p.displayName : ini}</div><div class="tl-track">${bars}</div></div>`;
+      }).join("");
+
+      container.innerHTML = `<div class="tl-header"><div style="padding:5px 10px;">RECURSO (${tzMode})</div><div class="tl-hours">${hoursHeader}</div></div>${fleetRows}${crewRows}`;
+    }
+
+    function renderWeekView() {
+      const base = new Date(anchorDate + "T12:00:00");
+      const dayOfWeek = (base.getDay() + 6) % 7; // Lunes = 0
+      const monday = new Date(base);
+      monday.setDate(base.getDate() - dayOfWeek);
+
+      const days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return d.toISOString().slice(0, 10);
+      });
+
+      document.getElementById("weekTitle").textContent = `SEMANA DEL ${days[0]} AL ${days[6]} (${tzMode})`;
+      const allOps = getAllCombinedOps().filter(o => o.estado !== "CANCELADO");
+      const crewBlocks = getCrewBlocks();
+      const fleetBlocks = getFleetBlocks();
+
+      const headerHtml = `<tr><th style="width:170px;">${weekGroup === "AIRCRAFT" ? "AERONAVE" : "TRIPULANTE"}</th>${days.map(d => `<th>${d}</th>`).join("")}</tr>`;
+
+      let rowsHtml = "";
+      if (weekGroup === "AIRCRAFT") {
+        rowsHtml = FLEET_MASTER
+          .filter(f => materialFilter === "TODOS" || (materialFilter === "A109" ? f.model.startsWith("A109") : f.model === materialFilter))
+          .map(ac => {
+            const cells = days.map(d => {
+              const dStart = parseInputTimeToMs(d, "00:00");
+              const dEnd = dStart + 86400000;
+              const ops = allOps.filter(o => o.aircraft === ac.mat && o.date === d);
+              const mnts = fleetBlocks.filter(b => b.aircraft === ac.mat && dStart < b.endMs && dEnd > b.startMs);
+              return `<td>
+                ${mnts.map(m => `<span class="wk-pill block">🔧 ${m.reason}</span>`).join("")}
+                ${ops.map(o => `<span class="wk-pill" onclick="jumpToDay('${d}')"><strong>POV ${o.pov}</strong> · ${o.route}<br>${formatTimeByTz(o.startMs)}-${formatTimeByTz(o.endMs)} · ${o.picIni}/${o.sicIni}</span>`).join("")}
+              </td>`;
+            }).join("");
+            return `<tr><td><strong>${ac.mat}</strong><br><span style="color:var(--text-muted); font-size:11px;">${ac.model}</span></td>${cells}</tr>`;
+          }).join("");
+      } else {
+        rowsHtml = PILOTOS_DB
+          .filter(p => materialFilter === "TODOS" || (materialFilter === "A109" ? p.hab.some(h => h.startsWith("A109")) : p.hab.includes(materialFilter)))
+          .map(p => {
+            const cells = days.map(d => {
+              const dStart = parseInputTimeToMs(d, "00:00");
+              const dEnd = dStart + 86400000;
+              const ops = allOps.filter(o => [o.picIni, o.sicIni, o.refIni].includes(p.ini) && o.date === d);
+              const blks = crewBlocks.filter(a => a.pilotIni === p.ini && dStart < a.endMs && dEnd > a.startMs);
+              return `<td>
+                ${blks.map(b => `<span class="wk-pill block">🟣 ${b.type}</span>`).join("")}
+                ${ops.map(o => `<span class="wk-pill" onclick="jumpToDay('${d}')"><strong>POV ${o.pov}</strong> (${o.aircraft})<br>${o.route} · ${formatTimeByTz(o.startMs)}</span>`).join("")}
+              </td>`;
+            }).join("");
+            return `<tr><td><strong>${p.displayName}</strong><br><span style="color:var(--text-muted); font-size:10.5px;">${p.hab.join("/")}</span></td>${cells}</tr>`;
+          }).join("");
+      }
+
+      document.getElementById("weekMatrixTable").innerHTML = `<thead>${headerHtml}</thead><tbody>${rowsHtml}</tbody>`;
+    }
+
+    function renderMonthView() {
+      const [yyyy, mm] = anchorDate.split("-").map(Number);
+      document.getElementById("monthTitle").textContent = `CALENDARIO MENSUAL — ${String(mm).padStart(2, "0")}/${yyyy}`;
+      const firstDay = new Date(yyyy, mm - 1, 1);
+      const startOffset = (firstDay.getDay() + 6) % 7;
+      const gridStart = new Date(yyyy, mm - 1, 1 - startOffset);
+
+      const allOps = getAllCombinedOps().filter(o => o.estado !== "CANCELADO");
+      const fleetBlocks = getFleetBlocks();
+      const crewBlocks = getCrewBlocks();
+      const todayISO = new Date().toISOString().slice(0, 10);
+
+      const dayHeaders = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map(d => `<div class="month-head">${d}</div>`).join("");
+      const cells = Array.from({ length: 35 }, (_, idx) => {
+        const d = new Date(gridStart);
+        d.setDate(gridStart.getDate() + idx);
+        const iso = d.toISOString().slice(0, 10);
+        const isCurrentMonth = d.getMonth() === (mm - 1);
+        const dStart = parseInputTimeToMs(iso, "00:00");
+        const dEnd = dStart + 86400000;
+
+        const ops = allOps.filter(o => o.date === iso && matchesFilters(o));
+        const mnts = fleetBlocks.filter(b => dStart < b.endMs && dEnd > b.startMs);
+        const leaves = crewBlocks.filter(a => dStart < a.endMs && dEnd > a.startMs);
+
+        return `
+          <div class="month-cell ${isCurrentMonth ? "" : "other-month"} ${iso === todayISO ? "today" : ""}" onclick="jumpToDay('${iso}')">
+            <div class="mc-top">
+              <span>${d.getDate()}</span>
+              ${ops.length > 0 ? `<span class="mc-badge">${ops.length} vuelo(s)</span>` : ""}
+            </div>
+            ${ops.slice(0, 3).map(o => `<div style="font-size:10.5px; background:var(--bg-card); padding:2px 5px; border-radius:4px; border-left:2px solid #38BDF8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">POV ${o.pov} · ${o.aircraft} · ${o.route}</div>`).join("")}
+            ${mnts.slice(0, 1).map(m => `<div style="font-size:10px; color:#FBBF24;">🔧 ${m.aircraft}: ${m.reason}</div>`).join("")}
+            ${leaves.slice(0, 1).map(l => `<div style="font-size:10px; color:#C084FC;">🟣 ${l.pilotIni}: ${l.type}</div>`).join("")}
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("monthGridContainer").innerHTML = dayHeaders + cells;
+    }
+
+    function jumpToDay(iso) {
+      anchorDate = iso;
+      document.getElementById("anchorDateInput").value = iso;
+      setCalendarView("DAY");
+    }
+
+    /* =========================================================================
+       8. ACCIONES DE EDICIÓN RÁPIDA EN LA GRILLA EXCEL
+       ========================================================================= */
+    function focusQuickRow() {
+      document.getElementById("qRoute")?.focus();
+    }
+
+    function syncQuickAircraftOptions() {
+      const mat = document.getElementById("qMat").value;
+      const acSel = document.getElementById("qAc");
+      const list = FLEET_MASTER.filter(f => mat.startsWith("A109") ? f.model.startsWith("A109") : f.model === mat);
+      acSel.innerHTML = list.map(f => `<option value="${f.mat}">${f.mat}</option>`).join("");
+    }
+
+    async function commitQuickRow() {
+      const pov = (document.getElementById("qPov").value || getNextCorrelativePov()).trim();
+      const estado = document.getElementById("qEstado").value;
+      const material = document.getElementById("qMat").value;
+      const aircraft = document.getElementById("qAc").value;
+      const picIni = document.getElementById("qPic").value;
+      const sicIni = document.getElementById("qSic").value;
+      const refIni = document.getElementById("qRef").value;
+      const route = (document.getElementById("qRoute").value || "SCEL-SCEL").toUpperCase().trim();
+      const sTime = document.getElementById("qStart").value || "08:30";
+      const eTime = document.getElementById("qEnd").value || "12:30";
+      const tipoServicio = document.getElementById("qSrv").value;
+      const cliente = document.getElementById("qCliente").value.trim();
+      const observaciones = document.getElementById("qObs").value.trim();
+
+      const startMs = parseInputTimeToMs(anchorDate, sTime);
+      let endMs = parseInputTimeToMs(anchorDate, eTime);
+      if (endMs <= startMs) endMs += 86400000;
+
+      const legs = parseRouteToLegs(route, anchorDate, startMs, endMs);
+      const newOp = {
+        id: `POV_${pov}`,
+        pov,
+        estado,
+        date: anchorDate,
+        material,
+        aircraft,
+        picIni,
+        sicIni,
+        refIni,
+        route,
+        startMs,
+        endMs,
+        tipoServicio,
+        cliente,
+        observaciones,
+        legs,
+        isClosed: false,
+        hasEfbData: false
+      };
+
+      await persistOperation(newOp, true);
+    }
+
+    async function updateOpField(pov, field, val) {
+      const op = getAllCombinedOps().find(o => o.pov === pov);
+      if (!op) return;
+      const updated = JSON.parse(JSON.stringify(op));
+
+      if (field === "startTime") {
+        updated.startMs = parseInputTimeToMs(updated.date, val);
+        if (updated.endMs <= updated.startMs) updated.endMs += 86400000;
+      } else if (field === "endTime") {
+        updated.endMs = parseInputTimeToMs(updated.date, val);
+        if (updated.endMs <= updated.startMs) updated.endMs += 86400000;
+      } else if (field === "route") {
+        updated.route = val.toUpperCase().trim();
+        updated.legs = parseRouteToLegs(updated.route, updated.date, updated.startMs, updated.endMs, updated.legs);
+      } else {
+        updated[field] = val;
+      }
+
+      if (updated.estado === "CONFIRMADO" && ["startTime", "endTime", "route", "aircraft", "date"].includes(field)) {
+        updated.estado = "REPROGRAMADO";
+      }
+
+      await persistOperation(updated, false);
+    }
+
+    function toggleSublegs(pov) {
+      expandedLegsPov = expandedLegsPov === pov ? null : pov;
+      renderDailyView();
+    }
+
+    async function addLegToOp(pov) {
+      const op = getAllCombinedOps().find(o => o.pov === pov);
+      if (!op) return;
+      const last = op.legs[op.legs.length - 1] || { destino: "SCEL", fecha: op.date };
+      op.legs.push({
+        leg: op.legs.length + 1,
+        fecha: last.fecha || op.date,
+        origen: last.destino || "SCEL",
+        destino: "SCEL",
+        etd_utc: msToUtcHHMM(op.endMs),
+        eta_utc: msToUtcHHMM(op.endMs + 3600000),
+        pax_est: 0
+      });
+      op.route = [op.legs[0].origen, ...op.legs.map(l => l.destino)].join("-");
+      await persistOperation(op, false);
+    }
+
+    async function updateLegField(pov, idx, key, val) {
+      const op = getAllCombinedOps().find(o => o.pov === pov);
+      if (!op || !op.legs[idx]) return;
+      op.legs[idx][key] = key === "pax_est" ? Number(val) : val.toUpperCase();
+      op.route = [op.legs[0].origen, ...op.legs.map(l => l.destino)].join("-");
+      await persistOperation(op, false);
+    }
+
+    async function duplicateOp(pov) {
+      const src = getAllCombinedOps().find(o => o.pov === pov);
+      if (!src) return;
+      const nextDateObj = new Date(src.date + "T12:00:00");
+      nextDateObj.setDate(nextDateObj.getDate() + 1);
+      const targetDate = nextDateObj.toISOString().slice(0, 10);
+      const newPov = getNextCorrelativePov();
+
+      const copy = JSON.parse(JSON.stringify(src));
+      copy.id = `POV_${newPov}`;
+      copy.pov = newPov;
+      copy.date = targetDate;
+      copy.estado = "PROGRAMADO";
+      copy.startMs += 86400000;
+      copy.endMs += 86400000;
+      copy.isClosed = false;
+      copy.hasEfbData = false;
+      copy.legs.forEach(l => l.fecha = targetDate);
+
+      await persistOperation(copy, true);
+      alert(`✅ Vuelo replicado como POV ${newPov} para el día ${targetDate}.`);
+    }
+
+    /* =========================================================================
+       9. MODALES DE FLOTA / MANTENIMIENTO Y PARÁMETROS
+       ========================================================================= */
+    function openModal(id) { document.getElementById(id).classList.add("open"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+    function openFleetModal() {
+      document.getElementById("mntAircraft").innerHTML = FLEET_MASTER.map(f => `<option value="${f.mat}">${f.mat} (${f.model})</option>`).join("");
+      document.getElementById("mntStart").value = `${anchorDate}T08:00`;
+      document.getElementById("mntEnd").value = `${anchorDate}T20:00`;
+      renderFleetBlocksList();
+      openModal("modalFleet");
+    }
+
+    function renderFleetBlocksList() {
+      const list = getFleetBlocks();
+      document.getElementById("fleetModalList").innerHTML = list.length === 0
+        ? `<div style="color:var(--text-muted); font-size:12px;">Sin mantenimientos o restricciones programadas.</div>`
+        : list.map(b => `
+          <div style="background:var(--bg-card); border:1px solid var(--border); border-left:3px solid #EF4444; border-radius:6px; padding:7px 10px; display:flex; justify-content:space-between; align-items:center;">
+            <div><strong>${b.aircraft}</strong> — ${b.status}: ${b.reason}<br><span style="color:var(--text-muted); font-size:11px;">${new Date(b.startMs).toLocaleString()} → ${new Date(b.endMs).toLocaleString()}</span></div>
+            <button class="btn btn-sm" onclick="deleteFleetBlock('${b.id}')">✕</button>
+          </div>
+        `).join("");
+    }
+
+    async function saveMaintenanceBlock() {
+      const aircraft = document.getElementById("mntAircraft").value;
+      const status = document.getElementById("mntStatus").value;
+      const startMs = new Date(document.getElementById("mntStart").value).getTime();
+      const endMs = new Date(document.getElementById("mntEnd").value).getTime();
+      const reason = document.getElementById("mntReason").value.trim() || "Mantenimiento Programado";
+      if (isNaN(startMs) || isNaN(endMs) || endMs <= startMs) { alert("Rango horario inválido."); return; }
+
+      const list = getFleetBlocks();
+      list.push({ id: "MNT_" + Date.now(), aircraft, status, startMs, endMs, reason });
+      saveFleetBlocks(list);
+      renderFleetBlocksList();
+      renderAll();
+      try {
+        const token = await getDriveAccessToken(true);
+        await saveConfigFileToDrive(token, "flota_estado.json", list);
+      } catch {}
+    }
+
+    async function deleteFleetBlock(id) {
+      const list = getFleetBlocks().filter(b => b.id !== id);
+      saveFleetBlocks(list);
+      renderFleetBlocksList();
+      renderAll();
+      try {
+        const token = await getDriveAccessToken(true);
+        await saveConfigFileToDrive(token, "flota_estado.json", list);
+      } catch {}
+    }
+
+    function openRulesModal() {
+      const r = getRules();
+      document.getElementById("rulePreDuty").value = r.preDutyMin;
+      document.getElementById("rulePostDuty").value = r.postDutyMin;
+      document.getElementById("ruleMinRestH").value = r.minRestHours;
+      document.getElementById("ruleUserEmail").value = r.userEmail;
+      document.getElementById("ruleClientId").value = getClientId();
+      openModal("modalRules");
+    }
+
+    function saveRulesConfig() {
+      localStorage.setItem(STORAGE.RULES, JSON.stringify({
+        preDutyMin: Number(document.getElementById("rulePreDuty").value) || 45,
+        postDutyMin: Number(document.getElementById("rulePostDuty").value) || 30,
+        minRestHours: Number(document.getElementById("ruleMinRestH").value) || 12,
+        userEmail: document.getElementById("ruleUserEmail").value.trim() || "operaciones@aerocardal.cl"
+      }));
+      localStorage.setItem(STORAGE.CLIENT_ID, document.getElementById("ruleClientId").value.trim());
+      closeModal("modalRules");
+      renderAll();
+    }
+
+    function switchDriveAccount() {
+      sessionStorage.removeItem(STORAGE.TOKEN);
+      sessionStorage.removeItem(STORAGE.TOKEN_EXP);
+      localStorage.removeItem(STORAGE.HAS_AUTH);
+      closeModal("modalRules");
+      syncDriveAll(false);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("anchorDateInput").value = anchorDate;
+      renderAll();
+    });
+  </script>
+</body>
+</html>
