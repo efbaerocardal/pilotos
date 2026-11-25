@@ -839,9 +839,6 @@
 
     /* =========================================================================
        1. BASE DE DATOS DE TRIPULACIONES AEROCARDAL (22 PILOTOS)
-          - Sin prefijos Cmdte. / F/O
-          - En helicópteros (A109S/SP): todos son PIC
-          - En avión: todos son PIC excepto JO, MV, SS, EM, CV
        ========================================================================= */
     const AIRPLANE_SIC_LIST = ["JO", "MV", "SS", "EM", "CV"];
 
@@ -870,20 +867,28 @@
       { ini: "JPA", nombre: "Juan Pablo Arevalo", full: "Juan Pablo Arevalo", rut: "11.371.016-0", lic: "40", hab: ["A109S", "A109SP"] }
     ];
 
+    function normalizeStr(s) {
+      return (s || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
+    }
+
+    function resolvePilotIni(rawCrewVal) {
+      const clean = normalizeStr(rawCrewVal);
+      if (!clean) return "";
+      const byIni = PILOTOS_DB.find(p => normalizeStr(p.ini) === clean);
+      if (byIni) return byIni.ini.toUpperCase();
+      const byName = PILOTOS_DB.find(p => normalizeStr(p.nombre) === clean || normalizeStr(p.full).includes(clean));
+      if (byName) return byName.ini.toUpperCase();
+      return clean;
+    }
+
     function getPilotRoleForMaterial(pilot, mat) {
       const isHeli = pilot.hab.some(h => h.startsWith("A109"));
       const isPlane = pilot.hab.some(h => !h.startsWith("A109"));
 
-      if (mat === "A109") {
-        return "PIC";
-      }
-      if (mat !== "TODOS") {
-        return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
-      }
+      if (mat === "A109") return "PIC";
+      if (mat !== "TODOS") return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
       if (isHeli && !isPlane) return "PIC";
-      if (isHeli && isPlane) {
-        return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC Avión / PIC Heli" : "PIC";
-      }
+      if (isHeli && isPlane) return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC Avión / PIC Heli" : "PIC";
       return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
     }
 
@@ -903,7 +908,10 @@
     const KEYS = {
       FLIGHTS: "aerocardal_ops_v2_flights",
       ACTIVITIES: "aerocardal_ops_v2_activities",
-      CLIENT_ID: "aerocardal_ops_google_client_id"
+      CLIENT_ID: "aerocardal_ops_google_client_id",
+      SESSION_TOKEN: "aerocardal_ops_drive_token",
+      SESSION_TOKEN_EXP: "aerocardal_ops_drive_token_exp",
+      SESSION_HAS_AUTH: "aerocardal_ops_drive_has_auth"
     };
 
     let selectedMaterial = "TODOS";
@@ -975,12 +983,13 @@
 
     function parseHHMMToMin(str) {
       if (!str) return null;
-      const clean = str.trim().replace(":", "");
+      const clean = str.toString().trim().replace(/[^0-9]/g, "");
       if (clean.length < 3) return null;
-      const p = clean.padStart(4, "0");
+      const p = clean.padStart(4, "0").slice(0, 4);
       const h = parseInt(p.slice(0, 2), 10);
       const m = parseInt(p.slice(2, 4), 10);
-      return (isNaN(h) || isNaN(m)) ? null : h * 60 + m;
+      if (isNaN(h) || isNaN(m) || h > 23 || m > 59) return null;
+      return h * 60 + m;
     }
 
     function calcRequiredRestMin(psvMin, baseType = "BASE") {
@@ -991,7 +1000,7 @@
     }
 
     /* =========================================================================
-       4. PERSISTENCIA Y PARSEO DE Progreso.json (GOOGLE DRIVE / EFB)
+       4. PERSISTENCIA Y PARSEO DE Progreso.json EN UTC (EFB -> DASHBOARD CLT)
        ========================================================================= */
     function getFlights() {
       try { return JSON.parse(localStorage.getItem(KEYS.FLIGHTS)) || []; } catch { return []; }
@@ -1008,12 +1017,12 @@
 
     function parseEfbProgressJson(raw) {
       if (!raw) return [];
-      const pov = (raw.pov || raw.povNumber || "SIN-POV").toString().trim();
-      const aircraft = (raw.matricula || "CC-XXX").toString().trim().toUpperCase();
-      const cap = (raw.capitan || "").toString().trim().toUpperCase();
-      const fo = (raw.fo || "").toString().trim().toUpperCase();
-      const fo2 = (raw.fo2 || "").toString().trim().toUpperCase();
-      const crew = [cap, fo, fo2].filter(Boolean);
+      const pov = (raw.pov || raw.povNumber || raw.numeroPov || "SIN-POV").toString().trim();
+      const aircraft = (raw.matricula || raw.aircraft || "CC-XXX").toString().trim().toUpperCase();
+      const cap = resolvePilotIni(raw.capitan || raw.pic);
+      const fo = resolvePilotIni(raw.fo || raw.sic);
+      const fo2 = resolvePilotIni(raw.fo2 || raw.sic2);
+      const crew = Array.from(new Set([cap, fo, fo2].filter(Boolean)));
       const baseDate = raw.fecha || new Date().toISOString().slice(0, 10);
       const tramos = Array.isArray(raw.tramos) ? raw.tramos : [];
 
@@ -1023,10 +1032,10 @@
       tramos.forEach(t => {
         const d = t.fecha || baseDate;
         if (!byDate[d]) byDate[d] = [];
-        const bOut = parseHHMMToMin(t.blockOut);
+        const bOut = parseHHMMToMin(t.blockOut || t.etd);
         const aOff = parseHHMMToMin(t.airOff);
         const aOn = parseHHMMToMin(t.airOn);
-        const bIn = parseHHMMToMin(t.blockIn);
+        const bIn = parseHHMMToMin(t.blockIn || t.eta);
         let blockMin = (bOut !== null && bIn !== null) ? (bIn - bOut + 1440) % 1440 : 0;
         byDate[d].push({ ...t, bOut, aOff, aOn, bIn, blockMin });
       });
@@ -1037,22 +1046,26 @@
       return dates.map((d, idx) => {
         const legs = byDate[d] || [];
         let startMin = idx === 0 ? parseHHMMToMin(raw.dutyInicio) : null;
-        if (startMin === null && legs[0]?.aOff !== null) startMin = (legs[0].aOff - 60 + 1440) % 1440;
-        if (startMin === null && legs[0]?.bOut !== null) startMin = (legs[0].bOut - 45 + 1440) % 1440;
-        if (startMin === null) startMin = 8 * 60;
+        if (startMin === null && legs[0]?.bOut !== null && legs[0]?.bOut !== undefined) startMin = (legs[0].bOut - 45 + 1440) % 1440;
+        if (startMin === null && legs[0]?.aOff !== null && legs[0]?.aOff !== undefined) startMin = (legs[0].aOff - 60 + 1440) % 1440;
+        if (startMin === null) {
+          const nowUtc = new Date();
+          startMin = nowUtc.getUTCHours() * 60 + nowUtc.getUTCMinutes();
+        }
 
         const lastLeg = legs[legs.length - 1];
         let endMin = idx === 0 ? parseHHMMToMin(raw.dutyFin) : null;
-        if (endMin === null && lastLeg?.bIn !== null) endMin = (lastLeg.bIn + 30) % 1440;
+        if (endMin === null && lastLeg?.bIn !== null && lastLeg?.bIn !== undefined) endMin = (lastLeg.bIn + 30) % 1440;
         if (endMin === null) endMin = (startMin + 360) % 1440;
 
-        const startMs = new Date(`${d}T${formatHHMM(startMin)}:00`).getTime();
-        let endMs = new Date(`${d}T${formatHHMM(endMin)}:00`).getTime();
+        // IMPORTANTE: La EFB registra horas en UTC -> sufijo "Z" para convertir exactamente a CLT
+        const startMs = new Date(`${d}T${formatHHMM(startMin)}:00Z`).getTime();
+        let endMs = new Date(`${d}T${formatHHMM(endMin)}:00Z`).getTime();
         if (endMs <= startMs) endMs += 86400000;
 
         const psvMin = Math.round((endMs - startMs) / 60000);
         const blockMin = legs.reduce((s, l) => s + l.blockMin, 0);
-        const lastDest = lastLeg?.destino?.toUpperCase() || "SCEL";
+        const lastDest = (lastLeg?.destino || "SCEL").toString().toUpperCase();
         const baseType = lastDest === "SCEL" ? "BASE" : "POSTA";
 
         return {
@@ -1077,7 +1090,7 @@
     }
 
     /* =========================================================================
-       5. SINCRONIZACIÓN GOOGLE DRIVE (CARPETAS POV_*)
+       5. SINCRONIZACIÓN GOOGLE DRIVE CON CACHÉ DE SESIÓN (SIN PEDIR LOGIN CADA VEZ)
        ========================================================================= */
     function getEffectiveClientId() {
       const saved = (localStorage.getItem(KEYS.CLIENT_ID) || "").trim();
@@ -1086,54 +1099,110 @@
       return "";
     }
 
-    function syncFromGoogleDrive() {
+    function getCachedDriveToken() {
+      const token = sessionStorage.getItem(KEYS.SESSION_TOKEN);
+      const exp = parseInt(sessionStorage.getItem(KEYS.SESSION_TOKEN_EXP) || "0", 10);
+      if (token && Date.now() < exp - 60000) {
+        return token;
+      }
+      return null;
+    }
+
+    function saveCachedDriveToken(token, expiresInSec) {
+      const ttl = (parseInt(expiresInSec, 10) || 3500) * 1000;
+      sessionStorage.setItem(KEYS.SESSION_TOKEN, token);
+      sessionStorage.setItem(KEYS.SESSION_TOKEN_EXP, String(Date.now() + ttl));
+      localStorage.setItem(KEYS.SESSION_HAS_AUTH, "1");
+    }
+
+    function clearCachedDriveToken() {
+      sessionStorage.removeItem(KEYS.SESSION_TOKEN);
+      sessionStorage.removeItem(KEYS.SESSION_TOKEN_EXP);
+    }
+
+    async function syncFromGoogleDrive(forceInteractive = false) {
       const lbl = document.getElementById("syncStatusLabel");
       const clientId = getEffectiveClientId();
       if (!clientId) {
         openModal("modalConfig");
         return;
       }
+
+      // 1. Si ya tenemos token vigente en la sesión, sincronizar directo sin popup
+      if (!forceInteractive) {
+        const cachedToken = getCachedDriveToken();
+        if (cachedToken) {
+          await fetchDriveProgresoFiles(cachedToken, true);
+          return;
+        }
+      }
+
       if (typeof google === "undefined" || !google.accounts || !google.accounts.oauth2) {
         lbl.textContent = "Librería Google no cargada";
         alert("Google Identity no disponible. Verifique su conexión o desactive bloqueadores de anuncios.");
         return;
       }
+
+      const previouslyAuthed = localStorage.getItem(KEYS.SESSION_HAS_AUTH) === "1";
+
       try {
-        lbl.textContent = "Solicitando acceso a Google Drive...";
+        lbl.textContent = "Conectando con Google Drive...";
         const tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: clientId,
           scope: "https://www.googleapis.com/auth/drive.readonly",
           callback: async (resp) => {
             if (resp.error) {
+              // Si el refresco silencioso falló, abrir selector interactivo una vez
+              if (!forceInteractive && previouslyAuthed) {
+                syncFromGoogleDrive(true);
+                return;
+              }
               lbl.textContent = "Error Auth: " + resp.error;
               alert("Error de autenticación Google: " + resp.error);
               return;
             }
-            await fetchDriveProgresoFiles(resp.access_token);
+            saveCachedDriveToken(resp.access_token, resp.expires_in);
+            await fetchDriveProgresoFiles(resp.access_token, false);
           },
           error_callback: (err) => {
+            if (!forceInteractive && previouslyAuthed) {
+              syncFromGoogleDrive(true);
+              return;
+            }
             lbl.textContent = "Ventana bloqueada (" + (err.type || "popup") + ")";
             alert("El navegador bloqueó la ventana de Google (" + (err.type || "popup_closed") + "). Habilite ventanas emergentes.");
           }
         });
-        tokenClient.requestAccessToken({ prompt: "select_account" });
+
+        // Si ya autorizó antes y no forzamos interacción, intentar renovación silenciosa primero
+        tokenClient.requestAccessToken({
+          prompt: (!forceInteractive && previouslyAuthed) ? "" : "select_account"
+        });
       } catch (e) {
         lbl.textContent = "Error al iniciar OAuth";
         alert("Error iniciando Google Drive: " + e.message);
       }
     }
 
-    async function fetchDriveProgresoFiles(token) {
+    async function fetchDriveProgresoFiles(token, fromCache) {
       const lbl = document.getElementById("syncStatusLabel");
       lbl.textContent = "Escaneando carpetas POV_* en Drive...";
       try {
         const q = encodeURIComponent("name = 'Progreso.json' and trashed = false");
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+
+        // Si el token expiró antes de tiempo, limpiar caché y re-autenticar una vez
+        if (res.status === 401 && fromCache) {
+          clearCachedDriveToken();
+          await syncFromGoogleDrive(true);
+          return;
+        }
         if (!res.ok) {
           throw new Error(`HTTP ${res.status} al consultar Google Drive API`);
         }
+
         const data = await res.json();
         const files = data.files || [];
         let loadedCount = 0;
@@ -1149,7 +1218,8 @@
             }
           }
         }
-        lbl.textContent = `Drive Sincronizado (${loadedCount} vuelos POV)`;
+        const nowClt = new Date().toTimeString().slice(0, 5);
+        lbl.textContent = `Drive OK (${loadedCount} POV · ${nowClt} CLT)`;
         renderDashboard();
       } catch (err) {
         lbl.textContent = "Error al leer Drive";
@@ -1282,7 +1352,7 @@
         badgeClass = "st-psv";
         availMain = formatCltDateTime(releaseMs);
         availSub = `Vuelo + Descanso (${formatHHMM(reqRestMin)}h)`;
-        clockMain = `PSV Activo (${activeFlight.aircraft})`;
+        clockMain = `PSV Activo (${activeFlight.aircraft} · POV ${activeFlight.pov})`;
         clockSub = `(${formatHHMM(elapsedMin)}h / Rem: ${formatHHMM(remPsvMin)}h)`;
       } else if (lastFlight) {
         const reqRestMin = calcRequiredRestMin(lastFlight.psvMin, lastFlight.baseType);
@@ -1299,7 +1369,7 @@
           availMain = formatCltDateTime(releaseMs);
           availSub = `Faltan ${formatHHMM(remRestMin)}h de descanso`;
           clockMain = `Libera ${relHHMM}`;
-          clockSub = `Descanso obligatorio (${lastFlight.aircraft})`;
+          clockSub = `Descanso obligatorio (${lastFlight.aircraft} · POV ${lastFlight.pov})`;
         }
       }
 
@@ -1318,7 +1388,7 @@
         availMain = "No Disponible (Tope DAN 135)";
         availSub = maxRest7dHours < 36 ? "Requiere descanso semanal 36h" : "Excede límite horas de vuelo";
         clockMain = "Bloqueo Normativo";
-        clockSub = maxRest7dHours < 36 ? `Descanso máx 7d: ${maxRest7dHours}h (<36h)` : "Revisar acumulados 5d/10d/Mes";
+        clockSub = maxRest7dHours < 36 ? `Descanso máx 7d: ${maxRest7dHours}h (menor a 36h)` : "Revisar acumulados 5d/10d/Mes";
       }
 
       return {
