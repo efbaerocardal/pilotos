@@ -728,7 +728,7 @@
       </div>
       <div class="form-field" style="margin-bottom:12px;">
         <label>Google OAuth 2.0 Client ID (Proyecto EFB Aerocardal)</label>
-        <input type="text" id="clientIdInput" placeholder="Pegue aquí su Client ID de Google Cloud..." />
+        <input type="text" id="clientIdInput" placeholder="564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com" />
       </div>
       <div style="display:flex; justify-content:space-between; gap:8px;">
         <button class="btn btn-sm" style="color:#F87171;" onclick="clearAllLocalData()">🗑️ Limpiar Datos Prueba</button>
@@ -744,7 +744,7 @@
     /* =========================================================================
        0. CONFIGURACIÓN INSTITUCIONAL (PEGAR AQUÍ TU CLIENT_ID DE GOOGLE CLOUD)
        ========================================================================= */
-    const DEFAULT_GOOGLE_CLIENT_ID = "REEMPLAZAR_CON_TU_CLIENT_ID.apps.googleusercontent.com";
+    const DEFAULT_GOOGLE_CLIENT_ID = "564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com";
 
     /* =========================================================================
        1. BASE DE DATOS DE TRIPULACIONES AEROCARDAL (22 PILOTOS)
@@ -979,7 +979,7 @@
     function getEffectiveClientId() {
       const saved = (localStorage.getItem(KEYS.CLIENT_ID) || "").trim();
       if (saved) return saved;
-      if (DEFAULT_GOOGLE_CLIENT_ID && !DEFAULT_GOOGLE_CLIENT_ID.startsWith("REEMPLAZAR_")) return DEFAULT_GOOGLE_CLIENT_ID;
+      if (DEFAULT_GOOGLE__ID && !DEFAULT_GOOGLE_CLIENT_ID.startsWith("REEMPLAZAR_")) return DEFAULT_GOOGLE_CLIENT_ID;
       return "";
     }
 
