@@ -911,19 +911,18 @@
     let useLiveClock = true;
     let customEvalMs = null;
 
-    // Estado de ordenamiento actual
-    let currentSortKey = "AVAIL"; // AVAIL | REM_MONTH | REM_5D | REM_10D | REST_7D | ROLE | STATUS | NAME
-    let currentSortDir = "ASC";   // ASC | DESC
+    let currentSortKey = "AVAIL";
+    let currentSortDir = "ASC";
 
     const DEFAULT_SORT_DIRECTIONS = {
-      AVAIL: "ASC",       // Disponibles inmediatos primero
-      REM_MONTH: "DESC",  // Mayor saldo de horas mensuales primero
-      REM_5D: "DESC",     // Mayor saldo de horas en 5 días primero
-      REM_10D: "DESC",    // Mayor saldo de horas en 10 días primero
-      REST_7D: "DESC",    // Mayor descanso semanal acumulado primero
-      ROLE: "ASC",        // PIC antes que SIC
-      STATUS: "ASC",      // Disponible -> En PSV -> En Descanso -> Bloqueado
-      NAME: "ASC"         // Alfabético A -> Z
+      AVAIL: "ASC",
+      REM_MONTH: "DESC",
+      REM_5D: "DESC",
+      REM_10D: "DESC",
+      REST_7D: "DESC",
+      ROLE: "ASC",
+      STATUS: "ASC",
+      NAME: "ASC"
     };
 
     /* =========================================================================
@@ -1088,27 +1087,40 @@
     }
 
     function syncFromGoogleDrive() {
+      const lbl = document.getElementById("syncStatusLabel");
       const clientId = getEffectiveClientId();
       if (!clientId) {
         openModal("modalConfig");
         return;
       }
-      if (typeof google === "undefined" || !google.accounts?.oauth2) {
-        alert("Google Identity no disponible (sin conexión). Se muestran datos locales.");
+      if (typeof google === "undefined" || !google.accounts || !google.accounts.oauth2) {
+        lbl.textContent = "Librería Google no cargada";
+        alert("Google Identity no disponible. Verifique su conexión o desactive bloqueadores de anuncios.");
         return;
       }
-      const tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: clientId,
-        scope: "https://www.googleapis.com/auth/drive.readonly",
-        callback: async (resp) => {
-          if (resp.error) return alert("Error Auth Google: " + resp.error);
-          await fetchDriveProgresoFiles(resp.access_token);
-        },
-        error_callback: (err) => {
-          alert("No se pudo abrir la ventana de Google (" + (err.type || "popup bloqueado") + "). Habilite las ventanas emergentes en su navegador.");
-        }
-      });
-      tokenClient.requestAccessToken({ prompt: "" });
+      try {
+        lbl.textContent = "Solicitando acceso a Google Drive...";
+        const tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: "https://www.googleapis.com/auth/drive.readonly",
+          callback: async (resp) => {
+            if (resp.error) {
+              lbl.textContent = "Error Auth: " + resp.error;
+              alert("Error de autenticación Google: " + resp.error);
+              return;
+            }
+            await fetchDriveProgresoFiles(resp.access_token);
+          },
+          error_callback: (err) => {
+            lbl.textContent = "Ventana bloqueada (" + (err.type || "popup") + ")";
+            alert("El navegador bloqueó la ventana de Google (" + (err.type || "popup_closed") + "). Habilite ventanas emergentes.");
+          }
+        });
+        tokenClient.requestAccessToken({ prompt: "select_account" });
+      } catch (e) {
+        lbl.textContent = "Error al iniciar OAuth";
+        alert("Error iniciando Google Drive: " + e.message);
+      }
     }
 
     async function fetchDriveProgresoFiles(token) {
@@ -1119,18 +1131,25 @@
         const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} al consultar Google Drive API`);
+        }
         const data = await res.json();
         const files = data.files || [];
+        let loadedCount = 0;
         for (const f of files) {
           const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (fRes.ok) {
             const parsed = parseEfbProgressJson(await fRes.json());
-            upsertFlights(parsed);
+            if (parsed.length > 0) {
+              upsertFlights(parsed);
+              loadedCount++;
+            }
           }
         }
-        lbl.textContent = `Drive Sincronizado (${files.length} vuelos POV)`;
+        lbl.textContent = `Drive Sincronizado (${loadedCount} vuelos POV)`;
         renderDashboard();
       } catch (err) {
         lbl.textContent = "Error al leer Drive";
@@ -1163,8 +1182,9 @@
        6. MOTOR DE DISPONIBILIDAD, SALDOS Y ORDENAMIENTO POR PILOTO
        ========================================================================= */
     function computePilotStatus(pilot, evalMs, matFilter) {
-      const allFlights = getFlights().filter(f => f.crew.includes(pilot.ini));
-      const allActs = getActivities().filter(a => a.pilotIni === pilot.ini);
+      const pilotIniUpper = pilot.ini.toUpperCase();
+      const allFlights = getFlights().filter(f => Array.isArray(f.crew) && f.crew.some(c => c.toUpperCase() === pilotIniUpper));
+      const allActs = getActivities().filter(a => a.pilotIni && a.pilotIni.toUpperCase() === pilotIniUpper);
       const effectiveRole = getPilotRoleForMaterial(pilot, matFilter);
 
       const evalDateObj = new Date(evalMs);
@@ -1194,7 +1214,6 @@
         if (d.getFullYear() === evalYear && d.getMonth() === evalMonth) minMonth += a.extFlightMin;
       });
 
-      // Saldos disponibles en minutos según topes DAN 135
       const rem5d = Math.max(0, DAN135.MAX_5D_MIN - min5d);
       const rem10d = Math.max(0, DAN135.MAX_10D_MIN - min10d);
       const remMonth = Math.max(0, DAN135.MAX_MONTH_MIN - minMonth);
@@ -1224,8 +1243,8 @@
       const maxRest7dHours = Math.round(maxFreeMs / 3600000);
 
       let category = "DISPONIBLE";
-      let statusRank = 1; // 1: Disponible, 2: En PSV, 3: En Descanso, 4: Permiso/Bloqueado, 5: Alerta
-      let availTimestamp = 0; // 0 = Inmediata
+      let statusRank = 1;
+      let availTimestamp = 0;
       let badgeText = "DISPONIBLE";
       let badgeClass = "st-ok";
       let availMain = "Inmediata";
@@ -1340,7 +1359,6 @@
     function updateSortIndicators() {
       const arrowChar = currentSortDir === "ASC" ? "▲" : "▼";
 
-      // Botones de la barra de ordenamiento
       document.querySelectorAll(".sort-btn").forEach(btn => {
         const key = btn.getAttribute("data-sort");
         const isActive = key === currentSortKey;
@@ -1349,7 +1367,6 @@
         if (arrowEl) arrowEl.textContent = isActive ? arrowChar : "";
       });
 
-      // Encabezados de la tabla
       document.querySelectorAll("th.sortable").forEach(th => {
         const key = th.getAttribute("data-th");
         const isActive = key === currentSortKey;
@@ -1366,7 +1383,7 @@
         switch (currentSortKey) {
           case "AVAIL":
             cmp = a.availTimestamp - b.availTimestamp;
-            if (cmp === 0) cmp = b.remMonth - a.remMonth; // Desempate: más horas disponibles en el mes
+            if (cmp === 0) cmp = b.remMonth - a.remMonth;
             break;
           case "REM_MONTH":
             cmp = a.remMonth - b.remMonth;
