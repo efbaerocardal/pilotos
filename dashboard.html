@@ -1,0 +1,1545 @@
+<dashboard>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEROCARDAL — Control Operacional Tripulaciones (DAN 135)</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    :root {
+      --bg-main: #0B1324;
+      --bg-panel: #131E36;
+      --bg-card: #182644;
+      --bg-card-hover: #1E2F54;
+      --bg-input: #0E172B;
+      --border: #26385E;
+      --border-light: #334A7A;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --accent-blue: #2563EB;
+      --accent-blue-hover: #1D4ED8;
+      --accent-cyan: #38BDF8;
+      --accent-red: #B91C1C;
+      --accent-red-bright: #EF4444;
+      --status-ok: #16A34A;
+      --status-ok-bg: rgba(22, 163, 74, 0.20);
+      --status-psv: #2563EB;
+      --status-psv-bg: rgba(37, 99, 235, 0.24);
+      --status-rest: #D97706;
+      --status-rest-bg: rgba(217, 119, 6, 0.24);
+      --status-leave: #7C3AED;
+      --status-leave-bg: rgba(124, 58, 237, 0.24);
+      --status-alert: #DC2626;
+      --status-alert-bg: rgba(220, 38, 38, 0.24);
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* ==================== TOP HEADER ==================== */
+    .topbar {
+      background: linear-gradient(90deg, #091020 0%, #111C35 60%, #0D162B 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .topbar-left h1 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: #FFFFFF;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .live-clock {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #CBD5E1;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-variant-numeric: tabular-nums;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      font-size: 17px;
+      color: #FFFFFF;
+      letter-spacing: 0.3px;
+    }
+    .brand-triangle {
+      width: 0;
+      height: 0;
+      border-left: 11px solid transparent;
+      border-right: 11px solid transparent;
+      border-bottom: 20px solid #E11D48;
+      position: relative;
+    }
+    .brand-triangle::after {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 7px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 11px solid #0B1324;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ==================== BUTTONS & INPUTS ==================== */
+    .btn {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-light);
+      border-radius: 7px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); }
+    .btn-blue { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .btn-blue:hover { background: var(--accent-blue-hover); }
+    .btn-crimson {
+      background: linear-gradient(180deg, #DC2626 0%, #991B1B 100%);
+      border: 1px solid #F87171;
+      color: #FFFFFF;
+      width: 100%;
+      justify-content: center;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      letter-spacing: 0.3px;
+    }
+    .btn-crimson:hover { filter: brightness(1.08); }
+    .btn-sm { padding: 4px 8px; font-size: 11px; }
+
+    select, input, textarea {
+      width: 100%;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      font-family: inherit;
+    }
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+    }
+
+    /* ==================== MAIN WORKSPACE GRID ==================== */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      gap: 16px;
+      padding: 16px 20px;
+      max-width: 1680px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1180px) {
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    /* ==================== TOP FILTER + KPI + BANNER ==================== */
+    .top-control-row {
+      display: grid;
+      grid-template-columns: 1fr 270px;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 900px) {
+      .top-control-row { grid-template-columns: 1fr; }
+    }
+
+    .filter-kpi-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .material-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .mat-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: #CBD5E1;
+      padding: 7px 16px;
+      border-radius: 7px;
+      font-weight: 800;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .mat-pill:hover { border-color: var(--accent-cyan); color: #fff; }
+    .mat-pill.active {
+      background: linear-gradient(180deg, #3B82F6 0%, #1D4ED8 100%);
+      border-color: #60A5FA;
+      color: #FFFFFF;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 720px) {
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .kpi-card:hover { border-color: var(--accent-cyan); }
+    .kpi-card.active-filter { border-color: var(--accent-cyan); background: #1E3158; }
+    .kpi-title {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #CBD5E1;
+      letter-spacing: 0.3px;
+    }
+    .kpi-num {
+      font-size: 24px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-sub {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* OPS DISPATCH TIME SIMULATOR / TELEMETRY CARD */
+    .ops-sim-card {
+      background: linear-gradient(145deg, #162442 0%, #0E172B 100%);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .ops-sim-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    /* ==================== MAIN CREW TABLE ==================== */
+    .table-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .table-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .table-header-bar h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: #FFFFFF;
+    }
+    .table-scroll {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+    th {
+      text-align: left;
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-light);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(38, 56, 94, 0.65);
+      vertical-align: middle;
+    }
+    tr:hover td { background: rgba(30, 47, 84, 0.55); }
+
+    .pilot-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 185px;
+    }
+    .pilot-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E3A8A, #0284C7);
+      border: 1.5px solid #60A5FA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+      color: #FFFFFF;
+      flex-shrink: 0;
+    }
+    .pilot-name {
+      font-weight: 700;
+      color: #FFFFFF;
+      font-size: 13px;
+    }
+    .pilot-role {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .mat-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      max-width: 155px;
+    }
+    .mat-tag {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.30);
+      color: #BAE6FD;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .st-ok { background: var(--status-ok-bg); color: #4ADE80; border-color: rgba(74, 222, 128, 0.4); }
+    .st-psv { background: var(--status-psv-bg); color: #60A5FA; border-color: rgba(96, 165, 250, 0.45); }
+    .st-rest { background: var(--status-rest-bg); color: #FBBF24; border-color: rgba(251, 191, 36, 0.45); }
+    .st-leave { background: var(--status-leave-bg); color: #C084FC; border-color: rgba(192, 132, 252, 0.45); }
+    .st-alert { background: var(--status-alert-bg); color: #F87171; border-color: rgba(248, 113, 113, 0.5); }
+
+    .avail-main { font-weight: 700; color: #F8FAFC; font-size: 12.5px; white-space: nowrap; }
+    .avail-sub { font-size: 11px; color: var(--text-muted); }
+
+    .mini-bar-wrap { min-width: 115px; }
+    .mini-bar-text { font-size: 11px; font-weight: 700; color: #E2E8F0; margin-bottom: 3px; white-space: nowrap; }
+    .mini-track {
+      height: 6px;
+      background: #0B1324;
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .mini-fill { height: 100%; border-radius: 99px; }
+
+    .rest7-ok { color: #4ADE80; font-weight: 800; font-size: 12px; white-space: nowrap; }
+    .rest7-warn { color: #F87171; font-weight: 800; font-size: 12px; white-space: nowrap; }
+
+    /* ==================== RIGHT SIDEBAR (PERMISOS Y ACTIVIDADES) ==================== */
+    .sidebar-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-header {
+      background: linear-gradient(90deg, #991B1B 0%, #7F1D1D 100%);
+      padding: 11px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #FFFFFF;
+      border-bottom: 1px solid #B91C1C;
+    }
+    .sidebar-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+    .form-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.4px;
+    }
+    .dt-pair {
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr;
+      gap: 6px;
+    }
+
+    .active-blocks-list {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+    .block-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid #A855F7;
+      border-radius: 6px;
+      padding: 7px 9px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+    }
+
+    /* ==================== MODALS (96H REPORT / DRIVE CONFIG) ==================== */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 10, 20, 0.80);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+    .modal-head h3 { margin: 0; font-size: 15px; color: #FFFFFF; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>AEROCARDAL - CONTROL OPERACIONAL TRIPULACIONES (DAN 135)</h1>
+    </div>
+    <div class="topbar-right">
+      <div class="toolbar-actions">
+        <button class="btn btn-blue" onclick="syncFromGoogleDrive()" id="btnDriveSync">☁️ Sincronizar Drive (POV)</button>
+        <button class="btn" onclick="document.getElementById('jsonImportInput').click()">📥 Importar JSON</button>
+        <input type="file" id="jsonImportInput" accept=".json" multiple style="display:none" onchange="handleJsonImport(event)" />
+        <button class="btn" onclick="exportSigoCSV()">📑 Exportar SIGO</button>
+        <button class="btn" onclick="openModal('modalExcess96')">⚠️ Informe 96h</button>
+        <button class="btn btn-sm" onclick="loadDemoScenario()" title="Cargar datos de prueba">🧪 Demo</button>
+      </div>
+      <div class="live-clock" id="liveClockDisplay">--/--/---- --:-- CLT</div>
+      <div class="brand-logo">
+        <div class="brand-triangle"></div>
+        <span>Aerocardal</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="workspace">
+
+    <!-- LEFT / CENTER COLUMN -->
+    <div>
+      <!-- TOP FILTER & KPI ROW -->
+      <div class="top-control-row">
+        <div class="filter-kpi-box">
+          <div class="section-label">
+            <span>MATERIALES</span>
+            <span id="syncStatusLabel" style="color:var(--accent-cyan); font-weight:700;">Listo · 22 Tripulantes</span>
+          </div>
+          <div class="material-pills" id="materialPills">
+            <button class="mat-pill active" data-mat="TODOS" onclick="selectMaterial('TODOS', this)">TODOS</button>
+            <button class="mat-pill" data-mat="PC-24" onclick="selectMaterial('PC-24', this)">PC-24</button>
+            <button class="mat-pill" data-mat="L-410" onclick="selectMaterial('L-410', this)">L-410</button>
+            <button class="mat-pill" data-mat="G-150" onclick="selectMaterial('G-150', this)">G-150</button>
+            <button class="mat-pill" data-mat="D-228" onclick="selectMaterial('D-228', this)">D-228</button>
+            <button class="mat-pill" data-mat="PC-12" onclick="selectMaterial('PC-12', this)">PC-12</button>
+            <button class="mat-pill" data-mat="A109" onclick="selectMaterial('A109', this)">A109S/SP</button>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-card" id="kpiCardAvail" onclick="toggleStatusFilter('DISPONIBLE')">
+              <div class="kpi-title" id="kpiLabelAvail">DISPONIBLES (0)</div>
+              <div class="kpi-num" id="kpiNumAvail" style="color:#4ADE80;">0</div>
+              <div class="kpi-sub" id="kpiSubAvail">0 PIC · 0 SIC</div>
+            </div>
+            <div class="kpi-card" id="kpiCardPsv" onclick="toggleStatusFilter('EN PSV')">
+              <div class="kpi-title" id="kpiLabelPsv">EN SERVICIO ACTIVO (0)</div>
+              <div class="kpi-num" id="kpiNumPsv" style="color:#60A5FA;">0</div>
+              <div class="kpi-sub">En vuelo / PSV</div>
+            </div>
+            <div class="kpi-card" id="kpiCardRest" onclick="toggleStatusFilter('EN DESCANSO')">
+              <div class="kpi-title" id="kpiLabelRest">EN DESCANSO OBLIGATORIO (0)</div>
+              <div class="kpi-num" id="kpiNumRest" style="color:#FBBF24;">0</div>
+              <div class="kpi-sub">DAN 135.605 (a)(7)</div>
+            </div>
+            <div class="kpi-card" id="kpiCardBlock" onclick="toggleStatusFilter('BLOQUEADO')">
+              <div class="kpi-title" id="kpiLabelBlock">BLOQUEADOS / PERMISOS (0)</div>
+              <div class="kpi-num" id="kpiNumBlock" style="color:#C084FC;">0</div>
+              <div class="kpi-sub" id="kpiSubBlock">Permisos / Alertas</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DISPATCH REFERENCE TIME / QUICK PROJECTION CARD -->
+        <div class="ops-sim-card">
+          <div>
+            <div class="ops-sim-title">🕒 Horario de Evaluación Despacho</div>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:8px;">
+              Evalúe disponibilidad en tiempo real o proyecte un horario futuro de despacho:
+            </div>
+            <div class="dt-pair" style="margin-bottom:8px;">
+              <input type="date" id="evalDate" onchange="onEvalTimeChange()" />
+              <input type="time" id="evalTime" onchange="onEvalTimeChange()" />
+            </div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-sm btn-blue" style="flex:1; justify-content:center;" onclick="resetEvalToNow()">⏱️ Tiempo Real (Ahora)</button>
+            <button class="btn btn-sm" onclick="openModal('modalConfig')" title="Configurar Google Cloud Client ID">⚙️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN CREW TABLE -->
+      <div class="table-panel">
+        <div class="table-header-bar">
+          <h2 id="tableMainTitle">TABLA PRINCIPAL DE TRIPULACIONES — TODOS LOS MATERIALES</h2>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="searchPilotInput" placeholder="Buscar piloto o iniciales..." style="width:200px; padding:5px 10px;" oninput="renderDashboard()" />
+            <button class="btn btn-sm" id="btnClearStatusFilter" style="display:none;" onclick="toggleStatusFilter('ALL')">Ver Todos</button>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>PILOTO / FUNCIÓN</th>
+                <th>MATERIALES</th>
+                <th>ESTADO ACTUAL</th>
+                <th>PRÓXIMA DISPONIBILIDAD (DÍA Y HORA)</th>
+                <th>RELOJ / DETALLES DE JORNADA</th>
+                <th>TV 5d / 10d (Tope 34h/68h)</th>
+                <th>TV MES (Tope 100h) / 90d</th>
+                <th>DESCANSO 36h / 7d</th>
+              </tr>
+            </thead>
+            <tbody id="crewTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR: REGISTRO DE PERMISOS Y ACTIVIDADES -->
+    <aside class="sidebar-panel">
+      <div class="sidebar-header">
+        REGISTRO DE PERMISOS Y ACTIVIDADES
+      </div>
+      <div class="sidebar-body">
+        <div class="form-field">
+          <label for="actPilot">PILOTO</label>
+          <select id="actPilot"></select>
+        </div>
+
+        <div class="form-field">
+          <label for="actType">TIPO DE ACTIVIDAD</label>
+          <select id="actType" onchange="toggleExternalHoursField()">
+            <option value="Permiso Administrativo">Permiso Administrativo</option>
+            <option value="Simulador / Instrucción">Simulador / Instrucción</option>
+            <option value="Curso o Capacitación">Curso o Capacitación</option>
+            <option value="Franco / Día Libre">Franco / Día Libre</option>
+            <option value="Licencia Médica / Vacaciones">Licencia Médica / Vacaciones</option>
+            <option value="Vuelo Externo (DAN 135.605 b)">Vuelo Externo / No Comercial (135.605 b)</option>
+          </select>
+        </div>
+
+        <div class="form-field" id="extHoursWrap" style="display:none;">
+          <label for="actExtHours">HORAS DE VUELO EXTERNAS (HH:MM)</label>
+          <input type="time" id="actExtHours" value="01:30" />
+        </div>
+
+        <div class="form-field">
+          <label>FECHA Y HORA INICIO</label>
+          <div class="dt-pair">
+            <input type="date" id="actStartDate" />
+            <input type="time" id="actStartTime" value="08:00" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>FECHA Y HORA TÉRMINO</label>
+          <div class="dt-pair">
+            <input type="date" id="actEndDate" />
+            <input type="time" id="actEndTime" value="18:00" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="actNote">DETALLE / OBSERVACIÓN</label>
+          <input type="text" id="actNote" placeholder="Ej. Trámite personal / Recurrent SIM..." />
+        </div>
+
+        <button class="btn btn-crimson" onclick="saveCrewActivity()">
+          💾 GUARDAR ACTIVIDAD / BLOQUEO
+        </button>
+
+        <div class="active-blocks-list">
+          <div class="section-label" style="margin-bottom:6px;">
+            <span>ACTIVIDADES ACTIVAS HOY</span>
+            <span id="activeBlocksCount">0</span>
+          </div>
+          <div id="activeBlocksContainer"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MODAL: INFORME EXCESO 96 HORAS (DAN 135.605 a 5) -->
+  <div class="modal-backdrop" id="modalExcess96">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>⚠️ Informe Obligatorio de Extensión de PSV (Plazo 96h DGAC — DAN 135.605 a 5)</h3>
+        <button class="btn btn-sm" onclick="closeModal('modalExcess96')">✕</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+        <div class="form-field"><label>P.O.V. N°</label><input type="text" id="excPov" placeholder="Ej. 1245" /></div>
+        <div class="form-field"><label>Fecha Vuelo</label><input type="date" id="excDate" /></div>
+        <div class="form-field"><label>Piloto al Mando (PIC)</label><select id="excPic"></select></div>
+        <div class="form-field"><label>Copiloto (SIC)</label><select id="excFo"></select></div>
+        <div class="form-field"><label>PSV Realizado (HH:MM)</label><input type="time" id="excPsv" value="13:15" /></div>
+        <div class="form-field"><label>Causal Taxativa DAN 135.605 (a)(5)</label>
+          <select id="excReason">
+            <option>1. Condiciones meteorológicas adversas imprevistas</option>
+            <option>2. Enfermedad repentina / Evacuación aeromédica</option>
+            <option>3. Falla técnica o mantenimiento no programado</option>
+            <option>4. Demoras ATC o cierre de pista imprevisto</option>
+            <option>5. Búsqueda, salvamento o emergencia</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field" style="margin-bottom:12px;">
+        <label>Justificación Técnica y Medidas de Mitigación</label>
+        <textarea id="excNotes" rows="3" placeholder="Detalle las circunstancias que impidieron el relevo de tripulación..."></textarea>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn" onclick="closeModal('modalExcess96')">Cerrar</button>
+        <button class="btn btn-blue" onclick="window.print()">🖨️ Imprimir / Guardar PDF DGAC</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURACIÓN GOOGLE DRIVE CLIENT ID -->
+  <div class="modal-backdrop" id="modalConfig">
+    <div class="modal-card" style="max-width:500px;">
+      <div class="modal-head">
+        <h3>⚙️ Configuración Sincronización Google Drive</h3>
+        <button class="btn btn-sm" onclick="closeModal('modalConfig')">✕</button>
+      </div>
+      <div class="form-field" style="margin-bottom:12px;">
+        <label>Google OAuth 2.0 Client ID (Proyecto EFB Aerocardal)</label>
+        <input type="text" id="clientIdInput" placeholder="Pegue aquí su Client ID de Google Cloud..." />
+      </div>
+      <div style="display:flex; justify-content:space-between; gap:8px;">
+        <button class="btn btn-sm" style="color:#F87171;" onclick="clearAllLocalData()">🗑️ Limpiar Datos Prueba</button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" onclick="closeModal('modalConfig')">Cancelar</button>
+          <button class="btn btn-blue" onclick="saveClientIdConfig()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       0. CONFIGURACIÓN INSTITUCIONAL (PEGAR AQUÍ TU CLIENT_ID DE GOOGLE CLOUD)
+       ========================================================================= */
+    const DEFAULT_GOOGLE_CLIENT_ID = "REEMPLAZAR_CON_TU_CLIENT_ID.apps.googleusercontent.com";
+
+    /* =========================================================================
+       1. BASE DE DATOS DE TRIPULACIONES AEROCARDAL (22 PILOTOS)
+          - Sin prefijos Cmdte. / F/O
+          - En helicópteros (A109S/SP): todos son PIC
+          - En avión: todos son PIC excepto JO, MV, SS, EM, CV
+       ========================================================================= */
+    const AIRPLANE_SIC_LIST = ["JO", "MV", "SS", "EM", "CV"];
+
+    const PILOTOS_DB = [
+      { ini: "JA", nombre: "José Arellano", full: "José Arellano G.", rut: "8.621.855-0", lic: "TLA 1641", hab: ["D-228", "PC-12", "A109S", "A109SP"] },
+      { ini: "SS", nombre: "Sebastian Saez", full: "Sebastian Saez X.", rut: "17.090.129-0", lic: "PCA 3535", hab: ["L-410"] },
+      { ini: "FC", nombre: "Felipe Casasempere", full: "Felipe Casasempere G.", rut: "15.781.258-0", lic: "TLA 2114", hab: ["D-228", "L-410", "PC-12"] },
+      { ini: "AC", nombre: "Alfredo Castro", full: "Alfredo Castro C.", rut: "7.155.617-4", lic: "TLA 920", hab: ["D-228", "G-150"] },
+      { ini: "RE", nombre: "Ricardo Espinosa", full: "Ricardo Espinosa U.", rut: "6.827.727-2", lic: "TLA 674", hab: ["D-228", "G-150"] },
+      { ini: "IF", nombre: "Iván Fabry", full: "Iván Fabry R.", rut: "6.111.339-8", lic: "TLA 1359", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "FG", nombre: "Felipe Guiñez", full: "Felipe Guiñez A.", rut: "15.771.343-4", lic: "TLA 2217", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "EI", nombre: "Esteban Inostroza", full: "Esteban Inostroza L.", rut: "12.120.521-1", lic: "TLA 1256", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "AK", nombre: "Alexander Kaufmann", full: "Alexander Kaufmann R.", rut: "6.926.596-0", lic: "PCA 4185", hab: ["G-150", "PC-12"] },
+      { ini: "EM", nombre: "Enrique Mancini", full: "Enrique Mancini A.", rut: "19.310.398-7", lic: "PCA 4148", hab: ["D-228", "L-410", "PC-12"] },
+      { ini: "NM", nombre: "Nicolás Mohr", full: "Nicolás Mohr S.", rut: "18.239.044-5", lic: "TLA 2064", hab: ["D-228", "G-150", "PC-12", "PC-24"] },
+      { ini: "CM", nombre: "Claudio Muñoz", full: "Claudio Muñoz P.", rut: "7.999.795-1", lic: "TLA 921", hab: ["D-228", "PC-12", "L-410"] },
+      { ini: "FE", nombre: "Francisco Esquivel", full: "Francisco Esquivel C.", rut: "10.609.692-9", lic: "TLA 1899", hab: ["PC-24"] },
+      { ini: "JO", nombre: "José Oyarzún", full: "José Oyarzún M.", rut: "16.239.897-0", lic: "TLA 2387", hab: ["PC-24", "L-410"] },
+      { ini: "FCh", nombre: "Fernando Chacana", full: "Fernando Chacana X.", rut: "15.343.206-6", lic: "PCA 2604", hab: ["PC-12"] },
+      { ini: "MS", nombre: "Mauricio Solano", full: "Mauricio Solano P.", rut: "14.322.271-3", lic: "TLA 1657", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "CV", nombre: "Cristhian Vásquez", full: "Cristhian Vásquez F.", rut: "15.549.870-6", lic: "PCA 3435", hab: ["D-228", "L-410", "A109S", "A109SP"] },
+      { ini: "MV", nombre: "Matías Vega", full: "Matías Vega C.", rut: "16.510.381-5", lic: "TLA 2420", hab: ["L-410", "G-150"] },
+      { ini: "KW", nombre: "Klaus Wobbe", full: "Klaus Wobbe S.", rut: "14.103.915-6", lic: "TLA 1741", hab: ["D-228", "G-150", "L-410", "PC-24"] },
+      { ini: "CB", nombre: "Cristobal Briones", full: "Cristobal Briones B.", rut: "10.345.076-4", lic: "TLA 2740", hab: ["PC-24"] },
+      { ini: "CG", nombre: "Claudio Gonzalez", full: "Claudio Gonzalez", rut: "12.217.126-4", lic: "372", hab: ["A109S", "A109SP"] },
+      { ini: "JPA", nombre: "Juan Pablo Arevalo", full: "Juan Pablo Arevalo", rut: "11.371.016-0", lic: "40", hab: ["A109S", "A109SP"] }
+    ];
+
+    function getPilotRoleForMaterial(pilot, mat) {
+      const isHeli = pilot.hab.some(h => h.startsWith("A109"));
+      const isPlane = pilot.hab.some(h => !h.startsWith("A109"));
+
+      if (mat === "A109") {
+        return "PIC"; // En helicópteros todos son PIC
+      }
+      if (mat !== "TODOS") {
+        // En avión todos son PIC excepto JO, MV, SS, EM, CV
+        return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
+      }
+      // Vista general TODOS:
+      if (isHeli && !isPlane) return "PIC";
+      if (isHeli && isPlane) {
+        return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC Avión / PIC Heli" : "PIC";
+      }
+      return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
+    }
+
+    /* =========================================================================
+       2. CONSTANTES NORMATIVAS DAN 135 VOL. I ED. 2 ENM. 6
+       ========================================================================= */
+    const DAN135 = {
+      MAX_5D_MIN: 34 * 60,
+      MAX_10D_MIN: 68 * 60,
+      MAX_MONTH_MIN: 100 * 60,
+      MAX_90D_MIN: 270 * 60,
+      PSV_NOMINAL_MIN: 12 * 60,
+      PSV_MAX_2P_MIN: 14 * 60,
+      REST_TABLE: { 7:10, 8:12, 9:13, 10:14, 11:15, 12:15, 13:16, 14:17, 15:17, 16:18, 17:19, 18:20 }
+    };
+
+    const KEYS = {
+      FLIGHTS: "aerocardal_ops_v2_flights",
+      ACTIVITIES: "aerocardal_ops_v2_activities",
+      CLIENT_ID: "aerocardal_ops_google_client_id"
+    };
+
+    let selectedMaterial = "TODOS";
+    let selectedStatusFilter = "ALL";
+    let useLiveClock = true;
+    let customEvalMs = null;
+
+    /* =========================================================================
+       3. UTILIDADES DE TIEMPO Y FORMATO CLT
+       ========================================================================= */
+    const DIAS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const MESES_ES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+    function getEvalTimestampMs() {
+      return useLiveClock ? Date.now() : (customEvalMs || Date.now());
+    }
+
+    function updateClockTick() {
+      const now = new Date();
+      const dia = DIAS_ES[now.getDay()].toUpperCase();
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mes = MESES_ES[now.getMonth()].toUpperCase();
+      const yyyy = now.getFullYear();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("liveClockDisplay").textContent = `${dia} ${dd} DE ${mes} DE ${yyyy}, ${hh}:${mm} CLT`;
+
+      if (useLiveClock) {
+        const isoDate = `${yyyy}-${String(now.getMonth() + 1).padStart(2, "0")}-${dd}`;
+        document.getElementById("evalDate").value = isoDate;
+        document.getElementById("evalTime").value = `${hh}:${mm}`;
+      }
+    }
+
+    function formatCltDateTime(ms) {
+      const d = new Date(ms);
+      const dia = DIAS_ES[d.getDay()];
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mo = String(d.getMonth() + 1).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${dia} ${dd}/${mo} - ${hh}:${mm} CLT`;
+    }
+
+    function formatHHMM(totalMin) {
+      const abs = Math.max(0, Math.round(totalMin));
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    }
+
+    function formatHoursDecimal(totalMin) {
+      return (Math.max(0, totalMin) / 60).toFixed(1) + "h";
+    }
+
+    function parseHHMMToMin(str) {
+      if (!str) return null;
+      const clean = str.trim().replace(":", "");
+      if (clean.length < 3) return null;
+      const p = clean.padStart(4, "0");
+      const h = parseInt(p.slice(0, 2), 10);
+      const m = parseInt(p.slice(2, 4), 10);
+      return (isNaN(h) || isNaN(m)) ? null : h * 60 + m;
+    }
+
+    function calcRequiredRestMin(psvMin, baseType = "BASE") {
+      const hCeil = Math.max(7, Math.min(18, Math.ceil(psvMin / 60)));
+      const tableH = DAN135.REST_TABLE[hCeil] || 10;
+      const buffer = baseType === "POSTA" ? 20 : 45;
+      return tableH * 60 + buffer;
+    }
+
+    /* =========================================================================
+       4. PERSISTENCIA Y PARSEO DE Progreso.json (GOOGLE DRIVE / EFB)
+       ========================================================================= */
+    function getFlights() {
+      try { return JSON.parse(localStorage.getItem(KEYS.FLIGHTS)) || []; } catch { return []; }
+    }
+    function saveFlights(list) {
+      localStorage.setItem(KEYS.FLIGHTS, JSON.stringify(list));
+    }
+    function getActivities() {
+      try { return JSON.parse(localStorage.getItem(KEYS.ACTIVITIES)) || []; } catch { return []; }
+    }
+    function saveActivities(list) {
+      localStorage.setItem(KEYS.ACTIVITIES, JSON.stringify(list));
+    }
+
+    function parseEfbProgressJson(raw) {
+      if (!raw) return [];
+      const pov = (raw.pov || raw.povNumber || "SIN-POV").toString().trim();
+      const aircraft = (raw.matricula || "CC-XXX").toString().trim().toUpperCase();
+      const cap = (raw.capitan || "").toString().trim().toUpperCase();
+      const fo = (raw.fo || "").toString().trim().toUpperCase();
+      const fo2 = (raw.fo2 || "").toString().trim().toUpperCase();
+      const crew = [cap, fo, fo2].filter(Boolean);
+      const baseDate = raw.fecha || new Date().toISOString().slice(0, 10);
+      const tramos = Array.isArray(raw.tramos) ? raw.tramos : [];
+
+      if (crew.length === 0) return [];
+
+      const byDate = {};
+      tramos.forEach(t => {
+        const d = t.fecha || baseDate;
+        if (!byDate[d]) byDate[d] = [];
+        const bOut = parseHHMMToMin(t.blockOut);
+        const aOff = parseHHMMToMin(t.airOff);
+        const aOn = parseHHMMToMin(t.airOn);
+        const bIn = parseHHMMToMin(t.blockIn);
+        let blockMin = (bOut !== null && bIn !== null) ? (bIn - bOut + 1440) % 1440 : 0;
+        byDate[d].push({ ...t, bOut, aOff, aOn, bIn, blockMin });
+      });
+
+      const dates = Object.keys(byDate).sort();
+      if (dates.length === 0) dates.push(baseDate);
+
+      return dates.map((d, idx) => {
+        const legs = byDate[d] || [];
+        let startMin = idx === 0 ? parseHHMMToMin(raw.dutyInicio) : null;
+        if (startMin === null && legs[0]?.aOff !== null) startMin = (legs[0].aOff - 60 + 1440) % 1440;
+        if (startMin === null && legs[0]?.bOut !== null) startMin = (legs[0].bOut - 45 + 1440) % 1440;
+        if (startMin === null) startMin = 8 * 60;
+
+        const lastLeg = legs[legs.length - 1];
+        let endMin = idx === 0 ? parseHHMMToMin(raw.dutyFin) : null;
+        if (endMin === null && lastLeg?.bIn !== null) endMin = (lastLeg.bIn + 30) % 1440;
+        if (endMin === null) endMin = (startMin + 360) % 1440;
+
+        const startMs = new Date(`${d}T${formatHHMM(startMin)}:00`).getTime();
+        let endMs = new Date(`${d}T${formatHHMM(endMin)}:00`).getTime();
+        if (endMs <= startMs) endMs += 86400000;
+
+        const psvMin = Math.round((endMs - startMs) / 60000);
+        const blockMin = legs.reduce((s, l) => s + l.blockMin, 0);
+        const lastDest = lastLeg?.destino?.toUpperCase() || "SCEL";
+        const baseType = lastDest === "SCEL" ? "BASE" : "POSTA";
+
+        return {
+          id: `${pov}_${d}`,
+          pov,
+          date: d,
+          aircraft,
+          crew,
+          startMs,
+          endMs,
+          psvMin,
+          blockMin,
+          baseType
+        };
+      });
+    }
+
+    function upsertFlights(newEntries) {
+      const map = new Map(getFlights().map(f => [f.id, f]));
+      newEntries.forEach(e => map.set(e.id, e));
+      saveFlights(Array.from(map.values()).sort((a, b) => a.startMs - b.startMs));
+    }
+
+    /* =========================================================================
+       5. SINCRONIZACIÓN GOOGLE DRIVE (CARPETAS POV_*)
+       ========================================================================= */
+    function getEffectiveClientId() {
+      const saved = (localStorage.getItem(KEYS.CLIENT_ID) || "").trim();
+      if (saved) return saved;
+      if (DEFAULT_GOOGLE_CLIENT_ID && !DEFAULT_GOOGLE_CLIENT_ID.startsWith("REEMPLAZAR_")) return DEFAULT_GOOGLE_CLIENT_ID;
+      return "";
+    }
+
+    function syncFromGoogleDrive() {
+      const clientId = getEffectiveClientId();
+      if (!clientId) {
+        openModal("modalConfig");
+        return;
+      }
+      if (typeof google === "undefined" || !google.accounts?.oauth2) {
+        alert("Google Identity no disponible (sin conexión). Se muestran datos locales.");
+        return;
+      }
+      const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "https://www.googleapis.com/auth/drive.readonly",
+        callback: async (resp) => {
+          if (resp.error) return alert("Error Auth Google: " + resp.error);
+          await fetchDriveProgresoFiles(resp.access_token);
+        }
+      });
+      tokenClient.requestAccessToken({ prompt: "" });
+    }
+
+    async function fetchDriveProgresoFiles(token) {
+      const lbl = document.getElementById("syncStatusLabel");
+      lbl.textContent = "Escaneando carpetas POV_* en Drive...";
+      try {
+        const q = encodeURIComponent("name = 'Progreso.json' and trashed = false");
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const files = data.files || [];
+        for (const f of files) {
+          const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (fRes.ok) {
+            const parsed = parseEfbProgressJson(await fRes.json());
+            upsertFlights(parsed);
+          }
+        }
+        lbl.textContent = `Drive Sincronizado (${files.length} vuelos POV)`;
+        renderDashboard();
+      } catch (err) {
+        lbl.textContent = "Error al leer Drive";
+        alert("Error leyendo Google Drive: " + err.message);
+      }
+    }
+
+    function handleJsonImport(evt) {
+      const files = Array.from(evt.target.files || []);
+      let done = 0;
+      files.forEach(file => {
+        const r = new FileReader();
+        r.onload = (e) => {
+          try {
+            const obj = JSON.parse(e.target.result);
+            upsertFlights(Array.isArray(obj) ? obj : parseEfbProgressJson(obj));
+          } catch {}
+          done++;
+          if (done === files.length) {
+            document.getElementById("syncStatusLabel").textContent = `${files.length} archivo(s) JSON importados`;
+            renderDashboard();
+          }
+        };
+        r.readAsText(file);
+      });
+      evt.target.value = "";
+    }
+
+    /* =========================================================================
+       6. MOTOR DE DISPONIBILIDAD Y CUMPLIMIENTO POR PILOTO
+       ========================================================================= */
+    function computePilotStatus(pilot, evalMs, matFilter) {
+      const allFlights = getFlights().filter(f => f.crew.includes(pilot.ini));
+      const allActs = getActivities().filter(a => a.pilotIni === pilot.ini);
+      const effectiveRole = getPilotRoleForMaterial(pilot, matFilter);
+
+      const evalDateObj = new Date(evalMs);
+      const evalYear = evalDateObj.getFullYear();
+      const evalMonth = evalDateObj.getMonth();
+
+      let min5d = 0, min10d = 0, minMonth = 0, min90d = 0;
+      const ms5dAgo = evalMs - 5 * 86400000;
+      const ms10dAgo = evalMs - 10 * 86400000;
+      const ms90dAgo = evalMs - 90 * 86400000;
+
+      allFlights.forEach(f => {
+        if (f.startMs <= evalMs) {
+          if (f.endMs >= ms5dAgo) min5d += f.blockMin;
+          if (f.endMs >= ms10dAgo) min10d += f.blockMin;
+          if (f.endMs >= ms90dAgo) min90d += f.blockMin;
+          const d = new Date(f.startMs);
+          if (d.getFullYear() === evalYear && d.getMonth() === evalMonth) minMonth += f.blockMin;
+        }
+      });
+
+      allActs.filter(a => a.extFlightMin > 0 && a.startMs <= evalMs).forEach(a => {
+        if (a.endMs >= ms5dAgo) min5d += a.extFlightMin;
+        if (a.endMs >= ms10dAgo) min10d += a.extFlightMin;
+        if (a.endMs >= ms90dAgo) min90d += a.extFlightMin;
+        const d = new Date(a.startMs);
+        if (d.getFullYear() === evalYear && d.getMonth() === evalMonth) minMonth += a.extFlightMin;
+      });
+
+      const winStart = evalMs - 7 * 86400000;
+      const busyIntervals = [];
+      allFlights.forEach(f => {
+        if (f.endMs > winStart && f.startMs < evalMs) {
+          busyIntervals.push([Math.max(winStart, f.startMs), Math.min(evalMs, f.endMs)]);
+        }
+      });
+      allActs.filter(a => a.type === "Simulador / Instrucción" || a.type === "Curso o Capacitación" || a.extFlightMin > 0).forEach(a => {
+        if (a.endMs > winStart && a.startMs < evalMs) {
+          busyIntervals.push([Math.max(winStart, a.startMs), Math.min(evalMs, a.endMs)]);
+        }
+      });
+      busyIntervals.sort((a, b) => a[0] - b[0]);
+
+      let maxFreeMs = 0;
+      let cursor = winStart;
+      for (const [s, e] of busyIntervals) {
+        if (s > cursor) maxFreeMs = Math.max(maxFreeMs, s - cursor);
+        cursor = Math.max(cursor, e);
+      }
+      maxFreeMs = Math.max(maxFreeMs, evalMs - cursor);
+      const maxRest7dHours = Math.round(maxFreeMs / 3600000);
+
+      let category = "DISPONIBLE";
+      let badgeText = "DISPONIBLE";
+      let badgeClass = "st-ok";
+      let availMain = "Inmediata";
+      let availSub = "Listo para asignar";
+      let clockMain = "Sin restricciones";
+      let clockSub = "Descanso DAN 135 al día";
+
+      const activeBlock = allActs.find(a => evalMs >= a.startMs && evalMs < a.endMs);
+      const activeFlight = allFlights.find(f => evalMs >= f.startMs && evalMs < f.endMs);
+      const pastFlights = allFlights.filter(f => f.endMs <= evalMs);
+      const lastFlight = pastFlights[pastFlights.length - 1];
+
+      if (activeBlock) {
+        category = "BLOQUEADO";
+        badgeText = activeBlock.type.includes("Permiso") ? "PERMISO ADM" :
+                    activeBlock.type.includes("Simulador") ? "SIMULADOR" :
+                    activeBlock.type.includes("Curso") ? "CURSO" :
+                    activeBlock.type.includes("Franco") ? "FRANCO" : "BLOQUEADO";
+        badgeClass = "st-leave";
+        availMain = formatCltDateTime(activeBlock.endMs);
+        availSub = `Fin de ${activeBlock.type.toLowerCase()}`;
+        clockMain = `${badgeText}:`;
+        clockSub = activeBlock.note || activeBlock.type;
+      } else if (activeFlight) {
+        category = "EN PSV";
+        badgeText = "EN PSV";
+        badgeClass = "st-psv";
+        const elapsedMin = Math.round((evalMs - activeFlight.startMs) / 60000);
+        const remPsvMin = Math.max(0, DAN135.PSV_NOMINAL_MIN - elapsedMin);
+        const reqRestMin = calcRequiredRestMin(activeFlight.psvMin, activeFlight.baseType);
+        const releaseMs = activeFlight.endMs + reqRestMin * 60000;
+        availMain = formatCltDateTime(releaseMs);
+        availSub = `Vuelo + Descanso (${formatHHMM(reqRestMin)}h)`;
+        clockMain = `PSV Activo (${activeFlight.aircraft})`;
+        clockSub = `(${formatHHMM(elapsedMin)}h / Rem: ${formatHHMM(remPsvMin)}h)`;
+      } else if (lastFlight) {
+        const reqRestMin = calcRequiredRestMin(lastFlight.psvMin, lastFlight.baseType);
+        const releaseMs = lastFlight.endMs + reqRestMin * 60000;
+        if (evalMs < releaseMs) {
+          category = "EN DESCANSO";
+          badgeText = "EN DESCANSO";
+          badgeClass = "st-rest";
+          const remRestMin = Math.ceil((releaseMs - evalMs) / 60000);
+          const relDate = new Date(releaseMs);
+          const relHHMM = `${String(relDate.getHours()).padStart(2, "0")}:${String(relDate.getMinutes()).padStart(2, "0")}`;
+          availMain = formatCltDateTime(releaseMs);
+          availSub = `Faltan ${formatHHMM(remRestMin)}h de descanso`;
+          clockMain = `Libera ${relHHMM}`;
+          clockSub = `Descanso obligatorio (${lastFlight.aircraft})`;
+        }
+      }
+
+      const limitExceeded =
+        min5d >= DAN135.MAX_5D_MIN ||
+        min10d >= DAN135.MAX_10D_MIN ||
+        minMonth >= DAN135.MAX_MONTH_MIN ||
+        maxRest7dHours < 36;
+
+      if (limitExceeded && category === "DISPONIBLE") {
+        category = "BLOQUEADO";
+        badgeText = "ALERTA";
+        badgeClass = "st-alert";
+        availMain = "No Disponible (Tope DAN 135)";
+        availSub = maxRest7dHours < 36 ? "Requiere descanso semanal 36h" : "Excede límite horas de vuelo";
+        clockMain = "Bloqueo Normativo";
+        clockSub = maxRest7dHours < 36 ? `Descanso máx 7d: ${maxRest7dHours}h (<36h)` : "Revisar acumulados 5d/10d/Mes";
+      }
+
+      return {
+        pilot,
+        effectiveRole,
+        category,
+        badgeText,
+        badgeClass,
+        availMain,
+        availSub,
+        clockMain,
+        clockSub,
+        min5d,
+        min10d,
+        minMonth,
+        min90d,
+        maxRest7dHours
+      };
+    }
+
+    /* =========================================================================
+       7. RENDERIZADO DE KPIs, TABLA PRINCIPAL Y ACTIVIDADES LATERALES
+       ========================================================================= */
+    function selectMaterial(mat, btnEl) {
+      selectedMaterial = mat;
+      selectedStatusFilter = "ALL";
+      document.querySelectorAll(".mat-pill").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      updateKpiActiveBorder();
+      renderDashboard();
+    }
+
+    function toggleStatusFilter(st) {
+      selectedStatusFilter = (selectedStatusFilter === st) ? "ALL" : st;
+      updateKpiActiveBorder();
+      renderDashboard();
+    }
+
+    function updateKpiActiveBorder() {
+      document.getElementById("kpiCardAvail").classList.toggle("active-filter", selectedStatusFilter === "DISPONIBLE");
+      document.getElementById("kpiCardPsv").classList.toggle("active-filter", selectedStatusFilter === "EN PSV");
+      document.getElementById("kpiCardRest").classList.toggle("active-filter", selectedStatusFilter === "EN DESCANSO");
+      document.getElementById("kpiCardBlock").classList.toggle("active-filter", selectedStatusFilter === "BLOQUEADO");
+      document.getElementById("btnClearStatusFilter").style.display = selectedStatusFilter === "ALL" ? "none" : "inline-flex";
+    }
+
+    function renderDashboard() {
+      const evalMs = getEvalTimestampMs();
+      const query = document.getElementById("searchPilotInput").value.trim().toLowerCase();
+
+      const fleetPilots = PILOTOS_DB.filter(p => {
+        if (selectedMaterial === "TODOS") return true;
+        if (selectedMaterial === "A109") return p.hab.some(h => h.startsWith("A109"));
+        return p.hab.includes(selectedMaterial);
+      });
+
+      const evaluated = fleetPilots.map(p => computePilotStatus(p, evalMs, selectedMaterial));
+
+      const availList = evaluated.filter(e => e.category === "DISPONIBLE");
+      const psvList = evaluated.filter(e => e.category === "EN PSV");
+      const restList = evaluated.filter(e => e.category === "EN DESCANSO");
+      const blockList = evaluated.filter(e => e.category === "BLOQUEADO");
+
+      const picAvail = availList.filter(e => e.effectiveRole.startsWith("PIC")).length;
+      const sicAvail = availList.filter(e => e.effectiveRole.startsWith("SIC")).length;
+
+      document.getElementById("kpiLabelAvail").textContent = `DISPONIBLES (${availList.length})`;
+      document.getElementById("kpiNumAvail").textContent = availList.length;
+      document.getElementById("kpiSubAvail").textContent = `${picAvail} PIC · ${sicAvail} SIC`;
+
+      document.getElementById("kpiLabelPsv").textContent = `EN SERVICIO ACTIVO (${psvList.length})`;
+      document.getElementById("kpiNumPsv").textContent = psvList.length;
+
+      document.getElementById("kpiLabelRest").textContent = `EN DESCANSO OBLIGATORIO (${restList.length})`;
+      document.getElementById("kpiNumRest").textContent = restList.length;
+
+      document.getElementById("kpiLabelBlock").textContent = `BLOQUEADOS / PERMISOS (${blockList.length})`;
+      document.getElementById("kpiNumBlock").textContent = blockList.length;
+
+      const matLabel = selectedMaterial === "A109" ? "A109S/SP" : selectedMaterial;
+      document.getElementById("tableMainTitle").textContent =
+        selectedMaterial === "TODOS"
+          ? `TABLA PRINCIPAL DE TRIPULACIONES — TODOS LOS MATERIALES (${evaluated.length})`
+          : `TABLA PRINCIPAL DE TRIPULACIONES — MATERIAL ${matLabel} (${evaluated.length})`;
+
+      const filteredRows = evaluated.filter(e => {
+        if (selectedStatusFilter !== "ALL" && e.category !== selectedStatusFilter) return false;
+        if (query && !e.pilot.nombre.toLowerCase().includes(query) && !e.pilot.ini.toLowerCase().includes(query)) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById("crewTableBody");
+      if (filteredRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:20px;">No hay tripulantes en esta categoría para el material seleccionado.</td></tr>`;
+      } else {
+        tbody.innerHTML = filteredRows.map(e => {
+          const pct5d = Math.min(100, Math.round((e.min5d / DAN135.MAX_5D_MIN) * 100));
+          const color5d = pct5d >= 90 ? "#EF4444" : (pct5d >= 75 ? "#F59E0B" : "#22C55E");
+
+          const pctMonth = Math.min(100, Math.round((e.minMonth / DAN135.MAX_MONTH_MIN) * 100));
+          const colorMonth = pctMonth >= 90 ? "#EF4444" : (pctMonth >= 75 ? "#F59E0B" : "#22C55E");
+
+          const restOk = e.maxRest7dHours >= 36;
+
+          return `
+            <tr>
+              <td>
+                <div class="pilot-cell">
+                  <div class="pilot-avatar">${e.pilot.ini}</div>
+                  <div>
+                    <div class="pilot-name">${e.pilot.nombre}</div>
+                    <div class="pilot-role">(${e.effectiveRole}) · ${e.pilot.lic}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="mat-tags">
+                  ${e.pilot.hab.map(h => `<span class="mat-tag">${h}</span>`).join("")}
+                </div>
+              </td>
+              <td><span class="status-pill ${e.badgeClass}">${e.badgeText}</span></td>
+              <td>
+                <div class="avail-main">${e.availMain}</div>
+                <div class="avail-sub">${e.availSub}</div>
+              </td>
+              <td>
+                <div class="avail-main">${e.clockMain}</div>
+                <div class="avail-sub">${e.clockSub}</div>
+              </td>
+              <td>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar-text">5d: ${formatHoursDecimal(e.min5d)} / 10d: ${formatHoursDecimal(e.min10d)}</div>
+                  <div class="mini-track"><div class="mini-fill" style="width:${pct5d}%; background:${color5d};"></div></div>
+                </div>
+              </td>
+              <td>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar-text">Mes: ${formatHoursDecimal(e.minMonth)} (${pctMonth}%)</div>
+                  <div class="mini-track"><div class="mini-fill" style="width:${pctMonth}%; background:${colorMonth};"></div></div>
+                </div>
+              </td>
+              <td>
+                <span class="${restOk ? "rest7-ok" : "rest7-warn"}">
+                  Max: ${e.maxRest7dHours}h ${restOk ? "✓" : "⚠️"}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      renderSidebarActivities(evalMs);
+    }
+
+    /* =========================================================================
+       8. PANEL DERECHO: REGISTRO DE PERMISOS, SIMULADOR, CURSOS Y FRANCOS
+       ========================================================================= */
+    function toggleExternalHoursField() {
+      const val = document.getElementById("actType").value;
+      document.getElementById("extHoursWrap").style.display = val.includes("Externo") ? "block" : "none";
+    }
+
+    function saveCrewActivity() {
+      const pilotIni = document.getElementById("actPilot").value;
+      const type = document.getElementById("actType").value;
+      const sDate = document.getElementById("actStartDate").value;
+      const sTime = document.getElementById("actStartTime").value;
+      const eDate = document.getElementById("actEndDate").value;
+      const eTime = document.getElementById("actEndTime").value;
+      const note = document.getElementById("actNote").value.trim();
+      const extHoursStr = document.getElementById("actExtHours").value;
+
+      if (!sDate || !sTime || !eDate || !eTime) {
+        alert("Complete fecha y hora de inicio y término.");
+        return;
+      }
+      const startMs = new Date(`${sDate}T${sTime}:00`).getTime();
+      const endMs = new Date(`${eDate}T${eTime}:00`).getTime();
+      if (endMs <= startMs) {
+        alert("La fecha/hora de término debe ser posterior al inicio.");
+        return;
+      }
+
+      const extFlightMin = type.includes("Externo") ? (parseHHMMToMin(extHoursStr) || 0) : 0;
+
+      const list = getActivities();
+      list.unshift({
+        id: "ACT_" + Date.now(),
+        pilotIni,
+        type,
+        startMs,
+        endMs,
+        note,
+        extFlightMin
+      });
+      saveActivities(list);
+      document.getElementById("actNote").value = "";
+      renderDashboard();
+    }
+
+    function deleteActivity(id) {
+      saveActivities(getActivities().filter(a => a.id !== id));
+      renderDashboard();
+    }
+
+    function renderSidebarActivities(evalMs) {
+      const list = getActivities().filter(a => a.endMs >= evalMs - 86400000);
+      document.getElementById("activeBlocksCount").textContent = list.length;
+      const container = document.getElementById("activeBlocksContainer");
+
+      if (list.length === 0) {
+        container.innerHTML = `<div style="color:var(--text-muted); font-size:11.5px;">Sin bloqueos o permisos activos.</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(a => {
+        const p = PILOTOS_DB.find(x => x.ini === a.pilotIni);
+        const endStr = formatCltDateTime(a.endMs).replace(" CLT", "");
+        return `
+          <div class="block-item">
+            <div>
+              <strong>${p ? p.nombre : a.pilotIni}</strong> — ${a.type}<br>
+              <span style="color:var(--text-muted); font-size:10.5px;">Hasta ${endStr}${a.note ? " · " + a.note : ""}</span>
+            </div>
+            <button class="btn btn-sm" onclick="deleteActivity('${a.id}')" title="Eliminar bloqueo">✕</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* =========================================================================
+       9. EXPORTAR REPORTE MENSUAL SIGO (CSV) & CONTROLES AUXILIARES
+       ========================================================================= */
+    function exportSigoCSV() {
+      const evalMs = getEvalTimestampMs();
+      const d = new Date(evalMs);
+      const monthLabel = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+      const headers = ["Mes", "Iniciales", "Nombre", "Funcion", "RUT", "Licencia", "Materiales", "TV_5d_Horas", "TV_10d_Horas", "TV_Mes_Horas", "TV_90d_Horas", "Descanso_Max_7d_H", "Estado_Actual"];
+      const rows = PILOTOS_DB.map(p => {
+        const st = computePilotStatus(p, evalMs, "TODOS");
+        return [
+          monthLabel,
+          p.ini,
+          `"${p.full}"`,
+          `"${st.effectiveRole}"`,
+          p.rut,
+          p.lic,
+          `"${p.hab.join("/")}"`,
+          (st.min5d / 60).toFixed(1),
+          (st.min10d / 60).toFixed(1),
+          (st.minMonth / 60).toFixed(1),
+          (st.min90d / 60).toFixed(1),
+          st.maxRest7dHours,
+          st.badgeText
+        ].join(";");
+      });
+
+      const blob = new Blob(["\uFEFF" + [headers.join(";"), ...rows].join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `SIGO_Disponibilidad_Aerocardal_${monthLabel}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function onEvalTimeChange() {
+      const d = document.getElementById("evalDate").value;
+      const t = document.getElementById("evalTime").value;
+      if (d && t) {
+        useLiveClock = false;
+        customEvalMs = new Date(`${d}T${t}:00`).getTime();
+        renderDashboard();
+      }
+    }
+
+    function resetEvalToNow() {
+      useLiveClock = true;
+      customEvalMs = null;
+      updateClockTick();
+      renderDashboard();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add("open"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+    function saveClientIdConfig() {
+      const val = document.getElementById("clientIdInput").value.trim();
+      localStorage.setItem(KEYS.CLIENT_ID, val);
+      closeModal("modalConfig");
+    }
+
+    function clearAllLocalData() {
+      if (confirm("¿Eliminar todos los vuelos y bloqueos almacenados localmente?")) {
+        localStorage.removeItem(KEYS.FLIGHTS);
+        localStorage.removeItem(KEYS.ACTIVITIES);
+        closeModal("modalConfig");
+        renderDashboard();
+      }
+    }
+
+    function loadDemoScenario() {
+      const now = Date.now();
+      const demoFlights = [
+        {
+          id: "DEMO_1", pov: "1240", date: new Date(now).toISOString().slice(0, 10),
+          aircraft: "CC-DRS", crew: ["FE", "JO"],
+          startMs: now - 4 * 3600000, endMs: now + 3 * 3600000,
+          psvMin: 420, blockMin: 240, baseType: "BASE"
+        },
+        {
+          id: "DEMO_2", pov: "1238", date: new Date(now - 86400000).toISOString().slice(0, 10),
+          aircraft: "CC-DLI", crew: ["EI", "SS"],
+          startMs: now - 14 * 3600000, endMs: now - 4 * 3600000,
+          psvMin: 600, blockMin: 380, baseType: "BASE"
+        }
+      ];
+      upsertFlights(demoFlights);
+
+      const demoActs = [
+        {
+          id: "DEMO_ACT_1", pilotIni: "NM", type: "Permiso Administrativo",
+          startMs: now - 2 * 3600000, endMs: now + 18 * 3600000,
+          note: "Trámite personal / Médico en Santiago", extFlightMin: 0
+        }
+      ];
+      saveActivities(demoActs);
+      document.getElementById("syncStatusLabel").textContent = "Escenario Demo cargado";
+      renderDashboard();
+    }
+
+    /* =========================================================================
+       10. INICIALIZACIÓN
+       ========================================================================= */
+    window.addEventListener("DOMContentLoaded", () => {
+      const opts = PILOTOS_DB.map(p => `<option value="${p.ini}">${p.nombre} (${p.hab.join("/")})</option>`).join("");
+      ["actPilot", "excPic", "excFo"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = opts;
+      });
+      document.getElementById("actPilot").value = "JO";
+      document.getElementById("excPic").value = "FE";
+      document.getElementById("excFo").value = "JO";
+
+      const now = new Date();
+      const todayISO = now.toISOString().slice(0, 10);
+      const tomorrowISO = new Date(now.getTime() + 86400000).toISOString().slice(0, 10);
+      document.getElementById("actStartDate").value = todayISO;
+      document.getElementById("actEndDate").value = tomorrowISO;
+      document.getElementById("excDate").value = todayISO;
+
+      const savedCid = localStorage.getItem(KEYS.CLIENT_ID);
+      if (savedCid) document.getElementById("clientIdInput").value = savedCid;
+
+      updateClockTick();
+      setInterval(() => {
+        updateClockTick();
+        if (useLiveClock) renderDashboard();
+      }, 30000);
+
+      renderDashboard();
+    });
+  </script>
+</body>
+</html>
