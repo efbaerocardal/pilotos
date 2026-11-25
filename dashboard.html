@@ -282,7 +282,7 @@
       margin-bottom: 6px;
     }
 
-    /* ==================== MAIN CREW TABLE ==================== */
+    /* ==================== MAIN CREW TABLE & SORT BAR ==================== */
     .table-panel {
       background: var(--bg-panel);
       border: 1px solid var(--border);
@@ -295,7 +295,7 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .table-header-bar h2 {
       margin: 0;
@@ -304,6 +304,57 @@
       letter-spacing: 0.4px;
       color: #FFFFFF;
     }
+
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .sort-bar-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.4px;
+      margin-right: 4px;
+    }
+    .sort-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: #CBD5E1;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .sort-btn:hover {
+      border-color: var(--accent-cyan);
+      color: #FFFFFF;
+      background: var(--bg-card-hover);
+    }
+    .sort-btn.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: var(--accent-cyan);
+      color: #FFFFFF;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.22);
+    }
+    .sort-arrow {
+      font-size: 10px;
+      color: var(--accent-cyan);
+      font-weight: 900;
+    }
+
     .table-scroll {
       overflow-x: auto;
     }
@@ -321,6 +372,18 @@
       padding: 8px 10px;
       border-bottom: 1px solid var(--border-light);
       white-space: nowrap;
+      user-select: none;
+    }
+    th.sortable {
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    th.sortable:hover {
+      color: var(--accent-cyan);
+    }
+    th.sorted-col {
+      color: #FFFFFF;
+      border-bottom-color: var(--accent-cyan);
     }
     td {
       padding: 10px 10px;
@@ -395,8 +458,10 @@
     .avail-main { font-weight: 700; color: #F8FAFC; font-size: 12.5px; white-space: nowrap; }
     .avail-sub { font-size: 11px; color: var(--text-muted); }
 
-    .mini-bar-wrap { min-width: 115px; }
-    .mini-bar-text { font-size: 11px; font-weight: 700; color: #E2E8F0; margin-bottom: 3px; white-space: nowrap; }
+    .mini-bar-wrap { min-width: 135px; }
+    .mini-bar-text { font-size: 11px; font-weight: 700; color: #E2E8F0; margin-bottom: 2px; white-space: nowrap; }
+    .mini-bar-sub { font-size: 10.5px; color: #4ADE80; font-weight: 700; margin-bottom: 3px; white-space: nowrap; }
+    .mini-bar-sub.low { color: #F87171; }
     .mini-track {
       height: 6px;
       background: #0B1324;
@@ -601,18 +666,44 @@
           </div>
         </div>
 
+        <!-- BARRA DE BOTONES DE ORDENAMIENTO -->
+        <div class="sort-bar" id="sortBar">
+          <span class="sort-bar-label">Ordenar por:</span>
+          <button class="sort-btn active" data-sort="AVAIL" onclick="setSort('AVAIL')">
+            Disponibilidad <span class="sort-arrow" id="arrow-AVAIL">▲</span>
+          </button>
+          <button class="sort-btn" data-sort="REM_MONTH" onclick="setSort('REM_MONTH')">
+            Horas Disp. Mes (100h) <span class="sort-arrow" id="arrow-REM_MONTH"></span>
+          </button>
+          <button class="sort-btn" data-sort="REM_5D" onclick="setSort('REM_5D')">
+            Horas Disp. 5d (34h) <span class="sort-arrow" id="arrow-REM_5D"></span>
+          </button>
+          <button class="sort-btn" data-sort="REM_10D" onclick="setSort('REM_10D')">
+            Horas Disp. 10d (68h) <span class="sort-arrow" id="arrow-REM_10D"></span>
+          </button>
+          <button class="sort-btn" data-sort="REST_7D" onclick="setSort('REST_7D')">
+            Descanso 36h/7d <span class="sort-arrow" id="arrow-REST_7D"></span>
+          </button>
+          <button class="sort-btn" data-sort="ROLE" onclick="setSort('ROLE')">
+            Función (PIC/SIC) <span class="sort-arrow" id="arrow-ROLE"></span>
+          </button>
+          <button class="sort-btn" data-sort="NAME" onclick="setSort('NAME')">
+            Nombre <span class="sort-arrow" id="arrow-NAME"></span>
+          </button>
+        </div>
+
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
-                <th>PILOTO / FUNCIÓN</th>
+                <th class="sortable" data-th="NAME" onclick="setSort('NAME')">PILOTO / FUNCIÓN <span id="th-arrow-NAME"></span></th>
                 <th>MATERIALES</th>
-                <th>ESTADO ACTUAL</th>
-                <th>PRÓXIMA DISPONIBILIDAD (DÍA Y HORA)</th>
+                <th class="sortable" data-th="STATUS" onclick="setSort('STATUS')">ESTADO ACTUAL <span id="th-arrow-STATUS"></span></th>
+                <th class="sortable sorted-col" data-th="AVAIL" onclick="setSort('AVAIL')">PRÓXIMA DISPONIBILIDAD <span id="th-arrow-AVAIL">▲</span></th>
                 <th>RELOJ / DETALLES DE JORNADA</th>
-                <th>TV 5d / 10d (Tope 34h/68h)</th>
-                <th>TV MES (Tope 100h) / 90d</th>
-                <th>DESCANSO 36h / 7d</th>
+                <th class="sortable" data-th="REM_5D" onclick="setSort('REM_5D')">TV 5d / 10d (SALDO DISP.) <span id="th-arrow-REM_5D"></span></th>
+                <th class="sortable" data-th="REM_MONTH" onclick="setSort('REM_MONTH')">TV MES (SALDO DISP. 100h) <span id="th-arrow-REM_MONTH"></span></th>
+                <th class="sortable" data-th="REST_7D" onclick="setSort('REST_7D')">DESCANSO 36h / 7d <span id="th-arrow-REST_7D"></span></th>
               </tr>
             </thead>
             <tbody id="crewTableBody"></tbody>
@@ -742,7 +833,7 @@
 
   <script>
     /* =========================================================================
-       0. CONFIGURACIÓN INSTITUCIONAL (PEGAR AQUÍ TU CLIENT_ID DE GOOGLE CLOUD)
+       0. CONFIGURACIÓN INSTITUCIONAL
        ========================================================================= */
     const DEFAULT_GOOGLE_CLIENT_ID = "564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com";
 
@@ -784,13 +875,11 @@
       const isPlane = pilot.hab.some(h => !h.startsWith("A109"));
 
       if (mat === "A109") {
-        return "PIC"; // En helicópteros todos son PIC
+        return "PIC";
       }
       if (mat !== "TODOS") {
-        // En avión todos son PIC excepto JO, MV, SS, EM, CV
         return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
       }
-      // Vista general TODOS:
       if (isHeli && !isPlane) return "PIC";
       if (isHeli && isPlane) {
         return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC Avión / PIC Heli" : "PIC";
@@ -821,6 +910,21 @@
     let selectedStatusFilter = "ALL";
     let useLiveClock = true;
     let customEvalMs = null;
+
+    // Estado de ordenamiento actual
+    let currentSortKey = "AVAIL"; // AVAIL | REM_MONTH | REM_5D | REM_10D | REST_7D | ROLE | STATUS | NAME
+    let currentSortDir = "ASC";   // ASC | DESC
+
+    const DEFAULT_SORT_DIRECTIONS = {
+      AVAIL: "ASC",       // Disponibles inmediatos primero
+      REM_MONTH: "DESC",  // Mayor saldo de horas mensuales primero
+      REM_5D: "DESC",     // Mayor saldo de horas en 5 días primero
+      REM_10D: "DESC",    // Mayor saldo de horas en 10 días primero
+      REST_7D: "DESC",    // Mayor descanso semanal acumulado primero
+      ROLE: "ASC",        // PIC antes que SIC
+      STATUS: "ASC",      // Disponible -> En PSV -> En Descanso -> Bloqueado
+      NAME: "ASC"         // Alfabético A -> Z
+    };
 
     /* =========================================================================
        3. UTILIDADES DE TIEMPO Y FORMATO CLT
@@ -979,7 +1083,7 @@
     function getEffectiveClientId() {
       const saved = (localStorage.getItem(KEYS.CLIENT_ID) || "").trim();
       if (saved) return saved;
-      if (DEFAULT_GOOGLE__ID && !DEFAULT_GOOGLE_CLIENT_ID.startsWith("REEMPLAZAR_")) return DEFAULT_GOOGLE_CLIENT_ID;
+      if (DEFAULT_GOOGLE_CLIENT_ID && !DEFAULT_GOOGLE_CLIENT_ID.startsWith("REEMPLAZAR_")) return DEFAULT_GOOGLE_CLIENT_ID;
       return "";
     }
 
@@ -999,6 +1103,9 @@
         callback: async (resp) => {
           if (resp.error) return alert("Error Auth Google: " + resp.error);
           await fetchDriveProgresoFiles(resp.access_token);
+        },
+        error_callback: (err) => {
+          alert("No se pudo abrir la ventana de Google (" + (err.type || "popup bloqueado") + "). Habilite las ventanas emergentes en su navegador.");
         }
       });
       tokenClient.requestAccessToken({ prompt: "" });
@@ -1053,7 +1160,7 @@
     }
 
     /* =========================================================================
-       6. MOTOR DE DISPONIBILIDAD Y CUMPLIMIENTO POR PILOTO
+       6. MOTOR DE DISPONIBILIDAD, SALDOS Y ORDENAMIENTO POR PILOTO
        ========================================================================= */
     function computePilotStatus(pilot, evalMs, matFilter) {
       const allFlights = getFlights().filter(f => f.crew.includes(pilot.ini));
@@ -1087,6 +1194,12 @@
         if (d.getFullYear() === evalYear && d.getMonth() === evalMonth) minMonth += a.extFlightMin;
       });
 
+      // Saldos disponibles en minutos según topes DAN 135
+      const rem5d = Math.max(0, DAN135.MAX_5D_MIN - min5d);
+      const rem10d = Math.max(0, DAN135.MAX_10D_MIN - min10d);
+      const remMonth = Math.max(0, DAN135.MAX_MONTH_MIN - minMonth);
+      const rem90d = Math.max(0, DAN135.MAX_90D_MIN - min90d);
+
       const winStart = evalMs - 7 * 86400000;
       const busyIntervals = [];
       allFlights.forEach(f => {
@@ -1111,6 +1224,8 @@
       const maxRest7dHours = Math.round(maxFreeMs / 3600000);
 
       let category = "DISPONIBLE";
+      let statusRank = 1; // 1: Disponible, 2: En PSV, 3: En Descanso, 4: Permiso/Bloqueado, 5: Alerta
+      let availTimestamp = 0; // 0 = Inmediata
       let badgeText = "DISPONIBLE";
       let badgeClass = "st-ok";
       let availMain = "Inmediata";
@@ -1125,6 +1240,8 @@
 
       if (activeBlock) {
         category = "BLOQUEADO";
+        statusRank = 4;
+        availTimestamp = activeBlock.endMs;
         badgeText = activeBlock.type.includes("Permiso") ? "PERMISO ADM" :
                     activeBlock.type.includes("Simulador") ? "SIMULADOR" :
                     activeBlock.type.includes("Curso") ? "CURSO" :
@@ -1136,12 +1253,14 @@
         clockSub = activeBlock.note || activeBlock.type;
       } else if (activeFlight) {
         category = "EN PSV";
-        badgeText = "EN PSV";
-        badgeClass = "st-psv";
+        statusRank = 2;
         const elapsedMin = Math.round((evalMs - activeFlight.startMs) / 60000);
         const remPsvMin = Math.max(0, DAN135.PSV_NOMINAL_MIN - elapsedMin);
         const reqRestMin = calcRequiredRestMin(activeFlight.psvMin, activeFlight.baseType);
         const releaseMs = activeFlight.endMs + reqRestMin * 60000;
+        availTimestamp = releaseMs;
+        badgeText = "EN PSV";
+        badgeClass = "st-psv";
         availMain = formatCltDateTime(releaseMs);
         availSub = `Vuelo + Descanso (${formatHHMM(reqRestMin)}h)`;
         clockMain = `PSV Activo (${activeFlight.aircraft})`;
@@ -1151,6 +1270,8 @@
         const releaseMs = lastFlight.endMs + reqRestMin * 60000;
         if (evalMs < releaseMs) {
           category = "EN DESCANSO";
+          statusRank = 3;
+          availTimestamp = releaseMs;
           badgeText = "EN DESCANSO";
           badgeClass = "st-rest";
           const remRestMin = Math.ceil((releaseMs - evalMs) / 60000);
@@ -1171,6 +1292,8 @@
 
       if (limitExceeded && category === "DISPONIBLE") {
         category = "BLOQUEADO";
+        statusRank = 5;
+        availTimestamp = Number.MAX_SAFE_INTEGER;
         badgeText = "ALERTA";
         badgeClass = "st-alert";
         availMain = "No Disponible (Tope DAN 135)";
@@ -1183,6 +1306,8 @@
         pilot,
         effectiveRole,
         category,
+        statusRank,
+        availTimestamp,
         badgeText,
         badgeClass,
         availMain,
@@ -1193,8 +1318,86 @@
         min10d,
         minMonth,
         min90d,
+        rem5d,
+        rem10d,
+        remMonth,
+        rem90d,
         maxRest7dHours
       };
+    }
+
+    function setSort(key) {
+      if (currentSortKey === key) {
+        currentSortDir = currentSortDir === "ASC" ? "DESC" : "ASC";
+      } else {
+        currentSortKey = key;
+        currentSortDir = DEFAULT_SORT_DIRECTIONS[key] || "ASC";
+      }
+      updateSortIndicators();
+      renderDashboard();
+    }
+
+    function updateSortIndicators() {
+      const arrowChar = currentSortDir === "ASC" ? "▲" : "▼";
+
+      // Botones de la barra de ordenamiento
+      document.querySelectorAll(".sort-btn").forEach(btn => {
+        const key = btn.getAttribute("data-sort");
+        const isActive = key === currentSortKey;
+        btn.classList.toggle("active", isActive);
+        const arrowEl = document.getElementById(`arrow-${key}`);
+        if (arrowEl) arrowEl.textContent = isActive ? arrowChar : "";
+      });
+
+      // Encabezados de la tabla
+      document.querySelectorAll("th.sortable").forEach(th => {
+        const key = th.getAttribute("data-th");
+        const isActive = key === currentSortKey;
+        th.classList.toggle("sorted-col", isActive);
+        const thArrow = document.getElementById(`th-arrow-${key}`);
+        if (thArrow) thArrow.textContent = isActive ? arrowChar : "";
+      });
+    }
+
+    function sortEvaluatedRows(rows) {
+      const factor = currentSortDir === "ASC" ? 1 : -1;
+      return [...rows].sort((a, b) => {
+        let cmp = 0;
+        switch (currentSortKey) {
+          case "AVAIL":
+            cmp = a.availTimestamp - b.availTimestamp;
+            if (cmp === 0) cmp = b.remMonth - a.remMonth; // Desempate: más horas disponibles en el mes
+            break;
+          case "REM_MONTH":
+            cmp = a.remMonth - b.remMonth;
+            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            break;
+          case "REM_5D":
+            cmp = a.rem5d - b.rem5d;
+            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            break;
+          case "REM_10D":
+            cmp = a.rem10d - b.rem10d;
+            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            break;
+          case "REST_7D":
+            cmp = a.maxRest7dHours - b.maxRest7dHours;
+            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            break;
+          case "ROLE":
+            cmp = a.effectiveRole.localeCompare(b.effectiveRole);
+            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            break;
+          case "STATUS":
+            cmp = a.statusRank - b.statusRank;
+            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            break;
+          case "NAME":
+            cmp = a.pilot.nombre.localeCompare(b.pilot.nombre, "es");
+            break;
+        }
+        return cmp * factor;
+      });
     }
 
     /* =========================================================================
@@ -1262,11 +1465,13 @@
           ? `TABLA PRINCIPAL DE TRIPULACIONES — TODOS LOS MATERIALES (${evaluated.length})`
           : `TABLA PRINCIPAL DE TRIPULACIONES — MATERIAL ${matLabel} (${evaluated.length})`;
 
-      const filteredRows = evaluated.filter(e => {
-        if (selectedStatusFilter !== "ALL" && e.category !== selectedStatusFilter) return false;
-        if (query && !e.pilot.nombre.toLowerCase().includes(query) && !e.pilot.ini.toLowerCase().includes(query)) return false;
-        return true;
-      });
+      const filteredRows = sortEvaluatedRows(
+        evaluated.filter(e => {
+          if (selectedStatusFilter !== "ALL" && e.category !== selectedStatusFilter) return false;
+          if (query && !e.pilot.nombre.toLowerCase().includes(query) && !e.pilot.ini.toLowerCase().includes(query)) return false;
+          return true;
+        })
+      );
 
       const tbody = document.getElementById("crewTableBody");
       if (filteredRows.length === 0) {
@@ -1309,12 +1514,14 @@
               <td>
                 <div class="mini-bar-wrap">
                   <div class="mini-bar-text">5d: ${formatHoursDecimal(e.min5d)} / 10d: ${formatHoursDecimal(e.min10d)}</div>
+                  <div class="mini-bar-sub ${e.rem5d < 360 ? "low" : ""}">Disp: ${formatHoursDecimal(e.rem5d)} (5d) · ${formatHoursDecimal(e.rem10d)} (10d)</div>
                   <div class="mini-track"><div class="mini-fill" style="width:${pct5d}%; background:${color5d};"></div></div>
                 </div>
               </td>
               <td>
                 <div class="mini-bar-wrap">
                   <div class="mini-bar-text">Mes: ${formatHoursDecimal(e.minMonth)} (${pctMonth}%)</div>
+                  <div class="mini-bar-sub ${e.remMonth < 900 ? "low" : ""}">Disp. Mes: ${formatHoursDecimal(e.remMonth)}</div>
                   <div class="mini-track"><div class="mini-fill" style="width:${pctMonth}%; background:${colorMonth};"></div></div>
                 </div>
               </td>
@@ -1415,7 +1622,7 @@
       const d = new Date(evalMs);
       const monthLabel = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 
-      const headers = ["Mes", "Iniciales", "Nombre", "Funcion", "RUT", "Licencia", "Materiales", "TV_5d_Horas", "TV_10d_Horas", "TV_Mes_Horas", "TV_90d_Horas", "Descanso_Max_7d_H", "Estado_Actual"];
+      const headers = ["Mes", "Iniciales", "Nombre", "Funcion", "RUT", "Licencia", "Materiales", "TV_5d_Horas", "Disp_5d_Horas", "TV_10d_Horas", "Disp_10d_Horas", "TV_Mes_Horas", "Disp_Mes_Horas", "TV_90d_Horas", "Descanso_Max_7d_H", "Estado_Actual"];
       const rows = PILOTOS_DB.map(p => {
         const st = computePilotStatus(p, evalMs, "TODOS");
         return [
@@ -1427,8 +1634,11 @@
           p.lic,
           `"${p.hab.join("/")}"`,
           (st.min5d / 60).toFixed(1),
+          (st.rem5d / 60).toFixed(1),
           (st.min10d / 60).toFixed(1),
+          (st.rem10d / 60).toFixed(1),
           (st.minMonth / 60).toFixed(1),
+          (st.remMonth / 60).toFixed(1),
           (st.min90d / 60).toFixed(1),
           st.maxRest7dHours,
           st.badgeText
@@ -1533,6 +1743,7 @@
       if (savedCid) document.getElementById("clientIdInput").value = savedCid;
 
       updateClockTick();
+      updateSortIndicators();
       setInterval(() => {
         updateClockTick();
         if (useLiveClock) renderDashboard();
