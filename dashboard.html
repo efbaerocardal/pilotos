@@ -16,560 +16,110 @@
       --border-light: #334A7A;
       --text-main: #F1F5F9;
       --text-muted: #94A3B8;
-      --text-dim: #64748B;
       --accent-blue: #2563EB;
       --accent-blue-hover: #1D4ED8;
       --accent-cyan: #38BDF8;
-      --accent-red: #B91C1C;
-      --accent-red-bright: #EF4444;
-      --status-ok: #16A34A;
       --status-ok-bg: rgba(22, 163, 74, 0.20);
-      --status-psv: #2563EB;
       --status-psv-bg: rgba(37, 99, 235, 0.24);
-      --status-rest: #D97706;
       --status-rest-bg: rgba(217, 119, 6, 0.24);
-      --status-leave: #7C3AED;
       --status-leave-bg: rgba(124, 58, 237, 0.24);
-      --status-alert: #DC2626;
       --status-alert-bg: rgba(220, 38, 38, 0.24);
       --radius: 10px;
     }
-
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg-main);
-      color: var(--text-main);
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    /* ==================== TOP HEADER ==================== */
-    .topbar {
-      background: linear-gradient(90deg, #091020 0%, #111C35 60%, #0D162B 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .topbar-left h1 {
-      margin: 0;
-      font-size: 19px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      color: #FFFFFF;
-    }
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .live-clock {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: #CBD5E1;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      font-variant-numeric: tabular-nums;
-    }
-    .brand-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 900;
-      font-size: 17px;
-      color: #FFFFFF;
-      letter-spacing: 0.3px;
-    }
-    .brand-triangle {
-      width: 0;
-      height: 0;
-      border-left: 11px solid transparent;
-      border-right: 11px solid transparent;
-      border-bottom: 20px solid #E11D48;
-      position: relative;
-    }
-    .brand-triangle::after {
-      content: "";
-      position: absolute;
-      left: -6px;
-      top: 7px;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-bottom: 11px solid #0B1324;
-    }
-
-    .toolbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    /* ==================== BUTTONS & INPUTS ==================== */
-    .btn {
-      background: var(--bg-card);
-      color: var(--text-main);
-      border: 1px solid var(--border-light);
-      border-radius: 7px;
-      padding: 7px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg-main); color: var(--text-main); font-size: 13px; line-height: 1.4; }
+    .topbar { background: linear-gradient(90deg, #091020 0%, #111C35 60%, #0D162B 100%); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .topbar-left h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.4px; color: #FFF; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .live-clock { font-size: 12.5px; font-weight: 700; color: #CBD5E1; letter-spacing: 0.5px; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+    .brand-logo { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 17px; color: #FFF; }
+    .brand-triangle { width: 0; height: 0; border-left: 11px solid transparent; border-right: 11px solid transparent; border-bottom: 20px solid #E11D48; position: relative; }
+    .brand-triangle::after { content: ""; position: absolute; left: -6px; top: 7px; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 11px solid #0B1324; }
+    .toolbar-actions { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .btn { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-light); border-radius: 7px; padding: 7px 11px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
     .btn:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); }
     .btn-blue { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
     .btn-blue:hover { background: var(--accent-blue-hover); }
-    .btn-crimson {
-      background: linear-gradient(180deg, #DC2626 0%, #991B1B 100%);
-      border: 1px solid #F87171;
-      color: #FFFFFF;
-      width: 100%;
-      justify-content: center;
-      padding: 10px 14px;
-      font-size: 12.5px;
-      letter-spacing: 0.3px;
-    }
+    .btn-crimson { background: linear-gradient(180deg, #DC2626 0%, #991B1B 100%); border: 1px solid #F87171; color: #FFF; width: 100%; justify-content: center; padding: 10px 14px; font-size: 12.5px; }
     .btn-crimson:hover { filter: brightness(1.08); }
     .btn-sm { padding: 4px 8px; font-size: 11px; }
-
-    select, input, textarea {
-      width: 100%;
-      background: var(--bg-input);
-      color: var(--text-main);
-      border: 1px solid var(--border-light);
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 12.5px;
-      font-family: inherit;
-    }
-    select:focus, input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent-cyan);
-    }
-
-    /* ==================== MAIN WORKSPACE GRID ==================== */
-    .workspace {
-      display: grid;
-      grid-template-columns: 1fr 330px;
-      gap: 16px;
-      padding: 16px 20px;
-      max-width: 1680px;
-      margin: 0 auto;
-    }
-    @media (max-width: 1180px) {
-      .workspace { grid-template-columns: 1fr; }
-    }
-
-    /* ==================== TOP FILTER + KPI + BANNER ==================== */
-    .top-control-row {
-      display: grid;
-      grid-template-columns: 1fr 270px;
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-    @media (max-width: 900px) {
-      .top-control-row { grid-template-columns: 1fr; }
-    }
-
-    .filter-kpi-box {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      letter-spacing: 0.6px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .material-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .mat-pill {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      color: #CBD5E1;
-      padding: 7px 16px;
-      border-radius: 7px;
-      font-weight: 800;
-      font-size: 12.5px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
+    select, input, textarea { width: 100%; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-light); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; font-family: inherit; }
+    select:focus, input:focus, textarea:focus { outline: none; border-color: var(--accent-cyan); }
+    .workspace { display: grid; grid-template-columns: 1fr 325px; gap: 16px; padding: 16px 20px; max-width: 1680px; margin: 0 auto; }
+    @media (max-width: 1180px) { .workspace { grid-template-columns: 1fr; } }
+    .top-control-row { display: grid; grid-template-columns: 1fr 270px; gap: 14px; margin-bottom: 14px; }
+    @media (max-width: 900px) { .top-control-row { grid-template-columns: 1fr; } }
+    .filter-kpi-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+    .section-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .material-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .mat-pill { background: var(--bg-card); border: 1px solid var(--border-light); color: #CBD5E1; padding: 7px 15px; border-radius: 7px; font-weight: 800; font-size: 12.5px; cursor: pointer; transition: all 0.15s; }
     .mat-pill:hover { border-color: var(--accent-cyan); color: #fff; }
-    .mat-pill.active {
-      background: linear-gradient(180deg, #3B82F6 0%, #1D4ED8 100%);
-      border-color: #60A5FA;
-      color: #FFFFFF;
-      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
-    }
-
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    @media (max-width: 720px) {
-      .kpi-row { grid-template-columns: repeat(2, 1fr); }
-    }
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.15s;
-    }
+    .mat-pill.active { background: linear-gradient(180deg, #3B82F6 0%, #1D4ED8 100%); border-color: #60A5FA; color: #FFF; box-shadow: 0 0 12px rgba(59, 130, 246, 0.35); }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 720px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; cursor: pointer; transition: border-color 0.15s; }
     .kpi-card:hover { border-color: var(--accent-cyan); }
     .kpi-card.active-filter { border-color: var(--accent-cyan); background: #1E3158; }
-    .kpi-title {
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: #CBD5E1;
-      letter-spacing: 0.3px;
-    }
-    .kpi-num {
-      font-size: 24px;
-      font-weight: 900;
-      color: #FFFFFF;
-      margin-top: 2px;
-      font-variant-numeric: tabular-nums;
-    }
-    .kpi-sub {
-      font-size: 10.5px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    /* OPS DISPATCH TIME SIMULATOR / TELEMETRY CARD */
-    .ops-sim-card {
-      background: linear-gradient(145deg, #162442 0%, #0E172B 100%);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .ops-sim-title {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-
-    /* ==================== MAIN CREW TABLE & SORT BAR ==================== */
-    .table-panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-    }
-    .table-header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .table-header-bar h2 {
-      margin: 0;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      color: #FFFFFF;
-    }
-
-    .sort-bar {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 8px 10px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-    .sort-bar-label {
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      letter-spacing: 0.4px;
-      margin-right: 4px;
-    }
-    .sort-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      color: #CBD5E1;
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s ease;
-    }
-    .sort-btn:hover {
-      border-color: var(--accent-cyan);
-      color: #FFFFFF;
-      background: var(--bg-card-hover);
-    }
-    .sort-btn.active {
-      background: rgba(56, 189, 248, 0.18);
-      border-color: var(--accent-cyan);
-      color: #FFFFFF;
-      box-shadow: 0 0 8px rgba(56, 189, 248, 0.22);
-    }
-    .sort-arrow {
-      font-size: 10px;
-      color: var(--accent-cyan);
-      font-weight: 900;
-    }
-
-    .table-scroll {
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-variant-numeric: tabular-nums;
-    }
-    th {
-      text-align: left;
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--border-light);
-      white-space: nowrap;
-      user-select: none;
-    }
-    th.sortable {
-      cursor: pointer;
-      transition: color 0.15s;
-    }
-    th.sortable:hover {
-      color: var(--accent-cyan);
-    }
-    th.sorted-col {
-      color: #FFFFFF;
-      border-bottom-color: var(--accent-cyan);
-    }
-    td {
-      padding: 10px 10px;
-      border-bottom: 1px solid rgba(38, 56, 94, 0.65);
-      vertical-align: middle;
-    }
+    .kpi-title { font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: #CBD5E1; letter-spacing: 0.3px; }
+    .kpi-num { font-size: 24px; font-weight: 900; color: #FFF; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .kpi-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+    .ops-sim-card { background: linear-gradient(145deg, #162442 0%, #0E172B 100%); border: 1px solid var(--border-light); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; }
+    .ops-sim-title { font-size: 11px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .table-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+    .table-header-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .table-header-bar h2 { margin: 0; font-size: 14px; font-weight: 800; letter-spacing: 0.4px; color: #FFF; }
+    .sort-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; }
+    .sort-bar-label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-right: 4px; }
+    .sort-btn { background: var(--bg-card); border: 1px solid var(--border-light); color: #CBD5E1; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+    .sort-btn:hover { border-color: var(--accent-cyan); color: #FFF; background: var(--bg-card-hover); }
+    .sort-btn.active { background: rgba(56, 189, 248, 0.18); border-color: var(--accent-cyan); color: #FFF; }
+    .sort-arrow { font-size: 10px; color: var(--accent-cyan); font-weight: 900; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th { text-align: left; font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 1px solid var(--border-light); white-space: nowrap; user-select: none; }
+    th.sortable { cursor: pointer; }
+    th.sortable:hover { color: var(--accent-cyan); }
+    th.sorted-col { color: #FFF; border-bottom-color: var(--accent-cyan); }
+    td { padding: 10px 10px; border-bottom: 1px solid rgba(38, 56, 94, 0.65); vertical-align: middle; }
     tr:hover td { background: rgba(30, 47, 84, 0.55); }
-
-    .pilot-cell {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 185px;
-    }
-    .pilot-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1E3A8A, #0284C7);
-      border: 1.5px solid #60A5FA;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 12px;
-      color: #FFFFFF;
-      flex-shrink: 0;
-    }
-    .pilot-name {
-      font-weight: 700;
-      color: #FFFFFF;
-      font-size: 13px;
-    }
-    .pilot-role {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .mat-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      max-width: 155px;
-    }
-    .mat-tag {
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.30);
-      color: #BAE6FD;
-      font-size: 10.5px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 4px;
-    }
-
-    .status-pill {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 99px;
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      white-space: nowrap;
-      border: 1px solid transparent;
-    }
+    .pilot-cell { display: flex; align-items: center; gap: 10px; min-width: 195px; }
+    .pilot-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1E3A8A, #0284C7); border: 1.5px solid #60A5FA; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: #FFF; flex-shrink: 0; }
+    .pilot-name { font-weight: 700; color: #FFF; font-size: 13px; }
+    .pilot-role { font-size: 11px; color: var(--text-muted); }
+    .mat-tags { display: flex; flex-wrap: wrap; gap: 4px; max-width: 155px; }
+    .mat-tag { background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.30); color: #BAE6FD; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+    .status-pill { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; border: 1px solid transparent; }
     .st-ok { background: var(--status-ok-bg); color: #4ADE80; border-color: rgba(74, 222, 128, 0.4); }
     .st-psv { background: var(--status-psv-bg); color: #60A5FA; border-color: rgba(96, 165, 250, 0.45); }
     .st-rest { background: var(--status-rest-bg); color: #FBBF24; border-color: rgba(251, 191, 36, 0.45); }
     .st-leave { background: var(--status-leave-bg); color: #C084FC; border-color: rgba(192, 132, 252, 0.45); }
     .st-alert { background: var(--status-alert-bg); color: #F87171; border-color: rgba(248, 113, 113, 0.5); }
-
     .avail-main { font-weight: 700; color: #F8FAFC; font-size: 12.5px; white-space: nowrap; }
     .avail-sub { font-size: 11px; color: var(--text-muted); }
-
     .mini-bar-wrap { min-width: 135px; }
     .mini-bar-text { font-size: 11px; font-weight: 700; color: #E2E8F0; margin-bottom: 2px; white-space: nowrap; }
     .mini-bar-sub { font-size: 10.5px; color: #4ADE80; font-weight: 700; margin-bottom: 3px; white-space: nowrap; }
     .mini-bar-sub.low { color: #F87171; }
-    .mini-track {
-      height: 6px;
-      background: #0B1324;
-      border-radius: 99px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
+    .mini-track { height: 6px; background: #0B1324; border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
     .mini-fill { height: 100%; border-radius: 99px; }
-
     .rest7-ok { color: #4ADE80; font-weight: 800; font-size: 12px; white-space: nowrap; }
     .rest7-warn { color: #F87171; font-weight: 800; font-size: 12px; white-space: nowrap; }
-
-    /* ==================== RIGHT SIDEBAR (PERMISOS Y ACTIVIDADES) ==================== */
-    .sidebar-panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar-header {
-      background: linear-gradient(90deg, #991B1B 0%, #7F1D1D 100%);
-      padding: 11px 14px;
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #FFFFFF;
-      border-bottom: 1px solid #B91C1C;
-    }
-    .sidebar-body {
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 11px;
-    }
-    .form-field label {
-      display: block;
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      letter-spacing: 0.4px;
-    }
-    .dt-pair {
-      display: grid;
-      grid-template-columns: 1.25fr 0.85fr;
-      gap: 6px;
-    }
-
-    .active-blocks-list {
-      border-top: 1px solid var(--border);
-      padding-top: 10px;
-      margin-top: 4px;
-    }
-    .block-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-left: 3px solid #A855F7;
-      border-radius: 6px;
-      padding: 7px 9px;
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      font-size: 11.5px;
-    }
-
-    /* ==================== MODALS ==================== */
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(5, 10, 20, 0.80);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
+    .sidebar-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+    .sidebar-header { background: linear-gradient(90deg, #991B1B 0%, #7F1D1D 100%); padding: 11px 14px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #FFF; border-bottom: 1px solid #B91C1C; }
+    .sidebar-body { padding: 14px; display: flex; flex-direction: column; gap: 11px; }
+    .form-field label { display: block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.4px; }
+    .dt-pair { display: grid; grid-template-columns: 1.25fr 0.85fr; gap: 6px; }
+    .active-blocks-list { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; }
+    .block-item { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid #A855F7; border-radius: 6px; padding: 7px 9px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 11.5px; }
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.80); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
     .modal-backdrop.open { display: flex; }
-    .modal-card {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      width: 100%;
-      max-width: 720px;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 18px;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.6);
-    }
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 10px;
-      margin-bottom: 14px;
-    }
-    .modal-head h3 { margin: 0; font-size: 15px; color: #FFFFFF; }
+    .modal-card { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: 12px; width: 100%; max-width: 740px; max-height: 90vh; overflow-y: auto; padding: 18px; box-shadow: 0 12px 35px rgba(0,0,0,0.6); }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px; }
+    .modal-head h3 { margin: 0; font-size: 15px; color: #FFF; }
   </style>
 </head>
 <body>
 
-  <!-- TOP HEADER -->
   <header class="topbar">
     <div class="topbar-left">
       <h1>AEROCARDAL - CONTROL OPERACIONAL TRIPULACIONES (DAN 135)</h1>
@@ -592,12 +142,8 @@
     </div>
   </header>
 
-  <!-- MAIN WORKSPACE -->
   <div class="workspace">
-
-    <!-- LEFT / CENTER COLUMN -->
     <div>
-      <!-- TOP FILTER & KPI ROW -->
       <div class="top-control-row">
         <div class="filter-kpi-box">
           <div class="section-label">
@@ -633,12 +179,11 @@
             <div class="kpi-card" id="kpiCardBlock" onclick="toggleStatusFilter('BLOQUEADO')">
               <div class="kpi-title" id="kpiLabelBlock">BLOQUEADOS / PERMISOS (0)</div>
               <div class="kpi-num" id="kpiNumBlock" style="color:#C084FC;">0</div>
-              <div class="kpi-sub" id="kpiSubBlock">Permisos / Alertas</div>
+              <div class="kpi-sub">Permisos / Alertas</div>
             </div>
           </div>
         </div>
 
-        <!-- DISPATCH REFERENCE TIME / QUICK PROJECTION CARD -->
         <div class="ops-sim-card">
           <div>
             <div class="ops-sim-title">🕒 Horario de Evaluación Despacho</div>
@@ -657,21 +202,22 @@
         </div>
       </div>
 
-      <!-- MAIN CREW TABLE -->
       <div class="table-panel">
         <div class="table-header-bar">
           <h2 id="tableMainTitle">TABLA PRINCIPAL DE TRIPULACIONES — TODOS LOS MATERIALES</h2>
           <div style="display:flex; gap:8px; align-items:center;">
-            <input type="text" id="searchPilotInput" placeholder="Buscar piloto o iniciales..." style="width:200px; padding:5px 10px;" oninput="renderDashboard()" />
+            <input type="text" id="searchPilotInput" placeholder="Buscar apellido, nombre o ini..." style="width:210px; padding:5px 10px;" oninput="renderDashboard()" />
             <button class="btn btn-sm" id="btnClearStatusFilter" style="display:none;" onclick="toggleStatusFilter('ALL')">Ver Todos</button>
           </div>
         </div>
 
-        <!-- BARRA DE BOTONES DE ORDENAMIENTO -->
         <div class="sort-bar" id="sortBar">
           <span class="sort-bar-label">Ordenar por:</span>
           <button class="sort-btn active" data-sort="AVAIL" onclick="setSort('AVAIL')">
             Disponibilidad <span class="sort-arrow" id="arrow-AVAIL">▲</span>
+          </button>
+          <button class="sort-btn" data-sort="NAME" onclick="setSort('NAME')">
+            Apellido <span class="sort-arrow" id="arrow-NAME"></span>
           </button>
           <button class="sort-btn" data-sort="REM_MONTH" onclick="setSort('REM_MONTH')">
             Horas Disp. Mes (100h) <span class="sort-arrow" id="arrow-REM_MONTH"></span>
@@ -688,16 +234,13 @@
           <button class="sort-btn" data-sort="ROLE" onclick="setSort('ROLE')">
             Función (PIC/SIC) <span class="sort-arrow" id="arrow-ROLE"></span>
           </button>
-          <button class="sort-btn" data-sort="NAME" onclick="setSort('NAME')">
-            Nombre <span class="sort-arrow" id="arrow-NAME"></span>
-          </button>
         </div>
 
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
-                <th class="sortable" data-th="NAME" onclick="setSort('NAME')">PILOTO / FUNCIÓN <span id="th-arrow-NAME"></span></th>
+                <th class="sortable" data-th="NAME" onclick="setSort('NAME')">APELLIDO, NOMBRE / FUNCIÓN <span id="th-arrow-NAME"></span></th>
                 <th>MATERIALES</th>
                 <th class="sortable" data-th="STATUS" onclick="setSort('STATUS')">ESTADO ACTUAL <span id="th-arrow-STATUS"></span></th>
                 <th class="sortable sorted-col" data-th="AVAIL" onclick="setSort('AVAIL')">PRÓXIMA DISPONIBILIDAD <span id="th-arrow-AVAIL">▲</span></th>
@@ -713,17 +256,13 @@
       </div>
     </div>
 
-    <!-- RIGHT SIDEBAR: REGISTRO DE PERMISOS Y ACTIVIDADES -->
     <aside class="sidebar-panel">
-      <div class="sidebar-header">
-        REGISTRO DE PERMISOS Y ACTIVIDADES
-      </div>
+      <div class="sidebar-header">REGISTRO DE PERMISOS Y ACTIVIDADES</div>
       <div class="sidebar-body">
         <div class="form-field">
-          <label for="actPilot">PILOTO</label>
+          <label for="actPilot">PILOTO (APELLIDO, NOMBRE)</label>
           <select id="actPilot"></select>
         </div>
-
         <div class="form-field">
           <label for="actType">TIPO DE ACTIVIDAD</label>
           <select id="actType" onchange="toggleExternalHoursField()">
@@ -735,12 +274,10 @@
             <option value="Vuelo Externo (DAN 135.605 b)">Vuelo Externo / No Comercial (135.605 b)</option>
           </select>
         </div>
-
         <div class="form-field" id="extHoursWrap" style="display:none;">
           <label for="actExtHours">HORAS DE VUELO EXTERNAS (HH:MM)</label>
           <input type="time" id="actExtHours" value="01:30" />
         </div>
-
         <div class="form-field">
           <label>FECHA Y HORA INICIO</label>
           <div class="dt-pair">
@@ -748,7 +285,6 @@
             <input type="time" id="actStartTime" value="08:00" />
           </div>
         </div>
-
         <div class="form-field">
           <label>FECHA Y HORA TÉRMINO</label>
           <div class="dt-pair">
@@ -756,16 +292,11 @@
             <input type="time" id="actEndTime" value="18:00" />
           </div>
         </div>
-
         <div class="form-field">
           <label for="actNote">DETALLE / OBSERVACIÓN</label>
           <input type="text" id="actNote" placeholder="Ej. Trámite personal / Recurrent SIM..." />
         </div>
-
-        <button class="btn btn-crimson" onclick="saveCrewActivity()">
-          💾 GUARDAR ACTIVIDAD / BLOQUEO
-        </button>
-
+        <button class="btn btn-crimson" onclick="saveCrewActivity()">💾 GUARDAR ACTIVIDAD / BLOQUEO</button>
         <div class="active-blocks-list">
           <div class="section-label" style="margin-bottom:6px;">
             <span>ACTIVIDADES ACTIVAS HOY</span>
@@ -781,7 +312,7 @@
   <div class="modal-backdrop" id="modalPovs">
     <div class="modal-card">
       <div class="modal-head">
-        <h3>📋 Vuelos POV Cargados en Memoria</h3>
+        <h3>📋 Vuelos POV Cargados desde Drive (00_POV)</h3>
         <button class="btn btn-sm" onclick="closeModal('modalPovs')">✕</button>
       </div>
       <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">
@@ -809,7 +340,7 @@
     </div>
   </div>
 
-  <!-- MODAL: INFORME EXCESO 96 HORAS (DAN 135.605 a 5) -->
+  <!-- MODAL: INFORME EXCESO 96 HORAS -->
   <div class="modal-backdrop" id="modalExcess96">
     <div class="modal-card">
       <div class="modal-head">
@@ -817,7 +348,7 @@
         <button class="btn btn-sm" onclick="closeModal('modalExcess96')">✕</button>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-        <div class="form-field"><label>P.O.V. N°</label><input type="text" id="excPov" placeholder="Ej. 1245" /></div>
+        <div class="form-field"><label>P.O.V. N°</label><input type="text" id="excPov" placeholder="Ej. 9002" /></div>
         <div class="form-field"><label>Fecha Vuelo</label><input type="date" id="excDate" /></div>
         <div class="form-field"><label>Piloto al Mando (PIC)</label><select id="excPic"></select></div>
         <div class="form-field"><label>Copiloto (SIC)</label><select id="excFo"></select></div>
@@ -843,7 +374,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIGURACIÓN GOOGLE DRIVE CLIENT ID -->
+  <!-- MODAL: CONFIGURACIÓN GOOGLE DRIVE -->
   <div class="modal-backdrop" id="modalConfig">
     <div class="modal-card" style="max-width:500px;">
       <div class="modal-head">
@@ -874,33 +405,33 @@
     const DEFAULT_GOOGLE_CLIENT_ID = "564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com";
 
     /* =========================================================================
-       1. BASE DE DATOS DE TRIPULACIONES AEROCARDAL (22 PILOTOS)
+       1. BASE DE DATOS DE TRIPULACIONES (FORMATO: APELLIDO, NOMBRE)
        ========================================================================= */
     const AIRPLANE_SIC_LIST = ["JO", "MV", "SS", "EM", "CV"];
 
     const PILOTOS_DB = [
-      { ini: "JA", nombre: "José Arellano", full: "José Arellano G.", rut: "8.621.855-0", lic: "TLA 1641", hab: ["D-228", "PC-12", "A109S", "A109SP"] },
-      { ini: "SS", nombre: "Sebastian Saez", full: "Sebastian Saez X.", rut: "17.090.129-0", lic: "PCA 3535", hab: ["L-410"] },
-      { ini: "FC", nombre: "Felipe Casasempere", full: "Felipe Casasempere G.", rut: "15.781.258-0", lic: "TLA 2114", hab: ["D-228", "L-410", "PC-12"] },
-      { ini: "AC", nombre: "Alfredo Castro", full: "Alfredo Castro C.", rut: "7.155.617-4", lic: "TLA 920", hab: ["D-228", "G-150"] },
-      { ini: "RE", nombre: "Ricardo Espinosa", full: "Ricardo Espinosa U.", rut: "6.827.727-2", lic: "TLA 674", hab: ["D-228", "G-150"] },
-      { ini: "IF", nombre: "Iván Fabry", full: "Iván Fabry R.", rut: "6.111.339-8", lic: "TLA 1359", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "FG", nombre: "Felipe Guiñez", full: "Felipe Guiñez A.", rut: "15.771.343-4", lic: "TLA 2217", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "EI", nombre: "Esteban Inostroza", full: "Esteban Inostroza L.", rut: "12.120.521-1", lic: "TLA 1256", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "AK", nombre: "Alexander Kaufmann", full: "Alexander Kaufmann R.", rut: "6.926.596-0", lic: "PCA 4185", hab: ["G-150", "PC-12"] },
-      { ini: "EM", nombre: "Enrique Mancini", full: "Enrique Mancini A.", rut: "19.310.398-7", lic: "PCA 4148", hab: ["D-228", "L-410", "PC-12"] },
-      { ini: "NM", nombre: "Nicolás Mohr", full: "Nicolás Mohr S.", rut: "18.239.044-5", lic: "TLA 2064", hab: ["D-228", "G-150", "PC-12", "PC-24"] },
-      { ini: "CM", nombre: "Claudio Muñoz", full: "Claudio Muñoz P.", rut: "7.999.795-1", lic: "TLA 921", hab: ["D-228", "PC-12", "L-410"] },
-      { ini: "FE", nombre: "Francisco Esquivel", full: "Francisco Esquivel C.", rut: "10.609.692-9", lic: "TLA 1899", hab: ["PC-24"] },
-      { ini: "JO", nombre: "José Oyarzún", full: "José Oyarzún M.", rut: "16.239.897-0", lic: "TLA 2387", hab: ["PC-24", "L-410"] },
-      { ini: "FCh", nombre: "Fernando Chacana", full: "Fernando Chacana X.", rut: "15.343.206-6", lic: "PCA 2604", hab: ["PC-12"] },
-      { ini: "MS", nombre: "Mauricio Solano", full: "Mauricio Solano P.", rut: "14.322.271-3", lic: "TLA 1657", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "CV", nombre: "Cristhian Vásquez", full: "Cristhian Vásquez F.", rut: "15.549.870-6", lic: "PCA 3435", hab: ["D-228", "L-410", "A109S", "A109SP"] },
-      { ini: "MV", nombre: "Matías Vega", full: "Matías Vega C.", rut: "16.510.381-5", lic: "TLA 2420", hab: ["L-410", "G-150"] },
-      { ini: "KW", nombre: "Klaus Wobbe", full: "Klaus Wobbe S.", rut: "14.103.915-6", lic: "TLA 1741", hab: ["D-228", "G-150", "L-410", "PC-24"] },
-      { ini: "CB", nombre: "Cristobal Briones", full: "Cristobal Briones B.", rut: "10.345.076-4", lic: "TLA 2740", hab: ["PC-24"] },
-      { ini: "CG", nombre: "Claudio Gonzalez", full: "Claudio Gonzalez", rut: "12.217.126-4", lic: "372", hab: ["A109S", "A109SP"] },
-      { ini: "JPA", nombre: "Juan Pablo Arevalo", full: "Juan Pablo Arevalo", rut: "11.371.016-0", lic: "40", hab: ["A109S", "A109SP"] }
+      { ini: "JA", apellido: "Arellano", nombrePila: "José", displayName: "Arellano, José", full: "Arellano G., José", rut: "8.621.855-0", lic: "TLA 1641", hab: ["D-228", "PC-12", "A109S", "A109SP"] },
+      { ini: "JPA", apellido: "Arevalo", nombrePila: "Juan Pablo", displayName: "Arevalo, Juan Pablo", full: "Arevalo, Juan Pablo", rut: "11.371.016-0", lic: "40", hab: ["A109S", "A109SP"] },
+      { ini: "CB", apellido: "Briones", nombrePila: "Cristobal", displayName: "Briones, Cristobal", full: "Briones B., Cristobal", rut: "10.345.076-4", lic: "TLA 2740", hab: ["PC-24"] },
+      { ini: "FC", apellido: "Casasempere", nombrePila: "Felipe", displayName: "Casasempere, Felipe", full: "Casasempere G., Felipe", rut: "15.781.258-0", lic: "TLA 2114", hab: ["D-228", "L-410", "PC-12"] },
+      { ini: "AC", apellido: "Castro", nombrePila: "Alfredo", displayName: "Castro, Alfredo", full: "Castro C., Alfredo", rut: "7.155.617-4", lic: "TLA 920", hab: ["D-228", "G-150"] },
+      { ini: "FCh", apellido: "Chacana", nombrePila: "Fernando", displayName: "Chacana, Fernando", full: "Chacana X., Fernando", rut: "15.343.206-6", lic: "PCA 2604", hab: ["PC-12"] },
+      { ini: "RE", apellido: "Espinosa", nombrePila: "Ricardo", displayName: "Espinosa, Ricardo", full: "Espinosa U., Ricardo", rut: "6.827.727-2", lic: "TLA 674", hab: ["D-228", "G-150"] },
+      { ini: "FE", apellido: "Esquivel", nombrePila: "Francisco", displayName: "Esquivel, Francisco", full: "Esquivel C., Francisco", rut: "10.609.692-9", lic: "TLA 1899", hab: ["PC-24"] },
+      { ini: "IF", apellido: "Fabry", nombrePila: "Iván", displayName: "Fabry, Iván", full: "Fabry R., Iván", rut: "6.111.339-8", lic: "TLA 1359", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "CG", apellido: "Gonzalez", nombrePila: "Claudio", displayName: "Gonzalez, Claudio", full: "Gonzalez, Claudio", rut: "12.217.126-4", lic: "372", hab: ["A109S", "A109SP"] },
+      { ini: "FG", apellido: "Guiñez", nombrePila: "Felipe", displayName: "Guiñez, Felipe", full: "Guiñez A., Felipe", rut: "15.771.343-4", lic: "TLA 2217", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "EI", apellido: "Inostroza", nombrePila: "Esteban", displayName: "Inostroza, Esteban", full: "Inostroza L., Esteban", rut: "12.120.521-1", lic: "TLA 1256", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "AK", apellido: "Kaufmann", nombrePila: "Alexander", displayName: "Kaufmann, Alexander", full: "Kaufmann R., Alexander", rut: "6.926.596-0", lic: "PCA 4185", hab: ["G-150", "PC-12"] },
+      { ini: "EM", apellido: "Mancini", nombrePila: "Enrique", displayName: "Mancini, Enrique", full: "Mancini A., Enrique", rut: "19.310.398-7", lic: "PCA 4148", hab: ["D-228", "L-410", "PC-12"] },
+      { ini: "NM", apellido: "Mohr", nombrePila: "Nicolás", displayName: "Mohr, Nicolás", full: "Mohr S., Nicolás", rut: "18.239.044-5", lic: "TLA 2064", hab: ["D-228", "G-150", "PC-12", "PC-24"] },
+      { ini: "CM", apellido: "Muñoz", nombrePila: "Claudio", displayName: "Muñoz, Claudio", full: "Muñoz P., Claudio", rut: "7.999.795-1", lic: "TLA 921", hab: ["D-228", "PC-12", "L-410"] },
+      { ini: "JO", apellido: "Oyarzún", nombrePila: "José", displayName: "Oyarzún, José", full: "Oyarzún M., José", rut: "16.239.897-0", lic: "TLA 2387", hab: ["PC-24", "L-410"] },
+      { ini: "SS", apellido: "Saez", nombrePila: "Sebastian", displayName: "Saez, Sebastian", full: "Saez X., Sebastian", rut: "17.090.129-0", lic: "PCA 3535", hab: ["L-410"] },
+      { ini: "MS", apellido: "Solano", nombrePila: "Mauricio", displayName: "Solano, Mauricio", full: "Solano P., Mauricio", rut: "14.322.271-3", lic: "TLA 1657", hab: ["D-228", "G-150", "L-410"] },
+      { ini: "CV", apellido: "Vásquez", nombrePila: "Cristhian", displayName: "Vásquez, Cristhian", full: "Vásquez F., Cristhian", rut: "15.549.870-6", lic: "PCA 3435", hab: ["D-228", "L-410", "A109S", "A109SP"] },
+      { ini: "MV", apellido: "Vega", nombrePila: "Matías", displayName: "Vega, Matías", full: "Vega C., Matías", rut: "16.510.381-5", lic: "TLA 2420", hab: ["L-410", "G-150"] },
+      { ini: "KW", apellido: "Wobbe", nombrePila: "Klaus", displayName: "Wobbe, Klaus", full: "Wobbe S., Klaus", rut: "14.103.915-6", lic: "TLA 1741", hab: ["D-228", "G-150", "L-410", "PC-24"] }
     ];
 
     function normalizeStr(s) {
@@ -912,7 +443,12 @@
       if (!clean) return "";
       const byIni = PILOTOS_DB.find(p => normalizeStr(p.ini) === clean);
       if (byIni) return byIni.ini.toUpperCase();
-      const byName = PILOTOS_DB.find(p => normalizeStr(p.nombre) === clean || normalizeStr(p.full).includes(clean));
+      const byName = PILOTOS_DB.find(p =>
+        normalizeStr(p.displayName) === clean ||
+        normalizeStr(`${p.nombrePila} ${p.apellido}`) === clean ||
+        normalizeStr(p.apellido) === clean ||
+        normalizeStr(p.full).includes(clean)
+      );
       if (byName) return byName.ini.toUpperCase();
       return clean;
     }
@@ -920,7 +456,6 @@
     function getPilotRoleForMaterial(pilot, mat) {
       const isHeli = pilot.hab.some(h => h.startsWith("A109"));
       const isPlane = pilot.hab.some(h => !h.startsWith("A109"));
-
       if (mat === "A109") return "PIC";
       if (mat !== "TODOS") return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
       if (isHeli && !isPlane) return "PIC";
@@ -937,7 +472,6 @@
       MAX_MONTH_MIN: 100 * 60,
       MAX_90D_MIN: 270 * 60,
       PSV_NOMINAL_MIN: 12 * 60,
-      PSV_MAX_2P_MIN: 14 * 60,
       REST_TABLE: { 7:10, 8:12, 9:13, 10:14, 11:15, 12:15, 13:16, 14:17, 15:17, 16:18, 17:19, 18:20 }
     };
 
@@ -954,19 +488,18 @@
     let selectedStatusFilter = "ALL";
     let useLiveClock = true;
     let customEvalMs = null;
-
     let currentSortKey = "AVAIL";
     let currentSortDir = "ASC";
 
     const DEFAULT_SORT_DIRECTIONS = {
       AVAIL: "ASC",
+      NAME: "ASC",
       REM_MONTH: "DESC",
       REM_5D: "DESC",
       REM_10D: "DESC",
       REST_7D: "DESC",
       ROLE: "ASC",
-      STATUS: "ASC",
-      NAME: "ASC"
+      STATUS: "ASC"
     };
 
     /* =========================================================================
@@ -983,13 +516,9 @@
       if (!dateStr) return new Date().toISOString().slice(0, 10);
       const s = dateStr.toString().trim();
       const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
-      if (isoMatch) {
-        return `${isoMatch[1]}-${isoMatch[2].padStart(2, "0")}-${isoMatch[3].padStart(2, "0")}`;
-      }
+      if (isoMatch) return `${isoMatch[1]}-${isoMatch[2].padStart(2, "0")}-${isoMatch[3].padStart(2, "0")}`;
       const dmyMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
-      if (dmyMatch) {
-        return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, "0")}-${dmyMatch[1].padStart(2, "0")}`;
-      }
+      if (dmyMatch) return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, "0")}-${dmyMatch[1].padStart(2, "0")}`;
       return new Date().toISOString().slice(0, 10);
     }
 
@@ -1002,10 +531,8 @@
       const hh = String(now.getHours()).padStart(2, "0");
       const mm = String(now.getMinutes()).padStart(2, "0");
       document.getElementById("liveClockDisplay").textContent = `${dia} ${dd} DE ${mes} DE ${yyyy}, ${hh}:${mm} CLT`;
-
       if (useLiveClock) {
-        const isoDate = `${yyyy}-${String(now.getMonth() + 1).padStart(2, "0")}-${dd}`;
-        document.getElementById("evalDate").value = isoDate;
+        document.getElementById("evalDate").value = `${yyyy}-${String(now.getMonth() + 1).padStart(2, "0")}-${dd}`;
         document.getElementById("evalTime").value = `${hh}:${mm}`;
       }
     }
@@ -1023,9 +550,7 @@
 
     function formatHHMM(totalMin) {
       const abs = Math.max(0, Math.round(totalMin));
-      const h = Math.floor(abs / 60);
-      const m = abs % 60;
-      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+      return `${String(Math.floor(abs / 60)).padStart(2, "0")}:${String(abs % 60).padStart(2, "0")}`;
     }
 
     function formatHoursDecimal(totalMin) {
@@ -1033,7 +558,7 @@
     }
 
     function parseHHMMToMin(str) {
-      if (!str) return null;
+      if (str === null || str === undefined) return null;
       const clean = str.toString().trim().replace(/[^0-9]/g, "");
       if (clean.length < 3) return null;
       const p = clean.padStart(4, "0").slice(0, 4);
@@ -1046,62 +571,104 @@
     function calcRequiredRestMin(psvMin, baseType = "BASE") {
       const hCeil = Math.max(7, Math.min(18, Math.ceil(psvMin / 60)));
       const tableH = DAN135.REST_TABLE[hCeil] || 10;
-      const buffer = baseType === "POSTA" ? 20 : 45;
-      return tableH * 60 + buffer;
+      return tableH * 60 + (baseType === "POSTA" ? 20 : 45);
     }
 
     /* =========================================================================
-       4. PERSISTENCIA Y PARSEO DE Progreso.json EN UTC (EFB -> DASHBOARD CLT)
+       4. PARSER DE Progreso.json (SOPORTA globals, legs, legData Y UTC -> CLT)
        ========================================================================= */
     function getFlights() {
       try { return JSON.parse(localStorage.getItem(KEYS.FLIGHTS)) || []; } catch { return []; }
     }
-    function saveFlights(list) {
-      localStorage.setItem(KEYS.FLIGHTS, JSON.stringify(list));
-    }
+    function saveFlights(list) { localStorage.setItem(KEYS.FLIGHTS, JSON.stringify(list)); }
     function getActivities() {
       try { return JSON.parse(localStorage.getItem(KEYS.ACTIVITIES)) || []; } catch { return []; }
     }
-    function saveActivities(list) {
-      localStorage.setItem(KEYS.ACTIVITIES, JSON.stringify(list));
+    function saveActivities(list) { localStorage.setItem(KEYS.ACTIVITIES, JSON.stringify(list)); }
+
+    function pickField(obj, exactKeys, regexFallback) {
+      if (!obj || typeof obj !== "object") return "";
+      const keys = Object.keys(obj);
+      for (const candidate of exactKeys) {
+        const foundKey = keys.find(k => k.toLowerCase() === candidate.toLowerCase());
+        if (foundKey && obj[foundKey] !== null && obj[foundKey] !== undefined && String(obj[foundKey]).trim() !== "") {
+          return String(obj[foundKey]).trim();
+        }
+      }
+      if (regexFallback) {
+        const foundRegexKey = keys.find(k => regexFallback.test(k) && obj[k] !== null && obj[k] !== undefined && String(obj[k]).trim() !== "");
+        if (foundRegexKey) return String(obj[foundRegexKey]).trim();
+      }
+      return "";
     }
 
-    function parseEfbProgressJson(raw) {
-      if (!raw || typeof raw !== "object") return [];
-      const src = raw.datosVuelo ? { ...raw, ...raw.datosVuelo } : raw;
+    function extractLegList(raw) {
+      if (Array.isArray(raw.legData) && raw.legData.length > 0 && typeof raw.legData[0] === "object") {
+        return raw.legData;
+      }
+      if (raw.legData && typeof raw.legData === "object" && !Array.isArray(raw.legData)) {
+        const vals = Object.values(raw.legData).filter(v => v && typeof v === "object");
+        if (vals.length > 0) return vals;
+      }
+      if (Array.isArray(raw.legs) && raw.legs.length > 0 && typeof raw.legs[0] === "object") {
+        return raw.legs;
+      }
+      if (raw.legs && typeof raw.legs === "object" && !Array.isArray(raw.legs)) {
+        const vals = Object.values(raw.legs).filter(v => v && typeof v === "object");
+        if (vals.length > 0) return vals;
+      }
+      if (Array.isArray(raw.tramos)) return raw.tramos;
+      return [];
+    }
 
-      const pov = (src.pov || src.povNumber || src.numeroPov || src.nroPov || "SIN-POV").toString().trim();
-      const matRaw = (src.matricula || src.aircraft || src.avion || "XXX").toString().trim().toUpperCase();
+    function parseEfbProgressJson(raw, folderPovHint = "") {
+      if (!raw || typeof raw !== "object") return [];
+      const g = (raw.globals && typeof raw.globals === "object") ? raw.globals : {};
+      const src = { ...raw, ...g };
+
+      let pov = pickField(src, ["pov", "povNumber", "numeroPov", "nroPov", "inpPov", "flightPov"], /pov/i);
+      if (!pov && folderPovHint) pov = folderPovHint;
+      if (!pov) pov = "SIN-POV";
+
+      const matRaw = pickField(src, ["matricula", "mat", "aircraft", "avion", "inpMat", "inpMatricula"], /matric|aircraft|avion/i).toUpperCase() || "XXX";
       const aircraft = matRaw.startsWith("CC-") ? matRaw : `CC-${matRaw}`;
 
-      const cap = resolvePilotIni(src.capitan || src.cap || src.pic || src.comandante);
-      const fo = resolvePilotIni(src.fo || src.sic || src.copiloto || src.primerOficial);
-      const fo2 = resolvePilotIni(src.fo2 || src.sic2 || src.refuerzo || src.tripReforzada);
-      const crew = Array.from(new Set([cap, fo, fo2].filter(Boolean)));
+      const capRaw = pickField(src, ["capitan", "cap", "pic", "comandante", "inpCap", "inpCapitan"], /^(cap|pic|comandante|inpcap)/i);
+      const foRaw = pickField(src, ["fo", "sic", "copiloto", "primerOficial", "inpFo", "inpSic"], /^(fo|sic|copiloto|inpfo)/i);
+      const fo2Raw = pickField(src, ["fo2", "sic2", "refuerzo", "tripReforzada", "inpRefuerzo", "inpFo2"], /(fo2|sic2|refuerz)/i);
 
-      const baseDate = normalizeDateToISO(src.fecha || src.fechaInicial || src.fechaVuelo || src.date);
-      const tramos = Array.isArray(src.tramos) ? src.tramos : (Array.isArray(src.legs) ? src.legs : []);
-
+      const crew = Array.from(new Set([resolvePilotIni(capRaw), resolvePilotIni(foRaw), resolvePilotIni(fo2Raw)].filter(Boolean)));
       if (crew.length === 0) return [];
 
+      const rawFecha = pickField(src, ["fecha", "fechaInicial", "fechaVuelo", "date", "inpFecha"], /fecha|date/i);
+      const baseDate = normalizeDateToISO(rawFecha);
+      const rawLegs = extractLegList(raw);
+
       const byDate = {};
-      tramos.forEach(t => {
-        const d = normalizeDateToISO(t.fecha || t.date || baseDate);
+      rawLegs.forEach(t => {
+        const legFecha = pickField(t, ["fecha", "date", "legFecha"], /fecha|date/i);
+        const d = normalizeDateToISO(legFecha || baseDate);
         if (!byDate[d]) byDate[d] = [];
-        const bOut = parseHHMMToMin(t.blockOut || t.salidaCalzos || t.etd);
-        const aOff = parseHHMMToMin(t.airOff || t.despegue);
-        const aOn = parseHHMMToMin(t.airOn || t.aterrizaje);
-        const bIn = parseHHMMToMin(t.blockIn || t.llegadaCalzos || t.eta);
-        let blockMin = (bOut !== null && bIn !== null) ? (bIn - bOut + 1440) % 1440 : 0;
-        byDate[d].push({ ...t, bOut, aOff, aOn, bIn, blockMin });
+
+        const bOut = parseHHMMToMin(pickField(t, ["blockOut", "out", "salidaCalzos", "calzosOut", "etd"], /block.*out|^out$|calzos.*sal|etd/i));
+        const aOff = parseHHMMToMin(pickField(t, ["airOff", "off", "despegue", "takeoff"], /air.*off|^off$|desp/i));
+        const aOn = parseHHMMToMin(pickField(t, ["airOn", "on", "aterrizaje", "landing"], /air.*on|^on$|aterr/i));
+        const bIn = parseHHMMToMin(pickField(t, ["blockIn", "in", "llegadaCalzos", "calzosIn", "eta"], /block.*in|^in$|calzos.*lleg|eta/i));
+        const destino = pickField(t, ["destino", "to", "arr", "llegada", "icaoDest"], /dest|^to$|^arr$/i) || "SCEL";
+
+        const blockMin = (bOut !== null && bIn !== null) ? (bIn - bOut + 1440) % 1440 : 0;
+        byDate[d].push({ bOut, aOff, aOn, bIn, blockMin, destino });
       });
 
       const dates = Object.keys(byDate).sort();
       if (dates.length === 0) dates.push(baseDate);
 
+      const dutyIniRaw = pickField(src, ["dutyInicio", "inicioDuty", "dutyStart", "psvInicio", "inpDutyInicio"], /duty.*ini|ini.*duty|psv.*ini|dutystart/i);
+      const dutyFinRaw = pickField(src, ["dutyFin", "finDuty", "terminoDuty", "dutyEnd", "psvFin", "inpDutyFin"], /duty.*fin|fin.*duty|term.*duty|psv.*fin|dutyend/i);
+
       return dates.map((d, idx) => {
         const legs = byDate[d] || [];
-        let startMin = idx === 0 ? parseHHMMToMin(src.dutyInicio || src.inicioDuty || src.dutyStart) : null;
+        let startMin = idx === 0 ? parseHHMMToMin(dutyIniRaw) : null;
         if (startMin === null && legs[0]?.bOut !== null && legs[0]?.bOut !== undefined) startMin = (legs[0].bOut - 45 + 1440) % 1440;
         if (startMin === null && legs[0]?.aOff !== null && legs[0]?.aOff !== undefined) startMin = (legs[0].aOff - 60 + 1440) % 1440;
         if (startMin === null) {
@@ -1110,11 +677,11 @@
         }
 
         const lastLeg = legs[legs.length - 1];
-        let endMin = idx === 0 ? parseHHMMToMin(src.dutyFin || src.finDuty || src.terminoDuty || src.dutyEnd) : null;
+        let endMin = idx === 0 ? parseHHMMToMin(dutyFinRaw) : null;
         if (endMin === null && lastLeg?.bIn !== null && lastLeg?.bIn !== undefined) endMin = (lastLeg.bIn + 30) % 1440;
         if (endMin === null) endMin = (startMin + 360) % 1440;
 
-        // La EFB registra horas en UTC -> sufijo "Z" para convertir exactamente a CLT
+        // La EFB guarda en UTC -> sufijo "Z" para proyectar a hora local CLT
         const startMs = new Date(`${d}T${formatHHMM(startMin)}:00Z`).getTime();
         let endMs = new Date(`${d}T${formatHHMM(endMin)}:00Z`).getTime();
         if (isNaN(startMs) || isNaN(endMs)) return null;
@@ -1122,51 +689,33 @@
 
         const psvMin = Math.round((endMs - startMs) / 60000);
         const blockMin = legs.reduce((s, l) => s + l.blockMin, 0);
-        const lastDest = (lastLeg?.destino || lastLeg?.to || "SCEL").toString().toUpperCase();
+        const lastDest = (lastLeg?.destino || "SCEL").toUpperCase();
         const baseType = lastDest === "SCEL" ? "BASE" : "POSTA";
 
-        return {
-          id: `${pov}_${d}`,
-          pov,
-          date: d,
-          aircraft,
-          crew,
-          startMs,
-          endMs,
-          psvMin,
-          blockMin,
-          baseType
-        };
+        return { id: `${pov}_${d}`, pov, date: d, aircraft, crew, startMs, endMs, psvMin, blockMin, baseType };
       }).filter(Boolean);
     }
 
     function upsertFlights(newEntries) {
       const map = new Map(getFlights().map(f => [f.id, f]));
       newEntries.forEach(e => {
-        if (e && !isNaN(e.startMs) && !isNaN(e.endMs)) {
-          map.set(e.id, e);
-        }
+        if (e && !isNaN(e.startMs) && !isNaN(e.endMs)) map.set(e.id, e);
       });
       saveFlights(Array.from(map.values()).sort((a, b) => a.startMs - b.startMs));
     }
 
     /* =========================================================================
-       5. SINCRONIZACIÓN GOOGLE DRIVE CON CACHÉ DE SESIÓN
+       5. SINCRONIZACIÓN GOOGLE DRIVE (JERARQUÍA Mi unidad > 00_POV > POV_XXXX)
        ========================================================================= */
     function getEffectiveClientId() {
       const saved = (localStorage.getItem(KEYS.CLIENT_ID) || "").trim();
-      if (saved) return saved;
-      if (DEFAULT_GOOGLE_CLIENT_ID && !DEFAULT_GOOGLE_CLIENT_ID.startsWith("REEMPLAZAR_")) return DEFAULT_GOOGLE_CLIENT_ID;
-      return "";
+      return saved || DEFAULT_GOOGLE_CLIENT_ID || "";
     }
 
     function getCachedDriveToken() {
       const token = sessionStorage.getItem(KEYS.SESSION_TOKEN);
       const exp = parseInt(sessionStorage.getItem(KEYS.SESSION_TOKEN_EXP) || "0", 10);
-      if (token && Date.now() < exp - 60000) {
-        return token;
-      }
-      return null;
+      return (token && Date.now() < exp - 60000) ? token : null;
     }
 
     function saveCachedDriveToken(token, expiresInSec) {
@@ -1191,10 +740,7 @@
     async function syncFromGoogleDrive(forceInteractive = false) {
       const lbl = document.getElementById("syncStatusLabel");
       const clientId = getEffectiveClientId();
-      if (!clientId) {
-        openModal("modalConfig");
-        return;
-      }
+      if (!clientId) { openModal("modalConfig"); return; }
 
       if (!forceInteractive) {
         const cachedToken = getCachedDriveToken();
@@ -1205,8 +751,7 @@
       }
 
       if (typeof google === "undefined" || !google.accounts || !google.accounts.oauth2) {
-        lbl.textContent = "Librería Google no cargada";
-        alert("Google Identity no disponible. Verifique su conexión o desactive bloqueadores de anuncios.");
+        alert("Librería Google Identity no disponible. Verifique conexión o bloqueadores.");
         return;
       }
 
@@ -1219,10 +764,7 @@
           scope: "https://www.googleapis.com/auth/drive.readonly",
           callback: async (resp) => {
             if (resp.error) {
-              if (!forceInteractive && previouslyAuthed) {
-                syncFromGoogleDrive(true);
-                return;
-              }
+              if (!forceInteractive && previouslyAuthed) { syncFromGoogleDrive(true); return; }
               lbl.textContent = "Error Auth: " + resp.error;
               alert("Error de autenticación Google: " + resp.error);
               return;
@@ -1231,57 +773,82 @@
             await fetchDriveProgresoFiles(resp.access_token, false);
           },
           error_callback: (err) => {
-            if (!forceInteractive && previouslyAuthed) {
-              syncFromGoogleDrive(true);
-              return;
-            }
-            lbl.textContent = "Ventana bloqueada (" + (err.type || "popup") + ")";
-            alert("El navegador bloqueó la ventana de Google (" + (err.type || "popup_closed") + "). Habilite ventanas emergentes.");
+            if (!forceInteractive && previouslyAuthed) { syncFromGoogleDrive(true); return; }
+            lbl.textContent = "Ventana bloqueada";
+            alert("El navegador bloqueó la ventana de Google (" + (err.type || "popup") + ").");
           }
         });
-
-        tokenClient.requestAccessToken({
-          prompt: (!forceInteractive && previouslyAuthed) ? "" : "select_account"
-        });
+        tokenClient.requestAccessToken({ prompt: (!forceInteractive && previouslyAuthed) ? "" : "select_account" });
       } catch (e) {
-        lbl.textContent = "Error al iniciar OAuth";
+        lbl.textContent = "Error OAuth";
         alert("Error iniciando Google Drive: " + e.message);
       }
     }
 
     async function fetchDriveProgresoFiles(token, fromCache) {
       const lbl = document.getElementById("syncStatusLabel");
-      lbl.textContent = "Escaneando carpetas POV_* en Drive...";
-      try {
-        const q = encodeURIComponent("name = 'Progreso.json' and trashed = false");
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+      const headers = { Authorization: `Bearer ${token}` };
+      lbl.textContent = "Buscando carpeta 00_POV en Drive...";
 
-        if (res.status === 401 && fromCache) {
+      try {
+        // 1. Localizar carpeta raíz 00_POV
+        const qRoot = encodeURIComponent("name = '00_POV' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+        const resRoot = await fetch(`https://www.googleapis.com/drive/v3/files?q=${qRoot}&fields=files(id,name)&supportsAllDrives=true&includeItemsFromAllDrives=true`, { headers });
+
+        if (resRoot.status === 401 && fromCache) {
           clearCachedDriveToken();
           await syncFromGoogleDrive(true);
           return;
         }
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status} al consultar Google Drive API`);
+        if (!resRoot.ok) throw new Error(`HTTP ${resRoot.status} al consultar Google Drive`);
+
+        const rootData = await resRoot.json();
+        const povRootFolder = (rootData.files || [])[0];
+        const povFolderMap = new Map(); // folderId -> povNumber
+        let targetFiles = [];
+
+        if (povRootFolder) {
+          lbl.textContent = "Escaneando subcarpetas POV_* en 00_POV...";
+          const qSubs = encodeURIComponent(`'${povRootFolder.id}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
+          const resSubs = await fetch(`https://www.googleapis.com/drive/v3/files?q=${qSubs}&fields=files(id,name)&pageSize=500&supportsAllDrives=true&includeItemsFromAllDrives=true`, { headers });
+          const subData = await resSubs.json();
+          (subData.files || []).forEach(sf => {
+            const m = sf.name.match(/POV[_\-\s]*([A-Za-z0-9]+)/i);
+            povFolderMap.set(sf.id, m ? m[1] : sf.name);
+          });
+
+          // Buscar todos los Progreso.json y filtrar los que viven dentro de subcarpetas de 00_POV
+          const qProg = encodeURIComponent("name = 'Progreso.json' and trashed = false");
+          const resProg = await fetch(`https://www.googleapis.com/drive/v3/files?q=${qProg}&fields=files(id,name,parents,modifiedTime)&orderBy=modifiedTime desc&pageSize=300&supportsAllDrives=true&includeItemsFromAllDrives=true`, { headers });
+          const progData = await resProg.json();
+          const allProg = progData.files || [];
+          const inside00Pov = allProg.filter(f => Array.isArray(f.parents) && f.parents.some(pid => povFolderMap.has(pid)));
+          targetFiles = inside00Pov.length > 0 ? inside00Pov : allProg;
+        } else {
+          const qProg = encodeURIComponent("name = 'Progreso.json' and trashed = false");
+          const resProg = await fetch(`https://www.googleapis.com/drive/v3/files?q=${qProg}&fields=files(id,name,parents,modifiedTime)&orderBy=modifiedTime desc&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true`, { headers });
+          const progData = await resProg.json();
+          targetFiles = progData.files || [];
         }
 
-        const data = await res.json();
-        const files = data.files || [];
         let loadedCount = 0;
-        let sampleKeys = null;
+        let sampleDebug = "";
 
-        for (const f of files) {
-          const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+        for (const f of targetFiles) {
+          let folderPovHint = "";
+          if (Array.isArray(f.parents)) {
+            for (const pid of f.parents) {
+              if (povFolderMap.has(pid)) { folderPovHint = povFolderMap.get(pid); break; }
+            }
+          }
+          const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, { headers });
           if (fRes.ok) {
             const rawJson = await fRes.json();
-            if (!sampleKeys && rawJson && typeof rawJson === "object") {
-              sampleKeys = Object.keys(rawJson).join(", ");
+            if (!sampleDebug && rawJson && typeof rawJson === "object") {
+              const gKeys = rawJson.globals ? Object.keys(rawJson.globals).join(", ") : Object.keys(rawJson).join(", ");
+              sampleDebug = `globals: [${gKeys}]`;
             }
-            const parsed = parseEfbProgressJson(rawJson);
+            const parsed = parseEfbProgressJson(rawJson, folderPovHint);
             if (parsed.length > 0) {
               upsertFlights(parsed);
               loadedCount++;
@@ -1290,13 +857,13 @@
         }
 
         const nowClt = new Date().toTimeString().slice(0, 5);
-        if (files.length === 0) {
-          lbl.textContent = `Drive OK · 0 archivos Progreso.json (${nowClt} CLT)`;
-        } else if (loadedCount === 0 && sampleKeys) {
-          lbl.textContent = `Drive: ${files.length} archivos sin leer`;
-          alert(`Se encontraron ${files.length} archivo(s) Progreso.json en Drive, pero no se pudieron interpretar.\nCampos detectados: ${sampleKeys}`);
+        if (targetFiles.length === 0) {
+          lbl.textContent = `Drive OK · 0 Progreso.json en 00_POV (${nowClt} CLT)`;
+        } else if (loadedCount === 0) {
+          lbl.textContent = `Drive: ${targetFiles.length} archivos sin tripulación`;
+          alert(`Se leyeron ${targetFiles.length} Progreso.json en 00_POV, pero ninguno tenía iniciales de Capitán/FO reconocidas.\nEstructura detectada: ${sampleDebug}`);
         } else {
-          lbl.textContent = `Drive OK (${loadedCount}/${files.length} POV · ${nowClt} CLT)`;
+          lbl.textContent = `Drive OK · 00_POV (${loadedCount} POV · ${nowClt} CLT)`;
         }
         renderDashboard();
       } catch (err) {
@@ -1307,18 +874,14 @@
 
     function handleJsonImport(evt) {
       const files = Array.from(evt.target.files || []);
-      let done = 0;
-      let importedFlights = 0;
+      let done = 0, importedFlights = 0;
       files.forEach(file => {
         const r = new FileReader();
         r.onload = (e) => {
           try {
             const obj = JSON.parse(e.target.result);
             const entries = Array.isArray(obj) ? obj : parseEfbProgressJson(obj);
-            if (entries.length > 0) {
-              upsertFlights(entries);
-              importedFlights += entries.length;
-            }
+            if (entries.length > 0) { upsertFlights(entries); importedFlights += entries.length; }
           } catch {}
           done++;
           if (done === files.length) {
@@ -1332,7 +895,7 @@
     }
 
     /* =========================================================================
-       6. MOTOR DE DISPONIBILIDAD, SALDOS Y ORDENAMIENTO POR PILOTO
+       6. MOTOR DE DISPONIBILIDAD, SALDOS Y ORDENAMIENTO POR APELLIDO
        ========================================================================= */
     function computePilotStatus(pilot, evalMs, matFilter) {
       const pilotIniUpper = pilot.ini.toUpperCase();
@@ -1378,19 +941,14 @@
       const winStart = evalMs - 7 * 86400000;
       const busyIntervals = [];
       allFlights.forEach(f => {
-        if (f.endMs > winStart && f.startMs < evalMs) {
-          busyIntervals.push([Math.max(winStart, f.startMs), Math.min(evalMs, f.endMs)]);
-        }
+        if (f.endMs > winStart && f.startMs < evalMs) busyIntervals.push([Math.max(winStart, f.startMs), Math.min(evalMs, f.endMs)]);
       });
       allActs.filter(a => a.type === "Simulador / Instrucción" || a.type === "Curso o Capacitación" || a.extFlightMin > 0).forEach(a => {
-        if (a.endMs > winStart && a.startMs < evalMs) {
-          busyIntervals.push([Math.max(winStart, a.startMs), Math.min(evalMs, a.endMs)]);
-        }
+        if (a.endMs > winStart && a.startMs < evalMs) busyIntervals.push([Math.max(winStart, a.startMs), Math.min(evalMs, a.endMs)]);
       });
       busyIntervals.sort((a, b) => a[0] - b[0]);
 
-      let maxFreeMs = 0;
-      let cursor = winStart;
+      let maxFreeMs = 0, cursor = winStart;
       for (const [s, e] of busyIntervals) {
         if (s > cursor) maxFreeMs = Math.max(maxFreeMs, s - cursor);
         cursor = Math.max(cursor, e);
@@ -1398,15 +956,10 @@
       maxFreeMs = Math.max(maxFreeMs, evalMs - cursor);
       const maxRest7dHours = Math.round(maxFreeMs / 3600000);
 
-      let category = "DISPONIBLE";
-      let statusRank = 1;
-      let availTimestamp = 0;
-      let badgeText = "DISPONIBLE";
-      let badgeClass = "st-ok";
-      let availMain = "Inmediata";
-      let availSub = "Listo para asignar";
-      let clockMain = "Sin restricciones";
-      let clockSub = "Descanso DAN 135 al día";
+      let category = "DISPONIBLE", statusRank = 1, availTimestamp = 0;
+      let badgeText = "DISPONIBLE", badgeClass = "st-ok";
+      let availMain = "Inmediata", availSub = "Listo para asignar";
+      let clockMain = "Sin restricciones", clockSub = "Descanso DAN 135 al día";
 
       const activeBlock = allActs.find(a => evalMs >= a.startMs && evalMs < a.endMs);
       const activeFlight = allFlights.find(f => evalMs >= f.startMs && evalMs < f.endMs);
@@ -1459,12 +1012,7 @@
         }
       }
 
-      const limitExceeded =
-        min5d >= DAN135.MAX_5D_MIN ||
-        min10d >= DAN135.MAX_10D_MIN ||
-        minMonth >= DAN135.MAX_MONTH_MIN ||
-        maxRest7dHours < 36;
-
+      const limitExceeded = min5d >= DAN135.MAX_5D_MIN || min10d >= DAN135.MAX_10D_MIN || minMonth >= DAN135.MAX_MONTH_MIN || maxRest7dHours < 36;
       if (limitExceeded && category === "DISPONIBLE") {
         category = "BLOQUEADO";
         statusRank = 5;
@@ -1477,28 +1025,7 @@
         clockSub = maxRest7dHours < 36 ? `Descanso máx 7d: ${maxRest7dHours}h (menor a 36h)` : "Revisar acumulados 5d/10d/Mes";
       }
 
-      return {
-        pilot,
-        effectiveRole,
-        category,
-        statusRank,
-        availTimestamp,
-        badgeText,
-        badgeClass,
-        availMain,
-        availSub,
-        clockMain,
-        clockSub,
-        min5d,
-        min10d,
-        minMonth,
-        min90d,
-        rem5d,
-        rem10d,
-        remMonth,
-        rem90d,
-        maxRest7dHours
-      };
+      return { pilot, effectiveRole, category, statusRank, availTimestamp, badgeText, badgeClass, availMain, availSub, clockMain, clockSub, min5d, min10d, minMonth, min90d, rem5d, rem10d, remMonth, rem90d, maxRest7dHours };
     }
 
     function setSort(key) {
@@ -1514,7 +1041,6 @@
 
     function updateSortIndicators() {
       const arrowChar = currentSortDir === "ASC" ? "▲" : "▼";
-
       document.querySelectorAll(".sort-btn").forEach(btn => {
         const key = btn.getAttribute("data-sort");
         const isActive = key === currentSortKey;
@@ -1522,7 +1048,6 @@
         const arrowEl = document.getElementById(`arrow-${key}`);
         if (arrowEl) arrowEl.textContent = isActive ? arrowChar : "";
       });
-
       document.querySelectorAll("th.sortable").forEach(th => {
         const key = th.getAttribute("data-th");
         const isActive = key === currentSortKey;
@@ -1539,34 +1064,34 @@
         switch (currentSortKey) {
           case "AVAIL":
             cmp = a.availTimestamp - b.availTimestamp;
-            if (cmp === 0) cmp = b.remMonth - a.remMonth;
+            if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
+            break;
+          case "NAME":
+            cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
             break;
           case "REM_MONTH":
             cmp = a.remMonth - b.remMonth;
-            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
             break;
           case "REM_5D":
             cmp = a.rem5d - b.rem5d;
-            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
             break;
           case "REM_10D":
             cmp = a.rem10d - b.rem10d;
-            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
             break;
           case "REST_7D":
             cmp = a.maxRest7dHours - b.maxRest7dHours;
-            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
             break;
           case "ROLE":
             cmp = a.effectiveRole.localeCompare(b.effectiveRole);
-            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
+            if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
             break;
           case "STATUS":
             cmp = a.statusRank - b.statusRank;
-            if (cmp === 0) cmp = a.availTimestamp - b.availTimestamp;
-            break;
-          case "NAME":
-            cmp = a.pilot.nombre.localeCompare(b.pilot.nombre, "es");
+            if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
             break;
         }
         return cmp * factor;
@@ -1644,7 +1169,7 @@
       const filteredRows = sortEvaluatedRows(
         evaluated.filter(e => {
           if (selectedStatusFilter !== "ALL" && e.category !== selectedStatusFilter) return false;
-          if (query && !e.pilot.nombre.toLowerCase().includes(query) && !e.pilot.ini.toLowerCase().includes(query)) return false;
+          if (query && !e.pilot.displayName.toLowerCase().includes(query) && !e.pilot.ini.toLowerCase().includes(query)) return false;
           return true;
         })
       );
@@ -1656,10 +1181,8 @@
         tbody.innerHTML = filteredRows.map(e => {
           const pct5d = Math.min(100, Math.round((e.min5d / DAN135.MAX_5D_MIN) * 100));
           const color5d = pct5d >= 90 ? "#EF4444" : (pct5d >= 75 ? "#F59E0B" : "#22C55E");
-
           const pctMonth = Math.min(100, Math.round((e.minMonth / DAN135.MAX_MONTH_MIN) * 100));
           const colorMonth = pctMonth >= 90 ? "#EF4444" : (pctMonth >= 75 ? "#F59E0B" : "#22C55E");
-
           const restOk = e.maxRest7dHours >= 36;
 
           return `
@@ -1668,15 +1191,13 @@
                 <div class="pilot-cell">
                   <div class="pilot-avatar">${e.pilot.ini}</div>
                   <div>
-                    <div class="pilot-name">${e.pilot.nombre}</div>
+                    <div class="pilot-name">${e.pilot.displayName}</div>
                     <div class="pilot-role">(${e.effectiveRole}) · ${e.pilot.lic}</div>
                   </div>
                 </div>
               </td>
               <td>
-                <div class="mat-tags">
-                  ${e.pilot.hab.map(h => `<span class="mat-tag">${h}</span>`).join("")}
-                </div>
+                <div class="mat-tags">${e.pilot.hab.map(h => `<span class="mat-tag">${h}</span>`).join("")}</div>
               </td>
               <td><span class="status-pill ${e.badgeClass}">${e.badgeText}</span></td>
               <td>
@@ -1702,9 +1223,7 @@
                 </div>
               </td>
               <td>
-                <span class="${restOk ? "rest7-ok" : "rest7-warn"}">
-                  Max: ${e.maxRest7dHours}h ${restOk ? "✓" : "⚠️"}
-                </span>
+                <span class="${restOk ? "rest7-ok" : "rest7-warn"}">Max: ${e.maxRest7dHours}h ${restOk ? "✓" : "⚠️"}</span>
               </td>
             </tr>
           `;
@@ -1758,29 +1277,14 @@
       const note = document.getElementById("actNote").value.trim();
       const extHoursStr = document.getElementById("actExtHours").value;
 
-      if (!sDate || !sTime || !eDate || !eTime) {
-        alert("Complete fecha y hora de inicio y término.");
-        return;
-      }
+      if (!sDate || !sTime || !eDate || !eTime) { alert("Complete fecha y hora de inicio y término."); return; }
       const startMs = new Date(`${sDate}T${sTime}:00`).getTime();
       const endMs = new Date(`${eDate}T${eTime}:00`).getTime();
-      if (endMs <= startMs) {
-        alert("La fecha/hora de término debe ser posterior al inicio.");
-        return;
-      }
+      if (endMs <= startMs) { alert("La fecha/hora de término debe ser posterior al inicio."); return; }
 
       const extFlightMin = type.includes("Externo") ? (parseHHMMToMin(extHoursStr) || 0) : 0;
-
       const list = getActivities();
-      list.unshift({
-        id: "ACT_" + Date.now(),
-        pilotIni,
-        type,
-        startMs,
-        endMs,
-        note,
-        extFlightMin
-      });
+      list.unshift({ id: "ACT_" + Date.now(), pilotIni, type, startMs, endMs, note, extFlightMin });
       saveActivities(list);
       document.getElementById("actNote").value = "";
       renderDashboard();
@@ -1807,7 +1311,7 @@
         return `
           <div class="block-item">
             <div>
-              <strong>${p ? p.nombre : a.pilotIni}</strong> — ${a.type}<br>
+              <strong>${p ? p.displayName : a.pilotIni}</strong> — ${a.type}<br>
               <span style="color:var(--text-muted); font-size:10.5px;">Hasta ${endStr}${a.note ? " · " + a.note : ""}</span>
             </div>
             <button class="btn btn-sm" onclick="deleteActivity('${a.id}')" title="Eliminar bloqueo">✕</button>
@@ -1824,26 +1328,14 @@
       const d = new Date(evalMs);
       const monthLabel = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 
-      const headers = ["Mes", "Iniciales", "Nombre", "Funcion", "RUT", "Licencia", "Materiales", "TV_5d_Horas", "Disp_5d_Horas", "TV_10d_Horas", "Disp_10d_Horas", "TV_Mes_Horas", "Disp_Mes_Horas", "TV_90d_Horas", "Descanso_Max_7d_H", "Estado_Actual"];
-      const rows = PILOTOS_DB.map(p => {
+      const headers = ["Mes", "Iniciales", "Apellido_Nombre", "Funcion", "RUT", "Licencia", "Materiales", "TV_5d_Horas", "Disp_5d_Horas", "TV_10d_Horas", "Disp_10d_Horas", "TV_Mes_Horas", "Disp_Mes_Horas", "TV_90d_Horas", "Descanso_Max_7d_H", "Estado_Actual"];
+      const rows = [...PILOTOS_DB].sort((a, b) => a.displayName.localeCompare(b.displayName, "es")).map(p => {
         const st = computePilotStatus(p, evalMs, "TODOS");
         return [
-          monthLabel,
-          p.ini,
-          `"${p.full}"`,
-          `"${st.effectiveRole}"`,
-          p.rut,
-          p.lic,
-          `"${p.hab.join("/")}"`,
-          (st.min5d / 60).toFixed(1),
-          (st.rem5d / 60).toFixed(1),
-          (st.min10d / 60).toFixed(1),
-          (st.rem10d / 60).toFixed(1),
-          (st.minMonth / 60).toFixed(1),
-          (st.remMonth / 60).toFixed(1),
-          (st.min90d / 60).toFixed(1),
-          st.maxRest7dHours,
-          st.badgeText
+          monthLabel, p.ini, `"${p.displayName}"`, `"${st.effectiveRole}"`, p.rut, p.lic, `"${p.hab.join("/")}"`,
+          (st.min5d / 60).toFixed(1), (st.rem5d / 60).toFixed(1), (st.min10d / 60).toFixed(1), (st.rem10d / 60).toFixed(1),
+          (st.minMonth / 60).toFixed(1), (st.remMonth / 60).toFixed(1), (st.min90d / 60).toFixed(1),
+          st.maxRest7dHours, st.badgeText
         ].join(";");
       });
 
@@ -1877,8 +1369,7 @@
     function closeModal(id) { document.getElementById(id).classList.remove("open"); }
 
     function saveClientIdConfig() {
-      const val = document.getElementById("clientIdInput").value.trim();
-      localStorage.setItem(KEYS.CLIENT_ID, val);
+      localStorage.setItem(KEYS.CLIENT_ID, document.getElementById("clientIdInput").value.trim());
       closeModal("modalConfig");
     }
 
@@ -1894,30 +1385,11 @@
 
     function loadDemoScenario() {
       const now = Date.now();
-      const demoFlights = [
-        {
-          id: "DEMO_1", pov: "1240", date: new Date(now).toISOString().slice(0, 10),
-          aircraft: "CC-DRS", crew: ["FE", "JO"],
-          startMs: now - 4 * 3600000, endMs: now + 3 * 3600000,
-          psvMin: 420, blockMin: 240, baseType: "BASE"
-        },
-        {
-          id: "DEMO_2", pov: "1238", date: new Date(now - 86400000).toISOString().slice(0, 10),
-          aircraft: "CC-DLI", crew: ["EI", "SS"],
-          startMs: now - 14 * 3600000, endMs: now - 4 * 3600000,
-          psvMin: 600, blockMin: 380, baseType: "BASE"
-        }
-      ];
-      upsertFlights(demoFlights);
-
-      const demoActs = [
-        {
-          id: "DEMO_ACT_1", pilotIni: "NM", type: "Permiso Administrativo",
-          startMs: now - 2 * 3600000, endMs: now + 18 * 3600000,
-          note: "Trámite personal / Médico en Santiago", extFlightMin: 0
-        }
-      ];
-      saveActivities(demoActs);
+      upsertFlights([
+        { id: "DEMO_1", pov: "1240", date: new Date(now).toISOString().slice(0, 10), aircraft: "CC-DRS", crew: ["FE", "JO"], startMs: now - 4 * 3600000, endMs: now + 3 * 3600000, psvMin: 420, blockMin: 240, baseType: "BASE" },
+        { id: "DEMO_2", pov: "1238", date: new Date(now - 86400000).toISOString().slice(0, 10), aircraft: "CC-DLI", crew: ["EI", "SS"], startMs: now - 14 * 3600000, endMs: now - 4 * 3600000, psvMin: 600, blockMin: 380, baseType: "BASE" }
+      ]);
+      saveActivities([{ id: "DEMO_ACT_1", pilotIni: "NM", type: "Permiso Administrativo", startMs: now - 2 * 3600000, endMs: now + 18 * 3600000, note: "Trámite personal / Médico en Santiago", extFlightMin: 0 }]);
       document.getElementById("syncStatusLabel").textContent = "Escenario Demo cargado";
       renderDashboard();
     }
@@ -1926,7 +1398,8 @@
        10. INICIALIZACIÓN
        ========================================================================= */
     window.addEventListener("DOMContentLoaded", () => {
-      const opts = PILOTOS_DB.map(p => `<option value="${p.ini}">${p.nombre} (${p.hab.join("/")})</option>`).join("");
+      const sortedPilots = [...PILOTOS_DB].sort((a, b) => a.displayName.localeCompare(b.displayName, "es"));
+      const opts = sortedPilots.map(p => `<option value="${p.ini}">${p.displayName} (${p.hab.join("/")})</option>`).join("");
       ["actPilot", "excPic", "excFo"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = opts;
@@ -1945,9 +1418,7 @@
       const savedCid = localStorage.getItem(KEYS.CLIENT_ID);
       if (savedCid) document.getElementById("clientIdInput").value = savedCid;
 
-      // Limpiar registros corruptos con fechas NaN de versiones previas
-      const cleanFlights = getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs));
-      saveFlights(cleanFlights);
+      saveFlights(getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs)));
 
       updateClockTick();
       updateSortIndicators();
