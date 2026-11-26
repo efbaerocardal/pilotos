@@ -36,6 +36,7 @@
     .brand-triangle::after { content: ""; position: absolute; left: -5px; top: 6px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 10px solid #0B1324; }
     .btn { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-light); border-radius: 7px; padding: 6px 11px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
     .btn:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn-blue { background: var(--accent-blue); border-color: #60A5FA; color: #FFF; }
     .btn-blue:hover { background: var(--accent-blue-hover); }
     .btn-green { background: #15803D; border-color: #22C55E; color: #FFF; }
@@ -91,10 +92,11 @@
     .w-crew { width: 175px; }
     .w-route { width: 145px; text-transform: uppercase; font-weight: 700; }
     .w-time { width: 82px; text-align: center; font-weight: 700; }
-    .w-srv { width: 125px; }
+    .w-srv { width: 135px; }
     .w-obs { min-width: 150px; }
 
-    .ops-pill { display: inline-flex; align-items: center; justify-content: center; padding: 3px 7px; border-radius: 4px; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35); color: #7DD3FC; font-weight: 800; font-size: 11px; letter-spacing: 0.4px; }
+    .ops-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 52px; padding: 3px 7px; border-radius: 4px; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35); color: #7DD3FC; font-weight: 800; font-size: 11px; letter-spacing: 0.4px; }
+    .ops-pill.empty { background: rgba(148, 163, 184, 0.08); border-color: rgba(148, 163, 184, 0.25); color: #64748B; }
     .ac-unavail-hint { display: block; font-size: 10px; color: #F87171; font-weight: 700; margin-top: 2px; line-height: 1.2; }
     .incomplete-tag { display: inline-block; font-size: 9.5px; padding: 1px 5px; border-radius: 4px; background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(251, 191, 36, 0.4); color: #FBBF24; font-weight: 700; margin-left: 4px; }
 
@@ -146,11 +148,28 @@
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.82); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
     .modal-backdrop.open { display: flex; }
     .modal-card { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: 12px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; padding: 18px; }
+    .modal-card.wide { max-width: 960px; }
     .modal-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px; }
     .modal-head h3 { margin: 0; font-size: 15px; color: #FFF; }
     .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .form-field label { display: block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
     .form-field input, .form-field select { width: 100%; background: var(--bg-input); color: #FFF; border: 1px solid var(--border-light); border-radius: 6px; padding: 7px 9px; font-size: 12.5px; }
+    .form-field select option:disabled { color: #64748B; background: #090F1D; }
+
+    /* Weekday Selector Pills for Copy/Repeat */
+    .dow-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .dow-pill { background: var(--bg-input); border: 1px solid var(--border-light); color: #CBD5E1; border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 800; cursor: pointer; user-select: none; }
+    .dow-pill.active { background: var(--accent-blue); border-color: #60A5FA; color: #FFF; }
+    .cr-preview-box { background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 8px; padding: 10px; margin-top: 12px; }
+    .cr-preview-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .cr-preview-table th { background: #16233E; color: #94A3B8; font-size: 10px; text-transform: uppercase; padding: 6px; border-bottom: 1px solid var(--border-light); text-align: left; }
+    .cr-preview-table td { padding: 5px 6px; border-bottom: 1px solid rgba(38, 56, 94, 0.65); vertical-align: middle; }
+    .cr-preview-table tr.cr-dup-row { opacity: 0.55; }
+    .badge-ok { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; background: rgba(22, 163, 74, 0.18); color: #4ADE80; border: 1px solid rgba(74, 222, 128, 0.35); }
+    .badge-warn { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; background: rgba(217, 119, 6, 0.2); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .badge-err { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; background: rgba(220, 38, 38, 0.22); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.45); }
+    .badge-muted { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; background: rgba(148, 163, 184, 0.14); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3); }
   </style>
 </head>
 <body>
@@ -232,7 +251,7 @@
         <div class="panel-head">
           <h2 id="dailyGridTitle">PROGRAMACIÓN OPERACIONAL — DÍA</h2>
           <div style="display:flex; gap:7px; flex-wrap:wrap; align-items:center;">
-            <span style="font-size:11px; color:var(--text-muted);">Inicio deriva del 1er tramo · <strong>OPS</strong> = horario por definir</span>
+            <span style="font-size:11px; color:var(--text-muted);">Inicio deriva del 1er tramo · Horas de despegue vacías hasta ingreso</span>
             <button class="btn btn-sm btn-blue" onclick="createAnotherFlight()" title="Guarda el vuelo actual (aunque su ruta esté incompleta) e inicia uno nuevo limpio">+ Nuevo vuelo / Crear otro vuelo</button>
           </div>
         </div>
@@ -309,6 +328,73 @@
     </div>
   </div>
 
+  <!-- MODAL: COPIAR / REPETIR VUELO -->
+  <div class="modal-backdrop" id="modalCopyRepeat">
+    <div class="modal-card wide">
+      <div class="modal-head">
+        <h3 id="crModalTitle">📋 Copiar / Repetir Vuelo</h3>
+        <button class="btn btn-sm" onclick="closeModal('modalCopyRepeat')">✕</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+        <div class="seg-group">
+          <button class="seg-btn active" id="crTabSINGLE" onclick="setCopyRepeatMode('SINGLE')">📅 Copiar a otra fecha</button>
+          <button class="seg-btn" id="crTabREPEAT" onclick="setCopyRepeatMode('REPEAT')">🔁 Repetir determinados días</button>
+        </div>
+        <div id="crSourceSummary" style="font-size:11.5px; color:var(--text-muted);"></div>
+      </div>
+
+      <!-- MODALIDAD A: COPIAR A OTRA FECHA -->
+      <div id="crBodySINGLE">
+        <div class="form-grid" style="margin-bottom:10px;">
+          <div class="form-field">
+            <label>Nueva Fecha de Operación</label>
+            <input type="date" id="crSingleDate" onchange="onCopySingleDateChange()" />
+          </div>
+          <div class="form-field">
+            <label>POV Asignado a la Copia (Independiente)</label>
+            <input type="text" id="crSinglePov" onchange="onCopySingleFieldChange('pov', this.value)" />
+          </div>
+        </div>
+        <div id="crSingleEditorContainer"></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+          <button class="btn" onclick="closeModal('modalCopyRepeat')">Cancelar</button>
+          <button class="btn btn-green" onclick="commitSingleCopy()">💾 Guardar Copia Independiente</button>
+        </div>
+      </div>
+
+      <!-- MODALIDAD B: REPETIR DETERMINADOS DÍAS DE LA SEMANA -->
+      <div id="crBodyREPEAT" style="display:none;">
+        <div class="form-grid-3">
+          <div class="form-field">
+            <label>Fecha Desde</label>
+            <input type="date" id="crRepeatFrom" onchange="recomputeRepeatPreview()" />
+          </div>
+          <div class="form-field">
+            <label>Fecha Hasta</label>
+            <input type="date" id="crRepeatTo" onchange="recomputeRepeatPreview()" />
+          </div>
+          <div class="form-field">
+            <label>Máx. Repeticiones (Opcional)</label>
+            <input type="number" id="crRepeatMax" min="1" max="60" placeholder="Sin límite" oninput="recomputeRepeatPreview()" />
+          </div>
+        </div>
+
+        <div class="form-field" style="margin-top:10px;">
+          <label>Días de la Semana en que se Ejecutará</label>
+          <div class="dow-group" id="crDowGroup"></div>
+        </div>
+
+        <div id="crRepeatPreviewContainer"></div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+          <button class="btn" onclick="closeModal('modalCopyRepeat')">Cancelar</button>
+          <button class="btn btn-green" id="crCommitRepeatBtn" onclick="commitRepeatSeries()">💾 Confirmar y Crear Vuelos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: ESTADO DE FLOTA Y MANTENIMIENTO -->
   <div class="modal-backdrop" id="modalFleet">
     <div class="modal-card">
@@ -381,7 +467,7 @@
 
   <script>
     /* =========================================================================
-       1. CONSTANTES, FLOTA Y TRIPULACIONES AEROCARDAL
+       1. CONSTANTES, FLOTA Y TRIPULACIONES AEROCARDAL (PIC vs SIC)
        ========================================================================= */
     const DEFAULT_CLIENT_ID = "564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com";
     const STORAGE = {
@@ -396,7 +482,6 @@
       HAS_AUTH: "aerocardal_ops_drive_has_auth"
     };
 
-    // Relación exacta Matrícula <-> Material definida para la flota
     const FLEET_MASTER = [
       { mat: "CC-AOA", model: "G-150", base: "SCEL" },
       { mat: "CC-CWK", model: "G-150", base: "SCEL" },
@@ -415,30 +500,35 @@
 
     const MATERIALES_DISPONIBLES = ["G-150", "D-228", "PC-12", "L-410", "PC-24", "A109S", "A109SP"];
 
+    // Pilotos con condición exclusivamente SIC en aviones
     const AIRPLANE_SIC_LIST = ["JO", "MV", "SS", "EM", "CV"];
+    const AIRPLANE_MODELS = ["G-150", "D-228", "PC-12", "L-410", "PC-24"];
+
+    // hab: habilitaciones de material como tripulante (PIC y SIC)
+    // picHab: habilitaciones en las que posee condición de Comandante (PIC)
     const PILOTOS_DB = [
-      { ini: "JA", displayName: "Arellano, José", hab: ["D-228", "PC-12", "A109S", "A109SP"] },
-      { ini: "JPA", displayName: "Arevalo, Juan Pablo", hab: ["A109S", "A109SP"] },
-      { ini: "CB", displayName: "Briones, Cristobal", hab: ["PC-24"] },
-      { ini: "FC", displayName: "Casasempere, Felipe", hab: ["D-228", "L-410", "PC-12"] },
-      { ini: "AC", displayName: "Castro, Alfredo", hab: ["D-228", "G-150"] },
-      { ini: "FCh", displayName: "Chacana, Fernando", hab: ["PC-12"] },
-      { ini: "RE", displayName: "Espinosa, Ricardo", hab: ["D-228", "G-150"] },
-      { ini: "FE", displayName: "Esquivel, Francisco", hab: ["PC-24"] },
-      { ini: "IF", displayName: "Fabry, Iván", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "CG", displayName: "Gonzalez, Claudio", hab: ["A109S", "A109SP"] },
-      { ini: "FG", displayName: "Guiñez, Felipe", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "EI", displayName: "Inostroza, Esteban", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "AK", displayName: "Kaufmann, Alexander", hab: ["G-150", "PC-12"] },
-      { ini: "EM", displayName: "Mancini, Enrique", hab: ["D-228", "L-410", "PC-12"] },
-      { ini: "NM", displayName: "Mohr, Nicolás", hab: ["D-228", "G-150", "PC-12", "PC-24"] },
-      { ini: "CM", displayName: "Muñoz, Claudio", hab: ["D-228", "PC-12", "L-410"] },
-      { ini: "JO", displayName: "Oyarzún, José", hab: ["PC-24", "L-410"] },
-      { ini: "SS", displayName: "Saez, Sebastian", hab: ["L-410"] },
-      { ini: "MS", displayName: "Solano, Mauricio", hab: ["D-228", "G-150", "L-410"] },
-      { ini: "CV", displayName: "Vásquez, Cristhian", hab: ["D-228", "L-410", "A109S", "A109SP"] },
-      { ini: "MV", displayName: "Vega, Matías", hab: ["L-410", "G-150"] },
-      { ini: "KW", displayName: "Wobbe, Klaus", hab: ["D-228", "G-150", "L-410", "PC-24"] }
+      { ini: "JA", displayName: "Arellano, José", hab: ["D-228", "PC-12", "A109S", "A109SP"], picHab: ["D-228", "PC-12", "A109S", "A109SP"] },
+      { ini: "JPA", displayName: "Arevalo, Juan Pablo", hab: ["A109S", "A109SP"], picHab: ["A109S", "A109SP"] },
+      { ini: "CB", displayName: "Briones, Cristobal", hab: ["PC-24"], picHab: ["PC-24"] },
+      { ini: "FC", displayName: "Casasempere, Felipe", hab: ["D-228", "L-410", "PC-12"], picHab: ["D-228", "L-410", "PC-12"] },
+      { ini: "AC", displayName: "Castro, Alfredo", hab: ["D-228", "G-150"], picHab: ["D-228", "G-150"] },
+      { ini: "FCh", displayName: "Chacana, Fernando", hab: ["PC-12"], picHab: ["PC-12"] },
+      { ini: "RE", displayName: "Espinosa, Ricardo", hab: ["D-228", "G-150"], picHab: ["D-228", "G-150"] },
+      { ini: "FE", displayName: "Esquivel, Francisco", hab: ["PC-24"], picHab: ["PC-24"] },
+      { ini: "IF", displayName: "Fabry, Iván", hab: ["D-228", "G-150", "L-410"], picHab: ["D-228", "G-150", "L-410"] },
+      { ini: "CG", displayName: "Gonzalez, Claudio", hab: ["A109S", "A109SP"], picHab: ["A109S", "A109SP"] },
+      { ini: "FG", displayName: "Guiñez, Felipe", hab: ["D-228", "G-150", "L-410"], picHab: ["D-228", "G-150", "L-410"] },
+      { ini: "EI", displayName: "Inostroza, Esteban", hab: ["D-228", "G-150", "L-410"], picHab: ["D-228", "G-150", "L-410"] },
+      { ini: "AK", displayName: "Kaufmann, Alexander", hab: ["G-150", "PC-12"], picHab: ["G-150", "PC-12"] },
+      { ini: "EM", displayName: "Mancini, Enrique", hab: ["D-228", "L-410", "PC-12"], picHab: [] },
+      { ini: "NM", displayName: "Mohr, Nicolás", hab: ["D-228", "G-150", "PC-12", "PC-24"], picHab: ["D-228", "G-150", "PC-12", "PC-24"] },
+      { ini: "CM", displayName: "Muñoz, Claudio", hab: ["D-228", "PC-12", "L-410"], picHab: ["D-228", "PC-12", "L-410"] },
+      { ini: "JO", displayName: "Oyarzún, José", hab: ["PC-24", "L-410"], picHab: [] },
+      { ini: "SS", displayName: "Saez, Sebastian", hab: ["L-410"], picHab: [] },
+      { ini: "MS", displayName: "Solano, Mauricio", hab: ["D-228", "G-150", "L-410"], picHab: ["D-228", "G-150", "L-410"] },
+      { ini: "CV", displayName: "Vásquez, Cristhian", hab: ["D-228", "L-410", "A109S", "A109SP"], picHab: ["A109S", "A109SP"] },
+      { ini: "MV", displayName: "Vega, Matías", hab: ["L-410", "G-150"], picHab: [] },
+      { ini: "KW", displayName: "Wobbe, Klaus", hab: ["D-228", "G-150", "L-410", "PC-24"], picHab: ["D-228", "G-150", "L-410", "PC-24"] }
     ].sort((a, b) => a.displayName.localeCompare(b.displayName, "es"));
 
     const ESTADOS_CICLO = ["BORRADOR", "PROGRAMADO", "CONFIRMADO", "EN PREPARACIÓN", "EN EJECUCIÓN", "COMPLETADO", "REPROGRAMADO", "CANCELADO"];
@@ -452,8 +542,20 @@
     let anchorDate = new Date().toISOString().slice(0, 10);
     let expandedLegsId = null;
 
-    // Estado del formulario de creación rápida (Punto 4 y Punto 5)
+    // Estado del formulario de creación rápida
     let quickFormState = null;
+
+    // Estado del modal Copiar / Repetir Vuelo
+    let copyRepeatState = {
+      sourceOp: null,
+      mode: "SINGLE",       // SINGLE | REPEAT
+      singleCopyDraft: null,
+      repeatFrom: "",
+      repeatTo: "",
+      repeatMax: "",
+      selectedDows: [],     // [0..6] donde 0=Dom, 1=Lun, ..., 6=Sab
+      repeatRows: []        // Previsualización de fechas y asignaciones
+    };
 
     // Cache de IDs de Google Drive para evitar duplicar carpetas POV
     let driveRoot00PovId = null;
@@ -486,8 +588,8 @@
             fecha: copy.date,
             origen: codes[i],
             destino: codes[i + 1],
-            etd_utc: (i === 0 && copy.startMs) ? msToUtcHHMM(copy.startMs) : "OPS",
-            eta_utc: (i === codes.length - 2 && copy.endMs) ? msToUtcHHMM(copy.endMs) : "OPS",
+            etd_utc: (i === 0 && copy.startMs) ? msToUtcHHMM(copy.startMs) : "",
+            eta_utc: (i === codes.length - 2 && copy.endMs) ? msToUtcHHMM(copy.endMs) : "",
             pax_est: 0
           }));
         } else {
@@ -496,8 +598,8 @@
             fecha: copy.date,
             origen: codes[0] || "",
             destino: "",
-            etd_utc: copy.startMs ? msToUtcHHMM(copy.startMs) : "OPS",
-            eta_utc: copy.endMs ? msToUtcHHMM(copy.endMs) : "OPS",
+            etd_utc: copy.startMs ? msToUtcHHMM(copy.startMs) : "",
+            eta_utc: copy.endMs ? msToUtcHHMM(copy.endMs) : "",
             pax_est: 0
           }];
         }
@@ -507,8 +609,8 @@
           fecha: lg.fecha || copy.date,
           origen: (lg.origen || "").toUpperCase(),
           destino: (lg.destino || "").toUpperCase(),
-          etd_utc: normalizeTimeOrOps(lg.etd_utc),
-          eta_utc: normalizeTimeOrOps(lg.eta_utc),
+          etd_utc: normalizeStoredTime(lg.etd_utc),
+          eta_utc: normalizeStoredTime(lg.eta_utc),
           pax_est: Number(lg.pax_est || 0)
         }));
       }
@@ -528,10 +630,11 @@
       });
     }
 
-    function getNextCorrelativePov() {
-      const nums = getAllCombinedOps()
-        .map(o => parseInt(String(o.pov).replace(/\D/g, ""), 10))
-        .filter(n => !isNaN(n) && n >= 1000 && n < 99999);
+    function getNextCorrelativePov(extraUsedPovs = []) {
+      const nums = [
+        ...getAllCombinedOps().map(o => parseInt(String(o.pov).replace(/\D/g, ""), 10)),
+        ...extraUsedPovs.map(p => parseInt(String(p).replace(/\D/g, ""), 10))
+      ].filter(n => !isNaN(n) && n >= 1000 && n < 99999);
       const maxPov = nums.length > 0 ? Math.max(...nums) : 9003;
       return String(maxPov + 1);
     }
@@ -543,17 +646,19 @@
     }
 
     /* =========================================================================
-       3. CONVERSIÓN DE HORARIOS (UTC Z <-> LOCAL CLT) Y MANEJO DE "OPS"
+       3. CONVERSIÓN DE HORARIOS (UTC Z <-> LOCAL CLT) Y VALORES VACÍOS
        ========================================================================= */
-    function isOpsToken(val) {
+    function isUnsetTimeToken(val) {
       if (val === null || val === undefined) return true;
       const s = String(val).trim().toUpperCase();
       return s === "" || s === "OPS";
     }
 
-    function normalizeTimeOrOps(val) {
-      if (isOpsToken(val)) return "OPS";
+    function normalizeStoredTime(val) {
+      if (val === null || val === undefined) return "";
       const s = String(val).trim().toUpperCase();
+      if (s === "") return "";
+      if (s === "OPS") return "OPS";
       const mColon = s.match(/^(\d{1,2}):(\d{2})$/);
       if (mColon) {
         const hh = parseInt(mColon[1], 10);
@@ -561,7 +666,7 @@
         if (hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59) {
           return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
         }
-        return "OPS";
+        return "";
       }
       const digits = s.replace(/\D/g, "");
       if (digits.length === 3 || digits.length === 4) {
@@ -572,11 +677,11 @@
           return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
         }
       }
-      return "OPS";
+      return "";
     }
 
     function formatTimeByTz(ms) {
-      if (ms === null || ms === undefined || isNaN(ms)) return "OPS";
+      if (ms === null || ms === undefined || isNaN(ms)) return "";
       const d = new Date(ms);
       if (tzMode === "UTC") {
         return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
@@ -584,52 +689,52 @@
       return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
     }
 
-    function parseInputTimeToMs(dateISO, hhmmOrOps) {
-      if (isOpsToken(hhmmOrOps)) return null;
-      const norm = normalizeTimeOrOps(hhmmOrOps);
-      if (norm === "OPS" || !dateISO) return null;
+    function parseInputTimeToMs(dateISO, hhmm) {
+      if (isUnsetTimeToken(hhmm)) return null;
+      const norm = normalizeStoredTime(hhmm);
+      if (!norm || norm === "OPS" || !dateISO) return null;
       const str = `${dateISO}T${norm}:00`;
       const ms = tzMode === "UTC" ? new Date(str + "Z").getTime() : new Date(str).getTime();
       return isNaN(ms) ? null : ms;
     }
 
     function utcHHMMToDisplayTz(dateISO, utcHHMM) {
-      if (isOpsToken(utcHHMM)) return "OPS";
-      const norm = normalizeTimeOrOps(utcHHMM);
-      if (norm === "OPS") return "OPS";
+      if (!utcHHMM) return "";
+      if (String(utcHHMM).trim().toUpperCase() === "OPS") return "OPS";
+      const norm = normalizeStoredTime(utcHHMM);
+      if (!norm) return "";
       if (tzMode === "UTC") return norm;
       const ms = new Date(`${dateISO}T${norm}:00Z`).getTime();
-      return isNaN(ms) ? "OPS" : formatTimeByTz(ms);
+      return isNaN(ms) ? "" : formatTimeByTz(ms);
     }
 
     function displayTzInputToUtcHHMM(dateISO, userInput) {
-      if (isOpsToken(userInput)) return "OPS";
-      const norm = normalizeTimeOrOps(userInput);
-      if (norm === "OPS") return "OPS";
+      if (userInput === null || userInput === undefined) return "";
+      const s = String(userInput).trim().toUpperCase();
+      if (s === "") return "";
+      if (s === "OPS") return "OPS";
+      const norm = normalizeStoredTime(s);
+      if (!norm) return "";
       if (tzMode === "UTC") return norm;
       const ms = new Date(`${dateISO}T${norm}:00`).getTime();
-      return isNaN(ms) ? "OPS" : msToUtcHHMM(ms);
+      return isNaN(ms) ? "" : msToUtcHHMM(ms);
     }
 
     function msToUtcHHMM(ms) {
-      if (ms === null || ms === undefined || isNaN(ms)) return "OPS";
+      if (ms === null || ms === undefined || isNaN(ms)) return "";
       const d = new Date(ms);
       return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
     }
 
-    function msToUtcDateISO(ms) {
-      return new Date(ms).toISOString().slice(0, 10);
-    }
-
     /**
      * Sincroniza siempre la hora de inicio general del vuelo con el despegue del primer tramo.
-     * Nunca convierte "OPS" en una hora ficticia.
+     * Nunca completa horas ficticias cuando el campo está vacío.
      */
     function recalculateFlightTimesFromLegs(op) {
       const firstLeg = Array.isArray(op.legs) && op.legs.length > 0 ? op.legs[0] : null;
-      const firstEtdUtc = firstLeg ? normalizeTimeOrOps(firstLeg.etd_utc) : "OPS";
+      const firstEtdUtc = firstLeg ? normalizeStoredTime(firstLeg.etd_utc) : "";
 
-      if (firstEtdUtc === "OPS") {
+      if (isUnsetTimeToken(firstEtdUtc)) {
         op.startMs = null;
       } else {
         const legDate = firstLeg.fecha || op.date;
@@ -637,15 +742,12 @@
         op.startMs = isNaN(ms) ? null : ms;
       }
 
-      // Calcular término: si hay endTimeUtc explicitado o ETA en último tramo
       const lastLeg = Array.isArray(op.legs) && op.legs.length > 0 ? op.legs[op.legs.length - 1] : null;
-      const explicitEndUtc = op.endTimeUtc ? normalizeTimeOrOps(op.endTimeUtc) : null;
-      const lastEtaUtc = lastLeg ? normalizeTimeOrOps(lastLeg.eta_utc) : "OPS";
-      const effectiveEndUtc = (explicitEndUtc && explicitEndUtc !== "OPS")
-        ? explicitEndUtc
-        : (explicitEndUtc === "OPS" ? "OPS" : lastEtaUtc);
+      const explicitEndUtc = op.endTimeUtc ? normalizeStoredTime(op.endTimeUtc) : "";
+      const lastEtaUtc = lastLeg ? normalizeStoredTime(lastLeg.eta_utc) : "";
+      const effectiveEndUtc = !isUnsetTimeToken(explicitEndUtc) ? explicitEndUtc : lastEtaUtc;
 
-      if (!effectiveEndUtc || effectiveEndUtc === "OPS") {
+      if (isUnsetTimeToken(effectiveEndUtc)) {
         op.endMs = null;
       } else {
         const endDate = (lastLeg && lastLeg.fecha) || op.date;
@@ -665,7 +767,7 @@
     }
 
     /* =========================================================================
-       4. DISPONIBILIDAD DE AERONAVES POR MATERIAL Y VALIDACIÓN OPERACIONAL
+       4. DISPONIBILIDAD DE AERONAVES POR MATERIAL Y VALIDACIÓN DE PILOTOS (PIC/SIC)
        ========================================================================= */
     function matchesMaterialModel(fleetModel, selectedMaterial) {
       if (!selectedMaterial) return false;
@@ -673,10 +775,10 @@
       return fleetModel === selectedMaterial;
     }
 
-    function getAvailableAircraftForSlot(material, dateISO, startMs, endMs, ignoreId = null) {
+    function getAvailableAircraftForSlot(material, dateISO, startMs, endMs, ignoreId = null, extraOps = []) {
       if (!material) return { fleetOfModel: [], available: [], unavailable: [] };
       const fleetOfModel = FLEET_MASTER.filter(f => matchesMaterialModel(f.model, material));
-      const allOps = getAllCombinedOps().filter(o => o.id !== ignoreId && o.estado !== "CANCELADO");
+      const allOps = [...getAllCombinedOps(), ...extraOps].filter(o => o.id !== ignoreId && o.estado !== "CANCELADO");
       const fleetBlocks = getFleetBlocks();
       const hasInterval = startMs != null && !isNaN(startMs) && endMs != null && !isNaN(endMs) && endMs > startMs;
 
@@ -708,7 +810,6 @@
             }
           }
         } else if (dateISO) {
-          // Si el vuelo está en OPS sin hora definida, solo bloqueamos si hay un AOG/Mantenimiento que cubre todo el día completo
           const dayStart = parseInputTimeToMs(dateISO, "00:00");
           const dayEnd = dayStart + 86400000;
           const fullDayBlock = fleetBlocks.find(b =>
@@ -731,14 +832,31 @@
       return { fleetOfModel, available, unavailable };
     }
 
+    // Habilitación general de material (aplica a SIC y Refuerzo)
     function isPilotRatedForMaterial(pilot, material) {
       if (!pilot || !material) return false;
       if (material === "A109") return pilot.hab.some(h => h.startsWith("A109"));
       return pilot.hab.includes(material);
     }
 
-    function evaluatePilotAvailability(pilot, material, dateISO, startMs, endMs, ignoreId = null, sameFlightOtherInis = []) {
-      if (!isPilotRatedForMaterial(pilot, material)) {
+    // Habilitación y condición PIC en el material (aplica exclusivamente a PIC)
+    function isPilotPicForMaterial(pilot, material) {
+      if (!pilot || !material) return false;
+      if (!isPilotRatedForMaterial(pilot, material)) return false;
+      if (AIRPLANE_MODELS.includes(material) && AIRPLANE_SIC_LIST.includes(pilot.ini)) {
+        return false;
+      }
+      const picList = Array.isArray(pilot.picHab) ? pilot.picHab : pilot.hab;
+      if (material === "A109") return picList.some(h => h.startsWith("A109"));
+      return picList.includes(material);
+    }
+
+    function evaluatePilotAvailability(pilot, material, dateISO, startMs, endMs, ignoreId = null, sameFlightOtherInis = [], roleType = "ANY", extraOps = []) {
+      if (roleType === "PIC") {
+        if (!isPilotPicForMaterial(pilot, material)) {
+          return { status: "NOT_RATED", blocked: true, reason: `Sin condición PIC en ${material}` };
+        }
+      } else if (!isPilotRatedForMaterial(pilot, material)) {
         return { status: "NOT_RATED", blocked: true, reason: `Sin habilitación ${material}` };
       }
 
@@ -747,11 +865,11 @@
       }
 
       const rules = getRules();
-      const allOps = getAllCombinedOps().filter(o => o.id !== ignoreId && o.estado !== "CANCELADO");
+      const allOps = [...getAllCombinedOps(), ...extraOps].filter(o => o.id !== ignoreId && o.estado !== "CANCELADO");
       const crewBlocks = getCrewBlocks();
       const hasInterval = startMs != null && !isNaN(startMs) && endMs != null && !isNaN(endMs) && endMs > startMs;
 
-      // 1. Verificar conflictos bloqueantes (ROJO)
+      // 1. Conflictos bloqueantes (ROJO)
       if (hasInterval) {
         const flightOverlap = allOps.find(o =>
           [o.picIni, o.sicIni, o.refIni].includes(pilot.ini) &&
@@ -797,7 +915,6 @@
           }
         }
       } else if (dateISO) {
-        // Si el vuelo está en OPS sin hora definida, verificar bloqueos de día completo en crewBlocks
         const dayStart = parseInputTimeToMs(dateISO, "00:00");
         const dayEnd = dayStart + 86400000;
         const fullDayCrewBlock = crewBlocks.find(a =>
@@ -814,7 +931,7 @@
         }
       }
 
-      // 2. Verificar advertencias operacionales (AMARILLO - seleccionable con revisión)
+      // 2. Advertencias operacionales (AMARILLO - seleccionable con revisión)
       if (hasInterval) {
         const openPrev = allOps.find(o =>
           [o.picIni, o.sicIni, o.refIni].includes(pilot.ini) &&
@@ -836,7 +953,7 @@
         if (sameDayFlight) {
           const timeInfo = hasValidTimeInterval(sameDayFlight)
             ? `${formatTimeByTz(sameDayFlight.startMs)}-${formatTimeByTz(sameDayFlight.endMs)}`
-            : "OPS";
+            : "sin hora definida";
           return {
             status: "YELLOW",
             blocked: false,
@@ -852,7 +969,7 @@
           return {
             status: "YELLOW",
             blocked: false,
-            reason: `Asignado a POV ${sameDayFlight.pov} el mismo día (horario actual en OPS)`
+            reason: `Asignado a POV ${sameDayFlight.pov} el mismo día`
           };
         }
         const partialBlock = crewBlocks.find(a => {
@@ -864,7 +981,7 @@
           return {
             status: "YELLOW",
             blocked: false,
-            reason: `Actividad ${partialBlock.type} registrada en la fecha (horario en OPS)`
+            reason: `Actividad ${partialBlock.type} registrada en la fecha`
           };
         }
       }
@@ -873,8 +990,8 @@
       return { status: "GREEN", blocked: false, reason: "Disponible" };
     }
 
-    function getPilotOptionHtml(pilot, material, dateISO, startMs, endMs, ignoreId, selectedIni, sameFlightOtherInis) {
-      const ev = evaluatePilotAvailability(pilot, material, dateISO, startMs, endMs, ignoreId, sameFlightOtherInis);
+    function getPilotOptionHtml(pilot, material, dateISO, startMs, endMs, ignoreId, selectedIni, sameFlightOtherInis, roleType = "ANY", extraOps = []) {
+      const ev = evaluatePilotAvailability(pilot, material, dateISO, startMs, endMs, ignoreId, sameFlightOtherInis, roleType, extraOps);
       const isSelected = pilot.ini === selectedIni;
       if (ev.status === "RED") {
         return `<option value="${pilot.ini}" ${isSelected ? "selected" : ""} disabled title="No disponible: ${ev.reason}">🔴 ${pilot.displayName} — ${ev.reason}</option>`;
@@ -885,9 +1002,9 @@
       return `<option value="${pilot.ini}" ${isSelected ? "selected" : ""} title="Disponible">🟢 ${pilot.displayName}</option>`;
     }
 
-    function validateOperation(op, ignoreId = null) {
+    function validateOperation(op, ignoreId = null, extraOps = []) {
       const issues = []; // { level: 'ERR' | 'WARN', msg }
-      const allOps = getAllCombinedOps().filter(o => o.id !== ignoreId && o.estado !== "CANCELADO");
+      const allOps = [...getAllCombinedOps(), ...extraOps].filter(o => o.id !== ignoreId && o.estado !== "CANCELADO");
       const fleetBlocks = getFleetBlocks();
       const hasInterval = hasValidTimeInterval(op);
 
@@ -914,7 +1031,7 @@
           }
         }
       } else if (op.material) {
-        const slot = getAvailableAircraftForSlot(op.material, op.date, op.startMs, op.endMs, ignoreId);
+        const slot = getAvailableAircraftForSlot(op.material, op.date, op.startMs, op.endMs, ignoreId, extraOps);
         if (slot.available.length === 0) {
           issues.push({ level: "WARN", msg: `Sin matrículas disponibles para ${op.material} en este horario.` });
         }
@@ -922,23 +1039,29 @@
 
       // 2. Validación de Tripulación (PIC, SIC, Refuerzo)
       const assignedCrew = [
-        { role: "PIC", ini: op.picIni },
-        { role: "SIC", ini: op.sicIni },
-        { role: "Refuerzo", ini: op.refIni }
+        { role: "PIC", roleType: "PIC", ini: op.picIni },
+        { role: "SIC", roleType: "SIC", ini: op.sicIni },
+        { role: "Refuerzo", roleType: "REF", ini: op.refIni }
       ].filter(c => c.ini);
 
-      assignedCrew.forEach(({ role, ini }) => {
+      assignedCrew.forEach(({ role, roleType, ini }) => {
         const pilot = PILOTOS_DB.find(p => p.ini === ini);
         const pName = pilot ? pilot.displayName : ini;
 
-        if (pilot && op.material && !isPilotRatedForMaterial(pilot, op.material)) {
-          issues.push({ level: "ERR", msg: `${pName} (${role}) no posee habilitación ${op.material}.` });
-          return;
+        if (pilot && op.material) {
+          if (roleType === "PIC" && !isPilotPicForMaterial(pilot, op.material)) {
+            issues.push({ level: "ERR", msg: `${pName} (PIC) no posee condición PIC para ${op.material}.` });
+            return;
+          }
+          if (roleType !== "PIC" && !isPilotRatedForMaterial(pilot, op.material)) {
+            issues.push({ level: "ERR", msg: `${pName} (${role}) no posee habilitación ${op.material}.` });
+            return;
+          }
         }
 
         if (pilot) {
           const otherInis = assignedCrew.filter(c => c.role !== role).map(c => c.ini);
-          const ev = evaluatePilotAvailability(pilot, op.material, op.date, op.startMs, op.endMs, ignoreId, otherInis);
+          const ev = evaluatePilotAvailability(pilot, op.material, op.date, op.startMs, op.endMs, ignoreId, otherInis, roleType, extraOps);
           if (ev.status === "RED") {
             issues.push({ level: "ERR", msg: `${pName} (${role}): ${ev.reason}.` });
           } else if (ev.status === "YELLOW") {
@@ -1035,14 +1158,6 @@
       return typeof v === "object" ? "" : String(v).trim();
     }
 
-    function parseHHMMToMin(str) {
-      if (isOpsToken(str)) return null;
-      const clean = (str || "").toString().replace(/[^0-9]/g, "");
-      if (clean.length < 3) return null;
-      const p = clean.padStart(4, "0").slice(0, 4);
-      return parseInt(p.slice(0, 2), 10) * 60 + parseInt(p.slice(2, 4), 10);
-    }
-
     async function syncDriveAll(silent = false) {
       const lbl = document.getElementById("syncStatus");
       try {
@@ -1092,24 +1207,23 @@
                 fecha: lg.fecha || dateISO,
                 origen: (lg.origen || "").toUpperCase(),
                 destino: (lg.destino || "").toUpperCase(),
-                etd_utc: normalizeTimeOrOps(lg.etd_utc),
-                eta_utc: normalizeTimeOrOps(lg.eta_utc),
+                etd_utc: normalizeStoredTime(lg.etd_utc),
+                eta_utc: normalizeStoredTime(lg.eta_utc),
                 pax_est: Number(lg.pax_est || 0)
               }))
             : extractLegsFromEfb(raw, dateISO);
 
-          // Asegurar que si globals.duty_start existe y el primer tramo estaba en OPS, se sincronice
-          const gDutyStart = normalizeTimeOrOps(unwrapVal(g.duty_start));
-          if (legs.length > 0 && legs[0].etd_utc === "OPS" && gDutyStart !== "OPS") {
+          const gDutyStart = normalizeStoredTime(unwrapVal(g.duty_start));
+          if (legs.length > 0 && isUnsetTimeToken(legs[0].etd_utc) && !isUnsetTimeToken(gDutyStart)) {
             legs[0].etd_utc = gDutyStart;
           }
 
-          const gDutyEnd = normalizeTimeOrOps(unwrapVal(g.duty_end));
+          const gDutyEnd = normalizeStoredTime(unwrapVal(g.duty_end));
           const isClosed = g.vuelo_cerrado === true;
           const hasEfbData = g.haSidoGuardado === true;
           let estado = p.estado_ciclo || "PROGRAMADO";
           if (isClosed) estado = "COMPLETADO";
-          else if (!isClosed && gDutyStart !== "OPS" && hasEfbData && estado !== "CANCELADO") estado = "EN EJECUCIÓN";
+          else if (!isClosed && !isUnsetTimeToken(gDutyStart) && hasEfbData && estado !== "CANCELADO") estado = "EN EJECUCIÓN";
 
           const routeCodes = legs.length > 0
             ? [legs[0].origen, ...legs.map(l => l.destino)].filter(Boolean)
@@ -1127,8 +1241,8 @@
             sicIni: unwrapVal(g.m_sic_ini).toUpperCase(),
             refIni: unwrapVal(g.m_sic2_ini).toUpperCase(),
             route: routeStr,
-            endTimeUtc: gDutyEnd !== "OPS" ? gDutyEnd : null,
-            tipoServicio: p.tipo_servicio || "Charter Ejecutivo",
+            endTimeUtc: !isUnsetTimeToken(gDutyEnd) ? gDutyEnd : "",
+            tipoServicio: p.tipo_servicio || "",
             cliente: p.cliente_ref || "",
             observaciones: p.observaciones_ops || "",
             legs,
@@ -1182,7 +1296,7 @@
       const ld = raw.legData || {};
       const keys = Object.keys(ld).sort((a, b) => Number(a) - Number(b));
       if (keys.length === 0) {
-        return [{ leg: 1, fecha: defaultDate, origen: "", destino: "", etd_utc: "OPS", eta_utc: "OPS", pax_est: 0 }];
+        return [{ leg: 1, fecha: defaultDate, origen: "", destino: "", etd_utc: "", eta_utc: "", pax_est: 0 }];
       }
       return keys.map((k, idx) => {
         const item = ld[k] || {};
@@ -1191,8 +1305,8 @@
           fecha: unwrapVal(item[`m_t${k}_fecha`]) || defaultDate,
           origen: unwrapVal(item[`m_t${k}_desde`]).toUpperCase(),
           destino: unwrapVal(item[`m_t${k}_dest`]).toUpperCase(),
-          etd_utc: normalizeTimeOrOps(unwrapVal(item[`m_t${k}_time_out`])),
-          eta_utc: normalizeTimeOrOps(unwrapVal(item[`m_t${k}_time_in`])),
+          etd_utc: normalizeStoredTime(unwrapVal(item[`m_t${k}_time_out`])),
+          eta_utc: normalizeStoredTime(unwrapVal(item[`m_t${k}_time_in`])),
           pax_est: Number(unwrapVal(item[`m_t${k}_pax`]) || 0)
         };
       });
@@ -1205,7 +1319,7 @@
     }
 
     /* =========================================================================
-       6. PARSEO DE RUTA Y PERSISTENCIA (SOPORTE PARA RUTAS INCOMPLETAS Y OPS)
+       6. PARSEO DE RUTA Y PERSISTENCIA
        ========================================================================= */
     function parseRouteToLegs(routeStr, dateISO, existingLegs = []) {
       const cleaned = (routeStr || "").toUpperCase().trim();
@@ -1218,8 +1332,8 @@
             fecha: lg.fecha || dateISO,
             origen: lg.origen || "",
             destino: lg.destino || "",
-            etd_utc: normalizeTimeOrOps(lg.etd_utc),
-            eta_utc: normalizeTimeOrOps(lg.eta_utc),
+            etd_utc: normalizeStoredTime(lg.etd_utc),
+            eta_utc: normalizeStoredTime(lg.eta_utc),
             pax_est: Number(lg.pax_est || 0)
           }));
         }
@@ -1228,8 +1342,8 @@
           fecha: dateISO,
           origen: "",
           destino: "",
-          etd_utc: "OPS",
-          eta_utc: "OPS",
+          etd_utc: "",
+          eta_utc: "",
           pax_est: 0
         }];
       }
@@ -1241,8 +1355,8 @@
           fecha: prev.fecha || dateISO,
           origen: codes[0],
           destino: prev.destino || "",
-          etd_utc: normalizeTimeOrOps(prev.etd_utc),
-          eta_utc: normalizeTimeOrOps(prev.eta_utc),
+          etd_utc: normalizeStoredTime(prev.etd_utc),
+          eta_utc: normalizeStoredTime(prev.eta_utc),
           pax_est: Number(prev.pax_est || 0)
         }];
       }
@@ -1255,8 +1369,8 @@
           fecha: prev.fecha || dateISO,
           origen: codes[i],
           destino: codes[i + 1],
-          etd_utc: normalizeTimeOrOps(prev.etd_utc),
-          eta_utc: normalizeTimeOrOps(prev.eta_utc),
+          etd_utc: normalizeStoredTime(prev.etd_utc),
+          eta_utc: normalizeStoredTime(prev.eta_utc),
           pax_est: Number(prev.pax_est || 0)
         };
       });
@@ -1278,7 +1392,7 @@
     }
 
     async function persistOperation(op, isNew = false, options = {}) {
-      const { skipConfirm = false, silentSync = false } = options;
+      const { skipConfirm = false, silentSync = false, skipRender = false } = options;
       const lbl = document.getElementById("syncStatus");
       const rules = getRules();
       recalculateFlightTimesFromLegs(op);
@@ -1296,7 +1410,7 @@
         const drafts = getDraftsList().filter(d => d.id !== op.id);
         drafts.push(op);
         saveDraftsList(drafts);
-        renderAll();
+        if (!skipRender) renderAll();
         try {
           const token = await getDriveAccessToken(!silentSync);
           await saveConfigFileToDrive(token, "borradores.json", drafts);
@@ -1327,7 +1441,7 @@
       baseJson.planificacion = {
         pov_id: op.pov,
         estado_ciclo: op.estado,
-        tipo_servicio: op.tipoServicio,
+        tipo_servicio: op.tipoServicio || "",
         cliente_ref: op.cliente,
         observaciones_ops: op.observaciones,
         tramos_planificados: op.legs,
@@ -1360,7 +1474,7 @@
       if (!pilotAlreadyEdited || !baseJson.legData || Object.keys(baseJson.legData).length === 0) {
         const legsToWrite = (op.legs && op.legs.length > 0)
           ? op.legs
-          : [{ leg: 1, fecha: op.date, origen: "", destino: "", etd_utc: "OPS", eta_utc: "OPS", pax_est: 0 }];
+          : [{ leg: 1, fecha: op.date, origen: "", destino: "", etd_utc: "", eta_utc: "", pax_est: 0 }];
         baseJson.legs = legsToWrite.length;
         baseJson.legData = {};
         legsToWrite.forEach((lg, idx) => {
@@ -1374,11 +1488,10 @@
         });
       }
 
-      // Conservar cada vuelo sin sobrescribir registros distintos (filtrar solo por op.id)
       const opsList = getOpsList().filter(o => o.id !== op.id);
       opsList.push(op);
       saveOpsList(opsList);
-      renderAll();
+      if (!skipRender) renderAll();
 
       try {
         lbl.textContent = `Guardando POV_${op.pov} en Drive...`;
@@ -1399,7 +1512,7 @@
     }
 
     /* =========================================================================
-       7. GESTIÓN DEL FORMULARIO DE NUEVO VUELO (VALORES PREDETERMINADOS Y CREACIÓN RÁPIDA)
+       7. GESTIÓN DEL FORMULARIO DE NUEVO VUELO (VALORES PREDETERMINADOS)
        ========================================================================= */
     function createDefaultQuickDraft(dateISO) {
       return {
@@ -1413,14 +1526,14 @@
         sicIni: "",
         refIni: "",
         route: "",
-        endTimeUtc: "OPS",
+        endTimeUtc: "",
         startMs: null,
         endMs: null,
-        tipoServicio: "Charter Ejecutivo",
+        tipoServicio: "",     // Predeterminado: En blanco
         cliente: "",
         observaciones: "",
         legs: [
-          { leg: 1, fecha: dateISO, origen: "", destino: "", etd_utc: "OPS", eta_utc: "OPS", pax_est: 0 }
+          { leg: 1, fecha: dateISO, origen: "", destino: "", etd_utc: "", eta_utc: "", pax_est: 0 }
         ],
         isClosed: false,
         hasEfbData: false
@@ -1444,16 +1557,17 @@
       if (draft.aircraft && draft.aircraft.trim() !== "") return true;
       if (draft.picIni || draft.sicIni || draft.refIni) return true;
       if (draft.route && draft.route.trim() !== "") return true;
+      if (draft.tipoServicio && draft.tipoServicio.trim() !== "") return true;
       if (draft.cliente && draft.cliente.trim() !== "") return true;
       if (draft.observaciones && draft.observaciones.trim() !== "") return true;
       if (draft.estado && draft.estado !== "PROGRAMADO") return true;
-      if (draft.endTimeUtc && draft.endTimeUtc !== "OPS") return true;
+      if (draft.endTimeUtc && draft.endTimeUtc.trim() !== "") return true;
       if (Array.isArray(draft.legs)) {
         const anyLegModified = draft.legs.some(l =>
           (l.origen && l.origen.trim() !== "") ||
           (l.destino && l.destino.trim() !== "") ||
-          (l.etd_utc && l.etd_utc !== "OPS") ||
-          (l.eta_utc && l.eta_utc !== "OPS") ||
+          (l.etd_utc && l.etd_utc.trim() !== "") ||
+          (l.eta_utc && l.eta_utc.trim() !== "") ||
           Number(l.pax_est || 0) > 0
         );
         if (anyLegModified) return true;
@@ -1469,10 +1583,9 @@
         q.estado = val;
       } else if (field === "material") {
         q.material = val;
-        // Limpiar tripulación si no está habilitada para el nuevo material
         if (q.picIni) {
           const p = PILOTOS_DB.find(x => x.ini === q.picIni);
-          if (!isPilotRatedForMaterial(p, q.material)) q.picIni = "";
+          if (!isPilotPicForMaterial(p, q.material)) q.picIni = "";
         }
         if (q.sicIni) {
           const p = PILOTOS_DB.find(x => x.ini === q.sicIni);
@@ -1482,7 +1595,6 @@
           const p = PILOTOS_DB.find(x => x.ini === q.refIni);
           if (!isPilotRatedForMaterial(p, q.material)) q.refIni = "";
         }
-        // Selección automática de matrícula según disponibilidad del material y horario
         applyAutoAircraftSelection(q, null);
       } else if (field === "aircraft") {
         q.aircraft = val;
@@ -1533,8 +1645,8 @@
         fecha: last.fecha || q.date,
         origen: last.destino || "",
         destino: "",
-        etd_utc: "OPS",
-        eta_utc: "OPS",
+        etd_utc: "",
+        eta_utc: "",
         pax_est: 0
       });
       q.route = buildRouteStringFromLegs(q.legs);
@@ -1552,35 +1664,27 @@
       renderDailyView();
     }
 
-    function applyAutoAircraftSelection(op, ignoreId) {
+    function applyAutoAircraftSelection(op, ignoreId, extraOps = []) {
       if (!op.material) {
         op.aircraft = "";
         return;
       }
-      const slot = getAvailableAircraftForSlot(op.material, op.date, op.startMs, op.endMs, ignoreId);
+      const slot = getAvailableAircraftForSlot(op.material, op.date, op.startMs, op.endMs, ignoreId, extraOps);
       if (slot.available.length === 1) {
-        // Si existe exactamente una aeronave disponible, completar automáticamente
         op.aircraft = slot.available[0].mat;
       } else if (slot.available.length > 1) {
-        // Si hay varias disponibles, conservar la actual solo si sigue estando disponible; si no, dejar en blanco para que el usuario elija
         const stillValid = slot.available.some(a => a.mat === op.aircraft);
         if (!stillValid) op.aircraft = "";
       } else {
-        // No hay aeronaves disponibles
         op.aircraft = "";
       }
     }
 
-    /**
-     * Crea un nuevo vuelo rápidamente: si el formulario actual ya tiene datos
-     * (incluso con ruta vacía o incompleta), lo guarda sin sobrescribir los anteriores
-     * e inicia inmediatamente un nuevo formulario limpio con los valores predeterminados.
-     */
     async function createAnotherFlight() {
       const q = ensureQuickFormState();
       if (hasQuickDraftUserContent(q)) {
         const toSave = JSON.parse(JSON.stringify(q));
-        toSave.id = `POV_${toSave.pov}_${Date.now()}`;
+        toSave.id = `POV_${toSave.pov}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`;
         recalculateFlightTimesFromLegs(toSave);
         await persistOperation(toSave, true, { skipConfirm: true, silentSync: true });
       }
@@ -1594,7 +1698,7 @@
     async function commitQuickRow() {
       const q = ensureQuickFormState();
       const toSave = JSON.parse(JSON.stringify(q));
-      toSave.id = `POV_${toSave.pov}_${Date.now()}`;
+      toSave.id = `POV_${toSave.pov}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`;
       recalculateFlightTimesFromLegs(toSave);
 
       const saved = await persistOperation(toSave, true, { skipConfirm: false, silentSync: false });
@@ -1605,7 +1709,686 @@
     }
 
     /* =========================================================================
-       8. RENDERIZADO: GRILLA TIPO EXCEL, TIMELINE DIARIO, SEMANA Y MES
+       8. COPIAR Y REPETIR VUELOS (MODAL INTERACTIVO + VISTA PREVIA + VALIDACIONES)
+       ========================================================================= */
+    const DOW_LABELS = [
+      { dow: 1, short: "Lun", full: "Lunes" },
+      { dow: 2, short: "Mar", full: "Martes" },
+      { dow: 3, short: "Mié", full: "Miércoles" },
+      { dow: 4, short: "Jue", full: "Jueves" },
+      { dow: 5, short: "Vie", full: "Viernes" },
+      { dow: 6, short: "Sáb", full: "Sábado" },
+      { dow: 0, short: "Dom", full: "Domingo" }
+    ];
+
+    function addDaysToISO(dateISO, deltaDays) {
+      const d = new Date(dateISO + "T12:00:00");
+      d.setDate(d.getDate() + deltaDays);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function diffDaysISO(fromISO, toISO) {
+      const a = new Date(fromISO + "T12:00:00").getTime();
+      const b = new Date(toISO + "T12:00:00").getTime();
+      return Math.round((b - a) / 86400000);
+    }
+
+    function getEndOfMonthISO(dateISO) {
+      const [y, m] = dateISO.split("-").map(Number);
+      const last = new Date(y, m, 0);
+      return `${y}-${String(m).padStart(2, "0")}-${String(last.getDate()).padStart(2, "0")}`;
+    }
+
+    function buildIndependentFlightCopy(srcOp, targetDateISO, newPov, indexSeed = 0) {
+      const dayDelta = diffDaysISO(srcOp.date, targetDateISO);
+      const copy = JSON.parse(JSON.stringify(srcOp));
+      copy.id = `POV_${newPov}_${Date.now()}_${indexSeed}_${Math.random().toString(36).slice(2, 5)}`;
+      copy.pov = String(newPov);
+      copy.date = targetDateISO;
+      copy.estado = ["COMPLETADO", "CANCELADO", "EN EJECUCIÓN"].includes(srcOp.estado) ? "PROGRAMADO" : (srcOp.estado || "PROGRAMADO");
+      copy.isClosed = false;
+      copy.hasEfbData = false;
+      copy.sourcePovRef = srcOp.pov;
+      copy.legs = (srcOp.legs || []).map((lg, idx) => ({
+        leg: lg.leg || (idx + 1),
+        fecha: lg.fecha ? addDaysToISO(lg.fecha, dayDelta) : targetDateISO,
+        origen: (lg.origen || "").toUpperCase(),
+        destino: (lg.destino || "").toUpperCase(),
+        etd_utc: normalizeStoredTime(lg.etd_utc),
+        eta_utc: normalizeStoredTime(lg.eta_utc),
+        pax_est: Number(lg.pax_est || 0)
+      }));
+      recalculateFlightTimesFromLegs(copy);
+      return copy;
+    }
+
+    /**
+     * Evalúa disponibilidad de matrícula y tripulación (PIC/SIC/Refuerzo) para una copia en targetDate.
+     * No deja asignadas matrículas ni pilotos con conflicto bloqueante (ROJO).
+     */
+    function sanitizeAndEvaluateCopyResources(copyOp, extraOps = []) {
+      const notes = []; // { level: 'ERR' | 'WARN', text }
+
+      // 1. Verificar aeronave para la nueva fecha y horario
+      if (copyOp.material) {
+        const slot = getAvailableAircraftForSlot(copyOp.material, copyOp.date, copyOp.startMs, copyOp.endMs, copyOp.id, extraOps);
+        if (copyOp.aircraft) {
+          const isStillAvail = slot.available.some(a => a.mat === copyOp.aircraft);
+          if (!isStillAvail) {
+            const busyInfo = slot.unavailable.find(u => u.mat === copyOp.aircraft);
+            notes.push({
+              level: "ERR",
+              text: `Matrícula ${copyOp.aircraft} no disponible (${busyInfo ? busyInfo.reason : "ocupada"}) — desasignada`
+            });
+            copyOp.aircraft = "";
+          }
+        }
+        if (!copyOp.aircraft && slot.available.length === 1) {
+          copyOp.aircraft = slot.available[0].mat;
+        } else if (!copyOp.aircraft && slot.available.length === 0) {
+          notes.push({ level: "ERR", text: `Sin matrículas ${copyOp.material} disponibles en esta fecha/horario` });
+        }
+      }
+
+      // 2. Verificar tripulación (PIC, SIC, Refuerzo)
+      const crewSpecs = [
+        { key: "picIni", label: "PIC", roleType: "PIC" },
+        { key: "sicIni", label: "SIC", roleType: "SIC" },
+        { key: "refIni", label: "Refuerzo", roleType: "REF" }
+      ];
+
+      crewSpecs.forEach(({ key, label, roleType }) => {
+        const ini = copyOp[key];
+        if (!ini) return;
+        const pilot = PILOTOS_DB.find(p => p.ini === ini);
+        if (!pilot) return;
+        const otherInis = crewSpecs.filter(c => c.key !== key).map(c => copyOp[c.key]).filter(Boolean);
+        const ev = evaluatePilotAvailability(pilot, copyOp.material, copyOp.date, copyOp.startMs, copyOp.endMs, copyOp.id, otherInis, roleType, extraOps);
+
+        if (ev.status === "NOT_RATED" || ev.status === "RED") {
+          notes.push({
+            level: "ERR",
+            text: `${label} ${pilot.displayName}: ${ev.reason} — desasignado`
+          });
+          copyOp[key] = "";
+        } else if (ev.status === "YELLOW") {
+          notes.push({
+            level: "WARN",
+            text: `${label} ${pilot.displayName}: ${ev.reason}`
+          });
+        }
+      });
+
+      return notes;
+    }
+
+    function openCopyRepeatModal(opId) {
+      const src = getAllCombinedOps().find(o => o.id === opId);
+      if (!src) return;
+
+      const defaultNextDate = addDaysToISO(src.date, 1);
+      const nextPov = getNextCorrelativePov();
+      const singleDraft = buildIndependentFlightCopy(src, defaultNextDate, nextPov, 0);
+      sanitizeAndEvaluateCopyResources(singleDraft);
+
+      const srcDow = new Date(src.date + "T12:00:00").getDay();
+      const repeatFrom = src.date;
+      const repeatTo = getEndOfMonthISO(src.date);
+
+      copyRepeatState = {
+        sourceOp: JSON.parse(JSON.stringify(src)),
+        mode: "SINGLE",
+        singleCopyDraft: singleDraft,
+        repeatFrom,
+        repeatTo,
+        repeatMax: "",
+        selectedDows: [srcDow],
+        repeatRows: []
+      };
+
+      document.getElementById("crModalTitle").textContent = `📋 Copiar / Repetir Vuelo — POV ${src.pov}`;
+      document.getElementById("crSourceSummary").textContent =
+        `Original: ${src.date} · ${src.material || "Sin mat."} ${src.aircraft || ""} · Ruta: ${src.route || "Pendiente"}`;
+
+      document.getElementById("crSingleDate").value = defaultNextDate;
+      document.getElementById("crSinglePov").value = singleDraft.pov;
+
+      document.getElementById("crRepeatFrom").value = repeatFrom;
+      document.getElementById("crRepeatTo").value = repeatTo;
+      document.getElementById("crRepeatMax").value = "";
+
+      setCopyRepeatMode("SINGLE");
+      openModal("modalCopyRepeat");
+    }
+
+    function setCopyRepeatMode(mode) {
+      copyRepeatState.mode = mode;
+      document.getElementById("crTabSINGLE").classList.toggle("active", mode === "SINGLE");
+      document.getElementById("crTabREPEAT").classList.toggle("active", mode === "REPEAT");
+      document.getElementById("crBodySINGLE").style.display = mode === "SINGLE" ? "block" : "none";
+      document.getElementById("crBodyREPEAT").style.display = mode === "REPEAT" ? "block" : "none";
+
+      if (mode === "SINGLE") {
+        renderSingleCopyEditor();
+      } else {
+        renderDowSelector();
+        recomputeRepeatPreview();
+      }
+    }
+
+    /* --- Modalidad A: Copiar a otra fecha --- */
+    function onCopySingleDateChange() {
+      const newDate = document.getElementById("crSingleDate").value;
+      if (!newDate || !copyRepeatState.sourceOp) return;
+      const currentPov = copyRepeatState.singleCopyDraft?.pov || getNextCorrelativePov();
+      const rebuilt = buildIndependentFlightCopy(copyRepeatState.sourceOp, newDate, currentPov, 0);
+      sanitizeAndEvaluateCopyResources(rebuilt);
+      copyRepeatState.singleCopyDraft = rebuilt;
+      renderSingleCopyEditor();
+    }
+
+    function onCopySingleFieldChange(field, val) {
+      const draft = copyRepeatState.singleCopyDraft;
+      if (!draft) return;
+
+      if (field === "pov") {
+        draft.pov = val.trim() || getNextCorrelativePov();
+      } else if (field === "material") {
+        draft.material = val;
+        if (draft.picIni) {
+          const p = PILOTOS_DB.find(x => x.ini === draft.picIni);
+          if (!isPilotPicForMaterial(p, draft.material)) draft.picIni = "";
+        }
+        if (draft.sicIni) {
+          const p = PILOTOS_DB.find(x => x.ini === draft.sicIni);
+          if (!isPilotRatedForMaterial(p, draft.material)) draft.sicIni = "";
+        }
+        if (draft.refIni) {
+          const p = PILOTOS_DB.find(x => x.ini === draft.refIni);
+          if (!isPilotRatedForMaterial(p, draft.material)) draft.refIni = "";
+        }
+        applyAutoAircraftSelection(draft, draft.id);
+      } else if (field === "route") {
+        draft.route = val.toUpperCase().trim();
+        draft.legs = parseRouteToLegs(draft.route, draft.date, draft.legs);
+        recalculateFlightTimesFromLegs(draft);
+        sanitizeAndEvaluateCopyResources(draft);
+      } else if (field === "endTime") {
+        draft.endTimeUtc = displayTzInputToUtcHHMM(draft.date, val);
+        recalculateFlightTimesFromLegs(draft);
+        sanitizeAndEvaluateCopyResources(draft);
+      } else {
+        draft[field] = val;
+      }
+      renderSingleCopyEditor();
+    }
+
+    function onCopySingleLegChange(idx, key, val) {
+      const draft = copyRepeatState.singleCopyDraft;
+      if (!draft || !draft.legs[idx]) return;
+
+      if (key === "etd") {
+        draft.legs[idx].etd_utc = displayTzInputToUtcHHMM(draft.legs[idx].fecha || draft.date, val);
+      } else if (key === "eta") {
+        draft.legs[idx].eta_utc = displayTzInputToUtcHHMM(draft.legs[idx].fecha || draft.date, val);
+      } else if (key === "origen" || key === "destino") {
+        draft.legs[idx][key] = val.toUpperCase().trim();
+        draft.route = buildRouteStringFromLegs(draft.legs);
+      } else if (key === "pax_est") {
+        draft.legs[idx].pax_est = Number(val) || 0;
+      }
+
+      recalculateFlightTimesFromLegs(draft);
+      sanitizeAndEvaluateCopyResources(draft);
+      renderSingleCopyEditor();
+    }
+
+    function renderSingleCopyEditor() {
+      const draft = copyRepeatState.singleCopyDraft;
+      if (!draft) return;
+
+      const issues = validateOperation(draft, draft.id);
+      const startDisp = draft.startMs != null ? formatTimeByTz(draft.startMs) : "--:--";
+      const endDisp = draft.endMs != null ? formatTimeByTz(draft.endMs) : "";
+
+      const acHtml = renderAircraftSelectorHtml(
+        draft.material,
+        draft.aircraft,
+        draft.date,
+        draft.startMs,
+        draft.endMs,
+        draft.id,
+        `onCopySingleFieldChange('aircraft', this.value)`
+      );
+
+      const picHtml = renderCrewSelectorHtml(
+        "PIC",
+        "PIC",
+        draft.material,
+        draft.picIni,
+        draft.date,
+        draft.startMs,
+        draft.endMs,
+        draft.id,
+        [draft.sicIni, draft.refIni].filter(Boolean),
+        `onCopySingleFieldChange('picIni', this.value)`
+      );
+
+      const sicHtml = renderCrewSelectorHtml(
+        "SIC",
+        "SIC",
+        draft.material,
+        draft.sicIni,
+        draft.date,
+        draft.startMs,
+        draft.endMs,
+        draft.id,
+        [draft.picIni, draft.refIni].filter(Boolean),
+        `onCopySingleFieldChange('sicIni', this.value)`
+      );
+
+      const refHtml = renderCrewSelectorHtml(
+        "REF",
+        "Refuerzo",
+        draft.material,
+        draft.refIni,
+        draft.date,
+        draft.startMs,
+        draft.endMs,
+        draft.id,
+        [draft.picIni, draft.sicIni].filter(Boolean),
+        `onCopySingleFieldChange('refIni', this.value)`
+      );
+
+      const alertHtml = issues.length === 0
+        ? `<div class="val-bar val-ok"><span>✅ Recursos disponibles sin conflictos para el ${draft.date}.</span></div>`
+        : `<div class="val-bar ${issues.some(i => i.level === "ERR") ? "val-err" : "val-warn"}"><span>⚠️ ${issues.map(i => i.msg).join(" · ")}</span></div>`;
+
+      document.getElementById("crSingleEditorContainer").innerHTML = `
+        <div class="cr-preview-box">
+          <div style="font-size:11px; font-weight:800; color:var(--accent-cyan); margin-bottom:8px;">
+            EDICIÓN PREVIA DE LA COPIA (Fecha: ${draft.date} · Registro independiente)
+          </div>
+          <div class="form-grid-3" style="margin-bottom:8px;">
+            <div class="form-field">
+              <label>Estado</label>
+              <select onchange="onCopySingleFieldChange('estado', this.value)">
+                ${ESTADOS_CICLO.map(st => `<option value="${st}" ${st === draft.estado ? "selected" : ""}>${st}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Material</label>
+              <select onchange="onCopySingleFieldChange('material', this.value)">
+                <option value="" ${!draft.material ? "selected" : ""}>-- Material --</option>
+                ${MATERIALES_DISPONIBLES.map(m => `<option value="${m}" ${m === draft.material ? "selected" : ""}>${m}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Matrícula Disponible</label>
+              ${acHtml}
+            </div>
+          </div>
+
+          <div class="form-grid-3" style="margin-bottom:8px;">
+            <div class="form-field"><label>PIC (Comandante)</label>${picHtml}</div>
+            <div class="form-field"><label>SIC (Copiloto)</label>${sicHtml}</div>
+            <div class="form-field"><label>Refuerzo</label>${refHtml}</div>
+          </div>
+
+          <div class="form-grid-3" style="margin-bottom:8px;">
+            <div class="form-field">
+              <label>Ruta</label>
+              <input type="text" style="text-transform:uppercase;" value="${draft.route || ""}" placeholder="ORIGEN-DEST" onchange="onCopySingleFieldChange('route', this.value)" />
+            </div>
+            <div class="form-field">
+              <label>Inicio General (${tzMode})</label>
+              <input type="text" value="${startDisp}" disabled title="Derivado del despegue del Tramo #1" />
+            </div>
+            <div class="form-field">
+              <label>Término (${tzMode})</label>
+              <input type="text" value="${endDisp}" placeholder="HH:MM" onchange="onCopySingleFieldChange('endTime', this.value)" />
+            </div>
+          </div>
+
+          <div class="form-grid-3" style="margin-bottom:8px;">
+            <div class="form-field">
+              <label>Tipo de Servicio</label>
+              <select onchange="onCopySingleFieldChange('tipoServicio', this.value)">
+                <option value="" ${!draft.tipoServicio ? "selected" : ""}>-- Tipo servicio --</option>
+                ${TIPOS_SERVICIO.map(t => `<option value="${t}" ${t === draft.tipoServicio ? "selected" : ""}>${t}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Cliente / Ref</label>
+              <input type="text" value="${draft.cliente || ""}" onchange="onCopySingleFieldChange('cliente', this.value)" />
+            </div>
+            <div class="form-field">
+              <label>Observaciones</label>
+              <input type="text" value="${draft.observaciones || ""}" onchange="onCopySingleFieldChange('observaciones', this.value)" />
+            </div>
+          </div>
+
+          <table class="cr-preview-table" style="margin-top:6px;">
+            <thead>
+              <tr><th>Tramo</th><th>Origen</th><th>Destino</th><th>Despegue (${tzMode})</th><th>ETA (${tzMode})</th><th>PAX</th></tr>
+            </thead>
+            <tbody>
+              ${(draft.legs || []).map((lg, i) => `
+                <tr>
+                  <td>#${lg.leg}</td>
+                  <td><input class="cell-input" style="width:75px; text-transform:uppercase;" value="${lg.origen || ""}" onchange="onCopySingleLegChange(${i}, 'origen', this.value)" /></td>
+                  <td><input class="cell-input" style="width:75px; text-transform:uppercase;" value="${lg.destino || ""}" onchange="onCopySingleLegChange(${i}, 'destino', this.value)" /></td>
+                  <td><input class="cell-input w-time" value="${utcHHMMToDisplayTz(lg.fecha || draft.date, lg.etd_utc)}" placeholder="HH:MM" onchange="onCopySingleLegChange(${i}, 'etd', this.value)" /></td>
+                  <td><input class="cell-input w-time" value="${utcHHMMToDisplayTz(lg.fecha || draft.date, lg.eta_utc)}" placeholder="HH:MM" onchange="onCopySingleLegChange(${i}, 'eta', this.value)" /></td>
+                  <td><input type="number" class="cell-input" style="width:60px;" value="${lg.pax_est || 0}" onchange="onCopySingleLegChange(${i}, 'pax_est', this.value)" /></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+          ${alertHtml}
+        </div>
+      `;
+    }
+
+    async function commitSingleCopy() {
+      const draft = copyRepeatState.singleCopyDraft;
+      if (!draft) return;
+      const toSave = JSON.parse(JSON.stringify(draft));
+      toSave.id = `POV_${toSave.pov}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`;
+      recalculateFlightTimesFromLegs(toSave);
+
+      const ok = await persistOperation(toSave, true, { skipConfirm: false, silentSync: false });
+      if (ok) {
+        closeModal("modalCopyRepeat");
+        anchorDate = toSave.date;
+        document.getElementById("anchorDateInput").value = anchorDate;
+        renderAll();
+      }
+    }
+
+    /* --- Modalidad B: Repetir determinados días de la semana --- */
+    function renderDowSelector() {
+      const container = document.getElementById("crDowGroup");
+      container.innerHTML = DOW_LABELS.map(item => {
+        const active = copyRepeatState.selectedDows.includes(item.dow);
+        return `<button type="button" class="dow-pill ${active ? "active" : ""}" onclick="toggleRepeatDow(${item.dow})">${item.full}</button>`;
+      }).join("");
+    }
+
+    function toggleRepeatDow(dow) {
+      const idx = copyRepeatState.selectedDows.indexOf(dow);
+      if (idx >= 0) {
+        copyRepeatState.selectedDows.splice(idx, 1);
+      } else {
+        copyRepeatState.selectedDows.push(dow);
+      }
+      renderDowSelector();
+      recomputeRepeatPreview();
+    }
+
+    function isEquivalentFlightAlreadyScheduled(srcOp, targetDateISO, existingOps) {
+      if (targetDateISO === srcOp.date) return true;
+      const srcRoute = (srcOp.route || "").toUpperCase().trim();
+      const srcFirstEtd = srcOp.legs?.[0]?.etd_utc || "";
+      return existingOps.some(o => {
+        if (o.estado === "CANCELADO") return false;
+        if (o.date !== targetDateISO) return false;
+        if (o.sourcePovRef && String(o.sourcePovRef) === String(srcOp.pov)) return true;
+        const sameRoute = (o.route || "").toUpperCase().trim() === srcRoute;
+        const sameMat = (o.material || "") === (srcOp.material || "");
+        const sameTime = (o.legs?.[0]?.etd_utc || "") === srcFirstEtd;
+        if (srcRoute !== "") {
+          return sameRoute && sameMat && sameTime;
+        }
+        return sameMat && sameTime && (o.tipoServicio || "") === (srcOp.tipoServicio || "") && (o.cliente || "") === (srcOp.cliente || "");
+      });
+    }
+
+    function recomputeRepeatPreview() {
+      const src = copyRepeatState.sourceOp;
+      if (!src) return;
+
+      const fromISO = document.getElementById("crRepeatFrom").value;
+      const toISO = document.getElementById("crRepeatTo").value;
+      const maxRaw = parseInt(document.getElementById("crRepeatMax").value, 10);
+      const maxCount = (!isNaN(maxRaw) && maxRaw > 0) ? maxRaw : Infinity;
+
+      copyRepeatState.repeatFrom = fromISO;
+      copyRepeatState.repeatTo = toISO;
+      copyRepeatState.repeatMax = isFinite(maxCount) ? String(maxCount) : "";
+
+      if (!fromISO || !toISO || toISO < fromISO || copyRepeatState.selectedDows.length === 0) {
+        copyRepeatState.repeatRows = [];
+        renderRepeatPreviewTable();
+        return;
+      }
+
+      const existingOps = getAllCombinedOps();
+      const usedPovs = [];
+      const generatedBatchOps = [];
+      const rows = [];
+
+      let cursor = fromISO;
+      let validScheduledCount = 0;
+
+      while (cursor <= toISO && validScheduledCount < maxCount) {
+        const dow = new Date(cursor + "T12:00:00").getDay();
+        if (copyRepeatState.selectedDows.includes(dow)) {
+          const alreadyExists = isEquivalentFlightAlreadyScheduled(src, cursor, existingOps);
+          if (alreadyExists) {
+            rows.push({
+              date: cursor,
+              dowLabel: DOW_LABELS.find(d => d.dow === dow)?.full || "",
+              isDuplicate: true,
+              include: false,
+              op: null,
+              notes: [{ level: "WARN", text: cursor === src.date ? "Fecha del vuelo original (omitida)" : "Ya existe este vuelo programado en esta fecha (sin duplicar)" }]
+            });
+          } else {
+            const nextPov = getNextCorrelativePov(usedPovs);
+            usedPovs.push(nextPov);
+            const copyOp = buildIndependentFlightCopy(src, cursor, nextPov, rows.length);
+            const notes = sanitizeAndEvaluateCopyResources(copyOp, generatedBatchOps);
+            generatedBatchOps.push(copyOp);
+            validScheduledCount++;
+
+            rows.push({
+              date: cursor,
+              dowLabel: DOW_LABELS.find(d => d.dow === dow)?.full || "",
+              isDuplicate: false,
+              include: true,
+              op: copyOp,
+              notes
+            });
+          }
+        }
+        cursor = addDaysToISO(cursor, 1);
+      }
+
+      copyRepeatState.repeatRows = rows;
+      renderRepeatPreviewTable();
+    }
+
+    function onRepeatRowToggle(idx, checked) {
+      if (!copyRepeatState.repeatRows[idx]) return;
+      copyRepeatState.repeatRows[idx].include = checked;
+      renderRepeatPreviewTable();
+    }
+
+    function onRepeatRowResourceChange(idx, field, val) {
+      const row = copyRepeatState.repeatRows[idx];
+      if (!row || !row.op) return;
+      row.op[field] = val;
+      const otherBatchOps = copyRepeatState.repeatRows
+        .filter((r, i) => i !== idx && r.include && r.op)
+        .map(r => r.op);
+      const issues = validateOperation(row.op, row.op.id, otherBatchOps);
+      row.notes = issues.map(i => ({ level: i.level, text: i.msg }));
+      renderRepeatPreviewTable();
+    }
+
+    function renderRepeatPreviewTable() {
+      const container = document.getElementById("crRepeatPreviewContainer");
+      const rows = copyRepeatState.repeatRows;
+
+      if (!copyRepeatState.repeatFrom || !copyRepeatState.repeatTo || copyRepeatState.repeatTo < copyRepeatState.repeatFrom) {
+        container.innerHTML = `<div class="val-bar val-warn" style="margin-top:10px;"><span>⚠️ Selecciona un intervalo válido de fechas (Fecha Desde ≤ Fecha Hasta).</span></div>`;
+        return;
+      }
+      if (copyRepeatState.selectedDows.length === 0) {
+        container.innerHTML = `<div class="val-bar val-warn" style="margin-top:10px;"><span>⚠️ Selecciona al menos un día de la semana.</span></div>`;
+        return;
+      }
+      if (rows.length === 0) {
+        container.innerHTML = `<div class="val-bar val-warn" style="margin-top:10px;"><span>No hay fechas que coincidan con los días seleccionados en ese período.</span></div>`;
+        return;
+      }
+
+      const activeRows = rows.filter(r => !r.isDuplicate && r.include && r.op);
+      const conflictCount = activeRows.filter(r => r.notes.length > 0).length;
+      const dupCount = rows.filter(r => r.isDuplicate).length;
+
+      const summaryBarClass = conflictCount > 0 ? "val-warn" : "val-ok";
+      const summaryText = `Vista previa: ${activeRows.length} vuelo(s) independiente(s) a crear` +
+        (conflictCount > 0 ? ` · ⚠️ ${conflictCount} fecha(s) con alertas de disponibilidad para revisar` : ` · ✅ Sin conflictos de disponibilidad`) +
+        (dupCount > 0 ? ` · ${dupCount} fecha(s) ya programada(s) omitida(s)` : "");
+
+      const rowsHtml = rows.map((r, idx) => {
+        if (r.isDuplicate) {
+          return `
+            <tr class="cr-dup-row">
+              <td><input type="checkbox" disabled /></td>
+              <td><strong>${r.date}</strong><br><span style="font-size:10px; color:var(--text-muted);">${r.dowLabel}</span></td>
+              <td>—</td>
+              <td colspan="4"><span class="badge-muted">🔁 ${r.notes[0]?.text || "Omitido"}</span></td>
+              <td>Sin cambios</td>
+            </tr>
+          `;
+        }
+
+        const op = r.op;
+        const otherBatchOps = rows
+          .filter((other, i) => i !== idx && !other.isDuplicate && other.include && other.op)
+          .map(other => other.op);
+
+        const acHtml = renderAircraftSelectorHtml(
+          op.material,
+          op.aircraft,
+          op.date,
+          op.startMs,
+          op.endMs,
+          op.id,
+          `onRepeatRowResourceChange(${idx}, 'aircraft', this.value)`,
+          "",
+          otherBatchOps
+        );
+
+        const picHtml = renderCrewSelectorHtml(
+          "PIC",
+          "PIC",
+          op.material,
+          op.picIni,
+          op.date,
+          op.startMs,
+          op.endMs,
+          op.id,
+          [op.sicIni, op.refIni].filter(Boolean),
+          `onRepeatRowResourceChange(${idx}, 'picIni', this.value)`,
+          "",
+          otherBatchOps
+        );
+
+        const sicHtml = renderCrewSelectorHtml(
+          "SIC",
+          "SIC",
+          op.material,
+          op.sicIni,
+          op.date,
+          op.startMs,
+          op.endMs,
+          op.id,
+          [op.picIni, op.refIni].filter(Boolean),
+          `onRepeatRowResourceChange(${idx}, 'sicIni', this.value)`,
+          "",
+          otherBatchOps
+        );
+
+        const statusBadge = r.notes.length === 0
+          ? `<span class="badge-ok">🟢 Disponible</span>`
+          : r.notes.map(n => `<div style="margin-bottom:2px;"><span class="${n.level === "ERR" ? "badge-err" : "badge-warn"}">⚠️ ${n.text}</span></div>`).join("");
+
+        return `
+          <tr>
+            <td><input type="checkbox" ${r.include ? "checked" : ""} onchange="onRepeatRowToggle(${idx}, this.checked)" /></td>
+            <td><strong>${r.date}</strong><br><span style="font-size:10px; color:var(--text-muted);">${r.dowLabel}</span></td>
+            <td><strong>${op.pov}</strong><br><span style="font-size:10px; color:var(--text-muted);">${op.route || "Sin ruta"}</span></td>
+            <td>${acHtml}</td>
+            <td>${picHtml}</td>
+            <td>${sicHtml}</td>
+            <td>${statusBadge}</td>
+          </tr>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <div class="val-bar ${summaryBarClass}" style="margin-top:10px;">
+          <span>${summaryText}</span>
+        </div>
+        <div class="cr-preview-box" style="max-height:320px; overflow-y:auto;">
+          <table class="cr-preview-table">
+            <thead>
+              <tr>
+                <th style="width:28px;">Incluir</th>
+                <th>Fecha</th>
+                <th>POV / Ruta</th>
+                <th>Matrícula</th>
+                <th>PIC</th>
+                <th>SIC</th>
+                <th>Disponibilidad / Alertas</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    async function commitRepeatSeries() {
+      const toCreate = copyRepeatState.repeatRows
+        .filter(r => !r.isDuplicate && r.include && r.op)
+        .map(r => r.op);
+
+      if (toCreate.length === 0) {
+        alert("No hay vuelos nuevos seleccionados para crear.");
+        return;
+      }
+
+      const rowsWithConflicts = copyRepeatState.repeatRows.filter(r => !r.isDuplicate && r.include && r.notes.length > 0);
+      if (rowsWithConflicts.length > 0) {
+        const msg = rowsWithConflicts
+          .map(r => `• ${r.date} (POV ${r.op.pov}): ${r.notes.map(n => n.text).join("; ")}`)
+          .join("\n");
+        const proceed = confirm(`⚠️ Las siguientes fechas presentan alertas o recursos sin asignar por conflicto:\n\n${msg}\n\n¿Desea crear los ${toCreate.length} vuelo(s) igualmente para completar sus asignaciones después?`);
+        if (!proceed) return;
+      }
+
+      for (let i = 0; i < toCreate.length; i++) {
+        const flightCopy = JSON.parse(JSON.stringify(toCreate[i]));
+        recalculateFlightTimesFromLegs(flightCopy);
+        await persistOperation(flightCopy, true, {
+          skipConfirm: true,
+          silentSync: true,
+          skipRender: i < toCreate.length - 1
+        });
+      }
+
+      closeModal("modalCopyRepeat");
+      renderAll();
+      document.getElementById("syncStatus").textContent = `✅ ${toCreate.length} vuelo(s) creados`;
+    }
+
+    /* =========================================================================
+       9. RENDERIZADO: GRILLA TIPO EXCEL, TIMELINE DIARIO, SEMANA Y MES
        ========================================================================= */
     function setCalendarView(v) {
       calendarView = v;
@@ -1706,7 +2489,7 @@
             label = blk.status === "FUERA_DE_SERVICIO" ? "AOG / F. Serv." : "Mantto";
           } else if (flt) {
             dotClass = "dot-prog";
-            const startStr = flt.startMs != null ? formatTimeByTz(flt.startMs) : "OPS";
+            const startStr = flt.startMs != null ? formatTimeByTz(flt.startMs) : "Sin hora";
             label = `POV ${flt.pov} (${startStr})`;
           }
           return `<div class="fleet-chip" onclick="openFleetModal()" title="Clic para gestionar estado de ${ac.mat}"><span class="dot ${dotClass}"></span><strong>${ac.mat}</strong> <span style="color:var(--text-muted);">(${ac.model})</span>: ${label}</div>`;
@@ -1720,13 +2503,13 @@
       else renderMonthView();
     }
 
-    function renderAircraftSelectorHtml(material, currentAircraft, dateISO, startMs, endMs, ignoreId, onChangeExpr, selectId = "") {
+    function renderAircraftSelectorHtml(material, currentAircraft, dateISO, startMs, endMs, ignoreId, onChangeExpr, selectId = "", extraOps = []) {
       if (!material) {
         return `<select ${selectId ? `id="${selectId}"` : ""} class="cell-select w-ac" disabled title="Seleccione primero un material">
           <option value="" selected>-- Matrícula --</option>
         </select>`;
       }
-      const slot = getAvailableAircraftForSlot(material, dateISO, startMs, endMs, ignoreId);
+      const slot = getAvailableAircraftForSlot(material, dateISO, startMs, endMs, ignoreId, extraOps);
       if (slot.available.length === 0) {
         const legacyOpt = currentAircraft
           ? `<option value="${currentAircraft}" selected disabled>⛔ ${currentAircraft} (No disp.)</option>`
@@ -1748,19 +2531,26 @@
       return `<select ${selectId ? `id="${selectId}"` : ""} class="cell-select w-ac" onchange="${onChangeExpr}">${opts}</select>`;
     }
 
-    function renderCrewSelectorHtml(roleLabel, material, currentIni, dateISO, startMs, endMs, ignoreId, sameFlightOtherInis, onChangeExpr, selectId = "") {
+    function renderCrewSelectorHtml(roleType, roleLabel, material, currentIni, dateISO, startMs, endMs, ignoreId, sameFlightOtherInis, onChangeExpr, selectId = "", extraOps = []) {
       if (!material) {
         return `<select ${selectId ? `id="${selectId}"` : ""} class="cell-select w-crew" disabled title="Seleccione primero un material">
           <option value="" selected>-- ${roleLabel} (Elija mat.) --</option>
         </select>`;
       }
-      const ratedPilots = PILOTOS_DB.filter(p => isPilotRatedForMaterial(p, material));
-      const placeholder = `<option value="" ${!currentIni ? "selected" : ""}>-- ${roleLabel} (${ratedPilots.length} hab.) --</option>`;
-      const opts = ratedPilots.map(p =>
-        getPilotOptionHtml(p, material, dateISO, startMs, endMs, ignoreId, currentIni, sameFlightOtherInis)
+      const eligiblePilots = PILOTOS_DB.filter(p =>
+        roleType === "PIC" ? isPilotPicForMaterial(p, material) : isPilotRatedForMaterial(p, material)
+      );
+
+      const legacyWarningOpt = (currentIni && !eligiblePilots.some(p => p.ini === currentIni))
+        ? `<option value="${currentIni}" selected disabled>⚠️ ${currentIni} (Sin condición ${roleLabel})</option>`
+        : "";
+
+      const placeholder = `<option value="" ${!currentIni ? "selected" : ""}>-- ${roleLabel} (${eligiblePilots.length} hab.) --</option>`;
+      const opts = eligiblePilots.map(p =>
+        getPilotOptionHtml(p, material, dateISO, startMs, endMs, ignoreId, currentIni, sameFlightOtherInis, roleType, extraOps)
       ).join("");
 
-      return `<select ${selectId ? `id="${selectId}"` : ""} class="cell-select w-crew" onchange="${onChangeExpr}">${placeholder}${opts}</select>`;
+      return `<select ${selectId ? `id="${selectId}"` : ""} class="cell-select w-crew" onchange="${onChangeExpr}">${placeholder}${legacyWarningOpt}${opts}</select>`;
     }
 
     function renderDailyView() {
@@ -1789,6 +2579,7 @@
 
         const picSelectHtml = renderCrewSelectorHtml(
           "PIC",
+          "PIC",
           op.material,
           op.picIni,
           op.date,
@@ -1801,6 +2592,7 @@
 
         const sicSelectHtml = renderCrewSelectorHtml(
           "SIC",
+          "SIC",
           op.material,
           op.sicIni,
           op.date,
@@ -1812,6 +2604,7 @@
         );
 
         const refSelectHtml = renderCrewSelectorHtml(
+          "REF",
           "Refuerzo",
           op.material,
           op.refIni,
@@ -1823,8 +2616,8 @@
           `updateOpField('${op.id}', 'refIni', this.value)`
         );
 
-        const startDisplay = op.startMs != null ? formatTimeByTz(op.startMs) : "OPS";
-        const endDisplay = op.endMs != null ? formatTimeByTz(op.endMs) : "OPS";
+        const startDisplay = op.startMs != null ? formatTimeByTz(op.startMs) : "--:--";
+        const endDisplay = op.endMs != null ? formatTimeByTz(op.endMs) : "";
         const incompleteBadge = isRouteIncomplete(op) ? `<span class="incomplete-tag" title="Ruta incompleta: puede seguir editándola cuando lo requiera">Incompleta</span>` : "";
 
         const mainRow = `
@@ -1853,22 +2646,21 @@
               ${incompleteBadge}
             </td>
             <td style="text-align:center;" title="Obtenido automáticamente desde la hora de despegue del Tramo #1">
-              <span class="ops-pill" style="cursor:pointer;" onclick="toggleSublegs('${op.id}')">${startDisplay}</span>
+              <span class="ops-pill ${op.startMs == null ? "empty" : ""}" style="cursor:pointer;" onclick="toggleSublegs('${op.id}')">${startDisplay}</span>
             </td>
             <td>
-              <div style="display:flex; gap:2px; align-items:center;">
-                <input type="text" class="cell-input w-time" value="${endDisplay}" placeholder="OPS" title="Ingrese HH:MM o OPS" onchange="updateOpField('${op.id}', 'endTime', this.value)" />
-              </div>
+              <input type="text" class="cell-input w-time" value="${endDisplay}" placeholder="HH:MM" title="Ingrese HH:MM o deje en blanco" onchange="updateOpField('${op.id}', 'endTime', this.value)" />
             </td>
             <td>
               <select class="cell-select w-srv" onchange="updateOpField('${op.id}', 'tipoServicio', this.value)">
+                <option value="" ${!op.tipoServicio ? "selected" : ""}>-- Tipo servicio --</option>
                 ${TIPOS_SERVICIO.map(t => `<option value="${t}" ${t === op.tipoServicio ? "selected" : ""}>${t}</option>`).join("")}
               </select>
             </td>
             <td><input class="cell-input" style="width:125px;" value="${op.cliente || ""}" placeholder="Cliente..." onchange="updateOpField('${op.id}', 'cliente', this.value)" /></td>
             <td><input class="cell-input w-obs" value="${op.observaciones || ""}" placeholder="Observaciones..." onchange="updateOpField('${op.id}', 'observaciones', this.value)" /></td>
             <td style="white-space:nowrap;">
-              <button class="btn btn-sm" onclick="duplicateOp('${op.id}')" title="Duplicar vuelo al día siguiente">📋</button>
+              <button class="btn btn-sm btn-blue" onclick="openCopyRepeatModal('${op.id}')" title="Copiar a otra fecha o repetir determinados días">📋 Copiar / Repetir Vuelo</button>
               <button class="btn btn-sm" onclick="deleteOp('${op.id}')" title="Eliminar vuelo">🗑️</button>
             </td>
           </tr>
@@ -1888,8 +2680,8 @@
                     <th>Fecha</th>
                     <th>Origen</th>
                     <th>Destino</th>
-                    <th>Despegue (${tzMode} / OPS)</th>
-                    <th>ETA (${tzMode} / OPS)</th>
+                    <th>Despegue (${tzMode})</th>
+                    <th>ETA (${tzMode})</th>
                     <th>PAX Est.</th>
                   </tr>
                 </thead>
@@ -1904,16 +2696,10 @@
                         <td><input class="cell-input" style="width:75px; text-transform:uppercase;" placeholder="ICAO" value="${lg.origen || ""}" onchange="updateLegField('${op.id}', ${i}, 'origen', this.value)" /></td>
                         <td><input class="cell-input" style="width:75px; text-transform:uppercase;" placeholder="ICAO" value="${lg.destino || ""}" onchange="updateLegField('${op.id}', ${i}, 'destino', this.value)" /></td>
                         <td>
-                          <div style="display:flex; gap:4px; align-items:center;">
-                            <input type="text" class="cell-input w-time" value="${dispEtd}" placeholder="OPS" title="Ingrese HH:MM o OPS" onchange="updateLegField('${op.id}', ${i}, 'etd', this.value)" />
-                            <button class="btn btn-sm" onclick="updateLegField('${op.id}', ${i}, 'etd', 'OPS')" title="Marcar como OPS">OPS</button>
-                          </div>
+                          <input type="text" class="cell-input w-time" value="${dispEtd}" placeholder="HH:MM" title="Ingrese HH:MM (ej. 08:30) o deje en blanco" onchange="updateLegField('${op.id}', ${i}, 'etd', this.value)" />
                         </td>
                         <td>
-                          <div style="display:flex; gap:4px; align-items:center;">
-                            <input type="text" class="cell-input w-time" value="${dispEta}" placeholder="OPS" title="Ingrese HH:MM o OPS" onchange="updateLegField('${op.id}', ${i}, 'eta', this.value)" />
-                            <button class="btn btn-sm" onclick="updateLegField('${op.id}', ${i}, 'eta', 'OPS')" title="Marcar como OPS">OPS</button>
-                          </div>
+                          <input type="text" class="cell-input w-time" value="${dispEta}" placeholder="HH:MM" title="Ingrese HH:MM o deje en blanco" onchange="updateLegField('${op.id}', ${i}, 'eta', this.value)" />
                         </td>
                         <td><input type="number" class="cell-input" style="width:60px;" value="${lg.pax_est || 0}" onchange="updateLegField('${op.id}', ${i}, 'pax_est', this.value)" /></td>
                       </tr>
@@ -1928,7 +2714,7 @@
         return mainRow + subRow;
       }).join("");
 
-      // Fila de ingreso rápido con valores predeterminados (Estado: PROGRAMADO, Material: blanco, Matrícula: blanco, Tramos: OPS)
+      // Fila de ingreso rápido con valores predeterminados (Estado: PROGRAMADO, Material: blanco, Matrícula: blanco, Despegue: blanco, Tipo servicio: blanco)
       const q = ensureQuickFormState();
       recalculateFlightTimesFromLegs(q);
 
@@ -1945,6 +2731,7 @@
 
       const qPicHtml = renderCrewSelectorHtml(
         "PIC",
+        "PIC",
         q.material,
         q.picIni,
         q.date,
@@ -1958,6 +2745,7 @@
 
       const qSicHtml = renderCrewSelectorHtml(
         "SIC",
+        "SIC",
         q.material,
         q.sicIni,
         q.date,
@@ -1970,6 +2758,7 @@
       );
 
       const qRefHtml = renderCrewSelectorHtml(
+        "REF",
         "Refuerzo",
         q.material,
         q.refIni,
@@ -1982,8 +2771,8 @@
         "qRef"
       );
 
-      const qStartDisplay = q.startMs != null ? formatTimeByTz(q.startMs) : "OPS";
-      const qEndDisplay = q.endMs != null ? formatTimeByTz(q.endMs) : "OPS";
+      const qStartDisplay = q.startMs != null ? formatTimeByTz(q.startMs) : "--:--";
+      const qEndDisplay = q.endMs != null ? formatTimeByTz(q.endMs) : "";
 
       const quickRow = `
         <tr class="new-entry-row" id="quickEntryRow">
@@ -2010,13 +2799,14 @@
             </div>
           </td>
           <td style="text-align:center;" title="Se actualiza automáticamente desde la hora de despegue del Tramo #1">
-            <span class="ops-pill">${qStartDisplay}</span>
+            <span class="ops-pill ${q.startMs == null ? "empty" : ""}">${qStartDisplay}</span>
           </td>
           <td>
-            <input id="qEnd" type="text" class="cell-input w-time" value="${qEndDisplay}" placeholder="OPS" title="Ingrese HH:MM o OPS" onchange="updateQuickField('endTime', this.value)" onkeydown="if(event.key==='Enter') commitQuickRow()" />
+            <input id="qEnd" type="text" class="cell-input w-time" value="${qEndDisplay}" placeholder="HH:MM" title="Ingrese HH:MM o deje en blanco" onchange="updateQuickField('endTime', this.value)" onkeydown="if(event.key==='Enter') commitQuickRow()" />
           </td>
           <td>
             <select id="qSrv" class="cell-select w-srv" onchange="updateQuickField('tipoServicio', this.value)">
+              <option value="" ${!q.tipoServicio ? "selected" : ""}>-- Tipo servicio --</option>
               ${TIPOS_SERVICIO.map(t => `<option value="${t}" ${t === q.tipoServicio ? "selected" : ""}>${t}</option>`).join("")}
             </select>
           </td>
@@ -2030,7 +2820,7 @@
         <tr>
           <td colspan="14" class="sublegs-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-              <span style="font-size:11px; color:var(--accent-cyan); font-weight:800;">TRAMOS DEL NUEVO VUELO (POV ${q.pov}) — Hora de despegue por tramo (predeterminado: OPS)</span>
+              <span style="font-size:11px; color:var(--accent-cyan); font-weight:800;">TRAMOS DEL NUEVO VUELO (POV ${q.pov}) — Hora de despegue por tramo (en blanco hasta ingreso)</span>
               <button class="btn btn-sm" onclick="addQuickLeg()">+ Agregar Tramo</button>
             </div>
             <table>
@@ -2040,8 +2830,8 @@
                   <th>Fecha</th>
                   <th>Origen</th>
                   <th>Destino</th>
-                  <th>Hora Despegue (${tzMode} / OPS)</th>
-                  <th>ETA (${tzMode} / OPS)</th>
+                  <th>Hora Despegue (${tzMode})</th>
+                  <th>ETA (${tzMode})</th>
                   <th>PAX Est.</th>
                   <th></th>
                 </tr>
@@ -2057,16 +2847,10 @@
                       <td><input class="cell-input" style="width:75px; text-transform:uppercase;" placeholder="ICAO" value="${lg.origen || ""}" onchange="updateQuickLegField(${i}, 'origen', this.value)" /></td>
                       <td><input class="cell-input" style="width:75px; text-transform:uppercase;" placeholder="ICAO" value="${lg.destino || ""}" onchange="updateQuickLegField(${i}, 'destino', this.value)" /></td>
                       <td>
-                        <div style="display:flex; gap:4px; align-items:center;">
-                          <input type="text" class="cell-input w-time" value="${dispEtd}" placeholder="OPS" title="Ingrese HH:MM (ej. 08:30) o OPS" onchange="updateQuickLegField(${i}, 'etd', this.value)" />
-                          <button class="btn btn-sm" onclick="updateQuickLegField(${i}, 'etd', 'OPS')" title="Restablecer a OPS">OPS</button>
-                        </div>
+                        <input type="text" class="cell-input w-time" value="${dispEtd}" placeholder="HH:MM" title="Ingrese HH:MM (ej. 08:30) o deje en blanco" onchange="updateQuickLegField(${i}, 'etd', this.value)" />
                       </td>
                       <td>
-                        <div style="display:flex; gap:4px; align-items:center;">
-                          <input type="text" class="cell-input w-time" value="${dispEta}" placeholder="OPS" title="Ingrese HH:MM o OPS" onchange="updateQuickLegField(${i}, 'eta', this.value)" />
-                          <button class="btn btn-sm" onclick="updateQuickLegField(${i}, 'eta', 'OPS')" title="Restablecer a OPS">OPS</button>
-                        </div>
+                        <input type="text" class="cell-input w-time" value="${dispEta}" placeholder="HH:MM" title="Ingrese HH:MM o deje en blanco" onchange="updateQuickLegField(${i}, 'eta', this.value)" />
                       </td>
                       <td><input type="number" class="cell-input" style="width:60px;" value="${lg.pax_est || 0}" onchange="updateQuickLegField(${i}, 'pax_est', this.value)" /></td>
                       <td>${q.legs.length > 1 ? `<button class="btn btn-sm" onclick="removeQuickLeg(${i})" title="Quitar tramo">✕</button>` : ""}</td>
@@ -2179,7 +2963,7 @@
               return `<td>
                 ${mnts.map(m => `<span class="wk-pill block">🔧 ${m.reason}</span>`).join("")}
                 ${ops.map(o => {
-                  const tStr = o.startMs != null ? `${formatTimeByTz(o.startMs)}-${formatTimeByTz(o.endMs)}` : "OPS";
+                  const tStr = o.startMs != null ? `${formatTimeByTz(o.startMs)}-${formatTimeByTz(o.endMs)}` : "Sin hora";
                   return `<span class="wk-pill" onclick="jumpToDay('${d}')"><strong>POV ${o.pov}</strong> · ${o.route || 'Ruta pend.'}<br>${tStr} · ${o.picIni || '-'}/${o.sicIni || '-'}</span>`;
                 }).join("")}
               </td>`;
@@ -2198,7 +2982,7 @@
               return `<td>
                 ${blks.map(b => `<span class="wk-pill block">🟣 ${b.type}</span>`).join("")}
                 ${ops.map(o => {
-                  const tStr = o.startMs != null ? formatTimeByTz(o.startMs) : "OPS";
+                  const tStr = o.startMs != null ? formatTimeByTz(o.startMs) : "Sin hora";
                   return `<span class="wk-pill" onclick="jumpToDay('${d}')"><strong>POV ${o.pov}</strong> (${o.aircraft || o.material || '-'})<br>${o.route || 'Ruta pend.'} · ${tStr}</span>`;
                 }).join("")}
               </td>`;
@@ -2259,7 +3043,7 @@
     }
 
     /* =========================================================================
-       9. ACCIONES DE EDICIÓN EN VUELOS EXISTENTES DE LA GRILLA
+       10. ACCIONES DE EDICIÓN EN VUELOS EXISTENTES DE LA GRILLA
        ========================================================================= */
     async function updateOpField(opId, field, val) {
       const op = getAllCombinedOps().find(o => o.id === opId);
@@ -2278,7 +3062,7 @@
         updated.material = val;
         if (updated.picIni) {
           const p = PILOTOS_DB.find(x => x.ini === updated.picIni);
-          if (!isPilotRatedForMaterial(p, updated.material)) updated.picIni = "";
+          if (!isPilotPicForMaterial(p, updated.material)) updated.picIni = "";
         }
         if (updated.sicIni) {
           const p = PILOTOS_DB.find(x => x.ini === updated.sicIni);
@@ -2314,8 +3098,8 @@
         fecha: last.fecha || op.date,
         origen: last.destino || "",
         destino: "",
-        etd_utc: "OPS",
-        eta_utc: "OPS",
+        etd_utc: "",
+        eta_utc: "",
         pax_est: 0
       });
       op.route = buildRouteStringFromLegs(op.legs);
@@ -2352,28 +3136,6 @@
       await persistOperation(op, false);
     }
 
-    async function duplicateOp(opId) {
-      const src = getAllCombinedOps().find(o => o.id === opId);
-      if (!src) return;
-      const nextDateObj = new Date(src.date + "T12:00:00");
-      nextDateObj.setDate(nextDateObj.getDate() + 1);
-      const targetDate = nextDateObj.toISOString().slice(0, 10);
-      const newPov = getNextCorrelativePov();
-
-      const copy = JSON.parse(JSON.stringify(src));
-      copy.id = `POV_${newPov}_${Date.now()}`;
-      copy.pov = newPov;
-      copy.date = targetDate;
-      copy.estado = "PROGRAMADO";
-      copy.isClosed = false;
-      copy.hasEfbData = false;
-      copy.legs.forEach(l => { l.fecha = targetDate; });
-      recalculateFlightTimesFromLegs(copy);
-
-      await persistOperation(copy, true);
-      alert(`✅ Vuelo replicado como POV ${newPov} para el día ${targetDate}.`);
-    }
-
     function deleteOp(opId) {
       const op = getAllCombinedOps().find(o => o.id === opId);
       if (!op) return;
@@ -2385,7 +3147,7 @@
     }
 
     /* =========================================================================
-       10. MODALES DE FLOTA / MANTENIMIENTO Y PARÁMETROS
+       11. MODALES DE FLOTA / MANTENIMIENTO Y PARÁMETROS
        ========================================================================= */
     function openModal(id) { document.getElementById(id).classList.add("open"); }
     function closeModal(id) { document.getElementById(id).classList.remove("open"); }
