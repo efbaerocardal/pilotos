@@ -402,6 +402,8 @@ const SHARED_FOLDER_ID = '1uFFBWEPcFGrbP6lYBX0x5I3mSEPTjBR9';
 let tokenClient = null;
 let accessToken = null;
 let pendingAction = null;
+const folderIdCache = {};
+const folderInFlight = {};
 
 const SCOPE_VERSION = "v2_gmail";
 if (localStorage.getItem('scope_version') !== SCOPE_VERSION) {
@@ -479,20 +481,62 @@ function ocultarCargando() { el('loading-overlay').style.display = 'none'; }
 function cerrarOverlay() { ocultarCargando(); }
 function mostrarModalPDF(link) { el('loading-spinner').style.display = 'none'; el('loading-text').innerText = "✅ ¡Proceso finalizado con éxito!"; const btn = el('btn-open-pdf'); btn.style.display = 'block'; btn.onclick = () => window.open(link, '_blank'); el('btn-close-overlay').style.display = 'block'; }
 
-async function getOrCreateFolder(povName) {
-    const cleanPov = povName.trim().toUpperCase();
+// Solo BUSCA la carpeta sin crearla (evita carpetas vacías en lecturas/verificaciones)
+async function findFolderByPov(povName) {
+    const cleanPov = (povName || '').trim().toUpperCase();
+    if (!cleanPov) return null;
+    if (folderIdCache[cleanPov]) return folderIdCache[cleanPov];
+
     const folderName = `POV_${cleanPov}`;
     const query = encodeURIComponent(`name='${folderName}' and '${SHARED_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
-    let res = await fetchWithAuth(`${DRIVE_API_URL}?q=${query}&fields=files(id, name)`);
+    let res = await fetchWithAuth(`${DRIVE_API_URL}?q=${query}&orderBy=createdTime asc&fields=files(id, name)&supportsAllDrives=true&includeItemsFromAllDrives=true`);
+    if (!res.ok) throw new Error("Error buscando carpeta en Drive");
     let data = await res.json();
-    if (data.files && data.files.length > 0) return data.files[0].id;
-    let createRes = await fetchWithAuth(DRIVE_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: folderName, mimeType: 'application/vnd.google-apps.folder', parents: [SHARED_FOLDER_ID] }) });
-    let createData = await createRes.json(); return createData.id;
+    if (data.files && data.files.length > 0) {
+        folderIdCache[cleanPov] = data.files[0].id;
+        return data.files[0].id;
+    }
+    return null;
+}
+
+// Busca o crea con bloqueo de concurrencia para evitar duplicados simultáneos
+async function getOrCreateFolder(povName) {
+    const cleanPov = (povName || '').trim().toUpperCase();
+    if (!cleanPov) throw new Error("POV inválido");
+    if (folderIdCache[cleanPov]) return folderIdCache[cleanPov];
+    if (folderInFlight[cleanPov]) return await folderInFlight[cleanPov];
+
+    folderInFlight[cleanPov] = (async () => {
+        try {
+            const existingId = await findFolderByPov(cleanPov);
+            if (existingId) return existingId;
+
+            const folderName = `POV_${cleanPov}`;
+            let createRes = await fetchWithAuth(`${DRIVE_API_URL}?supportsAllDrives=true`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: folderName,
+                    mimeType: 'application/vnd.google-apps.folder',
+                    parents: [SHARED_FOLDER_ID]
+                })
+            });
+            if (!createRes.ok) throw new Error("Error creando carpeta en Drive");
+            let createData = await createRes.json();
+            if (!createData.id) throw new Error("No se obtuvo ID de carpeta en Drive");
+            folderIdCache[cleanPov] = createData.id;
+            return createData.id;
+        } finally {
+            delete folderInFlight[cleanPov];
+        }
+    })();
+
+    return await folderInFlight[cleanPov];
 }
 
 async function findFileInFolder(filename, folderId) {
     const query = encodeURIComponent(`name='${filename}' and '${folderId}' in parents and trashed=false`);
-    let res = await fetchWithAuth(`${DRIVE_API_URL}?q=${query}&fields=files(id, name, webViewLink)`);
+    let res = await fetchWithAuth(`${DRIVE_API_URL}?q=${query}&fields=files(id, name, webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true`);
     let data = await res.json(); return (data.files && data.files.length > 0) ? data.files[0] : null;
 }
 
@@ -504,7 +548,9 @@ async function uploadFileRaw(blob, filename, folderId, existingFileId = null) {
         reader.onload = async function() {
             const base64Data = reader.result.split(',')[1];
             const multipartRequestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: ' + blob.type + '\r\nContent-Transfer-Encoding: base64\r\n\r\n' + base64Data + close_delim;
-            const url = existingFileId ? `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart` : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+            const url = existingFileId
+                ? `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart&supportsAllDrives=true`
+                : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true`;
             try { 
                 let res = await fetch(url, { method: existingFileId ? 'PATCH' : 'POST', headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'multipart/related; boundary=' + boundary }, body: multipartRequestBody }); 
                 if (res.status === 401) { accessToken = null; localStorage.removeItem('gdrive_token'); localStorage.removeItem('gdrive_expires'); throw new Error("SESIÓN_EXPIRADA"); }
@@ -641,7 +687,7 @@ async function despacharVueloCerrado() {
         let filenameMaster = `POV_${pov}_${dateStr}_COMPLETO.pdf`;
         let existingPdf = await findFileInFolder(filenameMaster, folderId);
         let uploadRes = await uploadFileRaw(pdfMaster, filenameMaster, folderId, existingPdf ? existingPdf.id : null);
-        let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`);
+        let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink&supportsAllDrives=true`);
         let driveData = await finalRes.json();
         let driveLink = driveData.webViewLink;
 
@@ -844,9 +890,11 @@ async function accionGuardar() {
 async function accionLeer() {
     mostrarCargando("Buscando progreso en Drive...");
     try { 
-        let pov = val('m_pov'); let folderId = await getOrCreateFolder(pov); let file = await findFileInFolder('Progreso.json', folderId); 
+        let pov = val('m_pov'); let folderId = await findFolderByPov(pov); 
+        if (!folderId) { alert("⚠️ No se encontró ningún progreso guardado para este POV."); ocultarCargando(); return; }
+        let file = await findFileInFolder('Progreso.json', folderId); 
         if (!file) { alert("⚠️ No se encontró ningún progreso guardado para este POV."); ocultarCargando(); return; } 
-        let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media`); let content = await res.json(); 
+        let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media&supportsAllDrives=true`); let content = await res.json(); 
         loadDataIntoApp(content); 
         haSidoGuardado = true;
         autoSave();
@@ -916,7 +964,7 @@ async function accionGenerarPDF() {
             let filename = `Planificacion_POV_${pov}_${dateStr}.pdf`;
             let existingFile = await findFileInFolder(filename, folderId);
             let uploadRes = await uploadFileRaw(pdfMaster, filename, folderId, existingFile ? existingFile.id : null);
-            let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink`);
+            let finalRes = await fetchWithAuth(`${DRIVE_API_URL}/${uploadRes.id}?fields=webViewLink&supportsAllDrives=true`);
             let finalData = await finalRes.json();
             mostrarModalPDF(finalData.webViewLink);
         } catch(e) { 
@@ -1966,10 +2014,11 @@ document.addEventListener('visibilitychange', () => {
 async function verificarEstadoNube() {
     try {
         let pov = val('m_pov');
-        let folderId = await getOrCreateFolder(pov);
+        let folderId = await findFolderByPov(pov);
+        if (!folderId) return;
         let file = await findFileInFolder('Progreso.json', folderId);
         if (file) {
-            let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media`);
+            let res = await fetchWithAuth(`${DRIVE_API_URL}/${file.id}?alt=media&supportsAllDrives=true`);
             let content = await res.json();
             if (content.globals && (content.globals.vuelo_cerrado === true || content.globals.vuelo_cerrado === "true")) {
                 alert("⚠️ ATENCIÓN: Se detectó que este vuelo fue CERRADO Y DESPACHADO desde otro dispositivo.\nLa aplicación bloqueará la edición para reflejar la versión final.");
