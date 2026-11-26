@@ -102,7 +102,7 @@
     .pilot-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1E3A8A, #0284C7); border: 1.5px solid #60A5FA; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: #FFF; flex-shrink: 0; }
     .pilot-name { font-weight: 700; color: #FFF; font-size: 13px; }
     .pilot-role { font-size: 11px; color: var(--text-muted); }
-    .mat-tags { display: flex; flex-wrap: wrap; gap: 4px; max-width: 165px; }
+    .mat-tags { display: flex; flex-wrap: wrap; gap: 4px; max-width: 155px; }
     .mat-tag { background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.30); color: #BAE6FD; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
     .mat-tag.expired { background: rgba(248, 113, 113, 0.18); border-color: rgba(248, 113, 113, 0.5); color: #FCA5A5; text-decoration: line-through; }
     .status-pill { display: inline-block; padding: 4px 9px; border-radius: 99px; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.35px; white-space: nowrap; border: 1px solid transparent; }
@@ -112,8 +112,6 @@
     .st-leave { background: var(--status-leave-bg); color: #C084FC; border-color: rgba(192, 132, 252, 0.45); }
     .st-alert { background: var(--status-alert-bg); color: #F87171; border-color: rgba(248, 113, 113, 0.5); }
     .st-warn { background: rgba(245, 158, 11, 0.22); color: #FCD34D; border-color: rgba(251, 191, 36, 0.55); }
-    .st-nodate { background: rgba(56, 189, 248, 0.15); color: #7DD3FC; border-color: rgba(56, 189, 248, 0.38); }
-    .st-na { background: rgba(100, 116, 139, 0.22); color: #94A3B8; border-color: rgba(148, 163, 184, 0.35); }
     .avail-main { font-weight: 700; color: #F8FAFC; font-size: 12.5px; white-space: nowrap; }
     .avail-sub { font-size: 11px; color: var(--text-muted); }
     .mini-bar-wrap { min-width: 130px; }
@@ -139,18 +137,12 @@
     .block-item { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid #A855F7; border-radius: 6px; padding: 7px 9px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 11.5px; }
 
     .info-banner { background: rgba(56, 189, 248, 0.10); border: 1px solid rgba(56, 189, 248, 0.32); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #E0F2FE; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-    .qual-section-block { margin-top: 14px; }
-    .qual-section-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border-light); margin-bottom: 10px; }
-    .qual-section-title { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-cyan); }
-    .qual-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); gap: 10px; }
-    .qual-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; padding: 11px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s, opacity 0.15s; }
+    .qual-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); gap: 10px; margin-top: 12px; }
+    .qual-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; padding: 11px; display: flex; flex-direction: column; gap: 7px; }
     .qual-card.q-expired { border-left: 4px solid #EF4444; }
     .qual-card.q-warn { border-left: 4px solid #F59E0B; }
     .qual-card.q-ok { border-left: 4px solid #22C55E; }
-    .qual-card.q-nodate { border-left: 4px solid #38BDF8; }
-    .qual-card.q-na { border-left: 4px solid #64748B; opacity: 0.78; }
-    .date-input-row { display: flex; align-items: center; gap: 6px; }
-    .date-input-row input[type="date"] { flex: 1; }
+    .qual-card.q-na { border-left: 4px solid #64748B; opacity: 0.82; }
 
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.82); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
     .modal-backdrop.open { display: flex; }
@@ -233,7 +225,7 @@
               Evalúe disponibilidad en tiempo real o proyecte un horario futuro de despacho:
             </div>
             <div class="dt-pair" style="margin-bottom:8px;">
-              <input type="date" id="evalDate" min="1950-01-01" max="2100-12-31" onchange="onEvalTimeChange()" />
+              <input type="date" id="evalDate" onchange="onEvalTimeChange()" />
               <input type="time" id="evalTime" onchange="onEvalTimeChange()" />
             </div>
           </div>
@@ -378,13 +370,13 @@
         </div>
         <div class="info-banner">
           <div>
-            <strong>Esquema Operacional Aerocardal:</strong> <code>PC-12</code> requiere <strong>Monomotor terrestre (ASEL) + Curso interno PC-12</strong> (sin Type Rating). Los demás aviones multimotor requieren <strong>Multimotor terrestre (AMEL) + Type Rating</strong>; helicópteros requieren su <strong>Type Rating</strong>.<br>
-            <strong>Clase B (Restricción Funcional):</strong> <code>IV</code>, <code>IVI</code>, <code>IE</code> e <code>Inglés Aeronáutico</code> vencidos restringen solo la función asociada sin bloquear el resto de las operaciones.
+            <strong>Clase A (Bloqueo Operacional):</strong> <code>Examen Médico</code>, <code>IFR</code> (bloqueo general) y <code>Type Rating</code> (bloqueo del material afectado).<br>
+            <strong>Clase B (Restricción Funcional):</strong> <code>IV</code>, <code>IVI</code>, <code>IE</code> e <code>Inglés Aeronáutico</code> vencidos generan alerta amarilla e impiden ejercer la función asociada sin bloquear el resto de las operaciones.
           </div>
           <button class="btn btn-sm btn-blue" onclick="openQualOverviewModal()">📋 Matriz Global Flota</button>
         </div>
         <div id="qualPilotSummaryHeader" style="margin-bottom:10px;"></div>
-        <div id="qualSectionsContainer"></div>
+        <div class="qual-grid" id="qualCardsGrid"></div>
       </div>
 
       <!-- ===================================================================
@@ -474,14 +466,14 @@
         <div class="form-field">
           <label>FECHA Y HORA INICIO</label>
           <div class="dt-pair">
-            <input type="date" id="actStartDate" min="1950-01-01" max="2100-12-31" />
+            <input type="date" id="actStartDate" />
             <input type="time" id="actStartTime" value="08:00" />
           </div>
         </div>
         <div class="form-field">
           <label>FECHA Y HORA TÉRMINO</label>
           <div class="dt-pair">
-            <input type="date" id="actEndDate" min="1950-01-01" max="2100-12-31" />
+            <input type="date" id="actEndDate" />
             <input type="time" id="actEndTime" value="18:00" />
           </div>
         </div>
@@ -575,7 +567,7 @@
         </div>
         <div class="form-field">
           <label>Fecha Servicio / Despegue</label>
-          <input type="date" id="valDate" min="1950-01-01" max="2100-12-31" onchange="runAssignmentValidationPreview()" />
+          <input type="date" id="valDate" onchange="runAssignmentValidationPreview()" />
         </div>
         <div class="form-field">
           <label>Hora Despegue Planificada (CLT)</label>
@@ -620,11 +612,11 @@
         </div>
         <div class="form-field">
           <label>Último Despegue Histórico</label>
-          <input type="date" id="base90Takeoff" min="1950-01-01" max="2100-12-31" />
+          <input type="date" id="base90Takeoff" />
         </div>
         <div class="form-field">
           <label>Último Aterrizaje Histórico</label>
-          <input type="date" id="base90Landing" min="1950-01-01" max="2100-12-31" />
+          <input type="date" id="base90Landing" />
         </div>
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px;">
@@ -654,7 +646,7 @@
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
         <div class="form-field"><label>P.O.V. N°</label><input type="text" id="excPov" placeholder="Ej. 9002" /></div>
-        <div class="form-field"><label>Fecha Vuelo</label><input type="date" id="excDate" min="1950-01-01" max="2100-12-31" /></div>
+        <div class="form-field"><label>Fecha Vuelo</label><input type="date" id="excDate" /></div>
         <div class="form-field"><label>Piloto al Mando (PIC)</label><select id="excPic"></select></div>
         <div class="form-field"><label>Copiloto (SIC)</label><select id="excFo"></select></div>
         <div class="form-field"><label>PSV Realizado (HH:MM)</label><input type="time" id="excPsv" value="13:15" /></div>
@@ -710,8 +702,6 @@
     const DEFAULT_GOOGLE_CLIENT_ID = "564615812844-qm031dmrbmki9f3dc1kp6sc6m38ecfgh.apps.googleusercontent.com";
 
     const AIRPLANE_SIC_LIST = ["JO", "MV", "SS", "EM", "CV"];
-    const TYPE_RATED_MATERIALS = ["PC-24", "L-410", "G-150", "D-228", "A109S", "A109SP"];
-    const MULTI_ENGINE_LAND_MATERIALS = ["PC-24", "L-410", "G-150", "D-228"];
 
     const FLEET_REG_TO_MAT = {
       "CC-DPA": "L-410", "CC-DPB": "L-410", "CC-DPC": "L-410",
@@ -819,16 +809,16 @@
       return rawMat ? rawMat.toString().trim().toUpperCase() : "";
     }
 
+    function pilotMatchesMaterial(pilot, matFilter) {
+      if (!matFilter || matFilter === "TODOS") return true;
+      if (matFilter === "A109") return pilot.hab.some(h => h.startsWith("A109"));
+      return pilot.hab.includes(matFilter);
+    }
+
     function materialMatchesFilter(matCode, matFilter) {
       if (!matFilter || matFilter === "TODOS") return true;
       if (matFilter === "A109") return matCode.startsWith("A109");
       return matCode === matFilter;
-    }
-
-    function pilotMatchesMaterial(pilot, matFilter, evalMs = getEvalTimestampMs()) {
-      if (!matFilter || matFilter === "TODOS") return true;
-      const roster = getPilotRosterMaterials(pilot, evalMs);
-      return roster.some(r => materialMatchesFilter(r.material, matFilter));
     }
 
     function resolvePilotIni(rawCrewVal) {
@@ -846,10 +836,9 @@
       return clean;
     }
 
-    function getPilotRoleForMaterial(pilot, mat, evalMs = getEvalTimestampMs()) {
-      const rosterMats = getPilotRosterMaterials(pilot, evalMs).map(r => r.material);
-      const isHeli = rosterMats.some(h => h.startsWith("A109"));
-      const isPlane = rosterMats.some(h => !h.startsWith("A109"));
+    function getPilotRoleForMaterial(pilot, mat) {
+      const isHeli = pilot.hab.some(h => h.startsWith("A109"));
+      const isPlane = pilot.hab.some(h => !h.startsWith("A109"));
       if (mat === "A109" || mat === "A109S" || mat === "A109SP") return "PIC";
       if (mat !== "TODOS") return AIRPLANE_SIC_LIST.includes(pilot.ini) ? "SIC" : "PIC";
       if (isHeli && !isPlane) return "PIC";
@@ -875,18 +864,6 @@
     function isoDateStartMs(isoDate) {
       const [y, m, d] = isoDate.split("-").map(Number);
       return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
-    }
-
-    function isValidCompleteISODate(dateStr) {
-      if (!dateStr || typeof dateStr !== "string") return false;
-      const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      if (!m) return false;
-      const y = parseInt(m[1], 10);
-      const mo = parseInt(m[2], 10);
-      const d = parseInt(m[3], 10);
-      if (y < 1950 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31) return false;
-      const dt = new Date(y, mo - 1, d);
-      return dt.getFullYear() === y && dt.getMonth() === mo - 1 && dt.getDate() === d;
     }
 
     function normalizeDateToISO(dateStr) {
@@ -950,13 +927,16 @@
       return h * 60 + m;
     }
 
+    /* =========================================================================
+       REQUERIMIENTO 1: CÁLCULO DE DESCANSO + 60 MIN (30m HACIA + 30m DESDE)
+       ========================================================================= */
     function calcRequiredRestBreakdown(psvMin, baseType = "BASE") {
       const hCeil = Math.max(7, Math.min(18, Math.ceil(psvMin / 60)));
       const tableH = DAN135.REST_TABLE[hCeil] || 10;
       const regRestMin = tableH * 60;
-      const transferToRestMin = DAN135.TRASLADO_HACIA_DESCANSO_MIN;
-      const transferFromRestMin = DAN135.TRASLADO_DESDE_DESCANSO_MIN;
-      const totalUnavailableMin = regRestMin + transferToRestMin + transferFromRestMin;
+      const transferToRestMin = DAN135.TRASLADO_HACIA_DESCANSO_MIN;   // 30 min
+      const transferFromRestMin = DAN135.TRASLADO_DESDE_DESCANSO_MIN; // 30 min
+      const totalUnavailableMin = regRestMin + transferToRestMin + transferFromRestMin; // tableH + 60 min
       return {
         tableH,
         regRestMin,
@@ -968,7 +948,7 @@
     }
 
     /* =========================================================================
-       2. ALMACENAMIENTO LOCAL, COMPATIBILIDAD DE HABILITACIONES Y PARSER JSON
+       2. ALMACENAMIENTO LOCAL Y PARSER DE Progreso.json (CON DESPEGUES/ATERR.)
        ========================================================================= */
     function getFlights() {
       try { return JSON.parse(localStorage.getItem(KEYS.FLIGHTS)) || []; } catch { return []; }
@@ -1000,159 +980,36 @@
     function saveConsecAuthList(list) { localStorage.setItem(KEYS.CONSEC_AUTH, JSON.stringify(list)); }
 
     function buildDefaultQualsForPilot(pilot) {
-      const hasPc12 = pilot.hab.includes("PC-12");
-      const hasMultiLand = pilot.hab.some(m => MULTI_ENGINE_LAND_MATERIALS.includes(m));
-
+      const today = new Date();
+      const addMonthsISO = (m) => {
+        const d = new Date(today.getFullYear(), today.getMonth() + m, today.getDate());
+        return d.toISOString().slice(0, 10);
+      };
+      const subMonthsISO = (m) => {
+        const d = new Date(today.getFullYear(), today.getMonth() - m, today.getDate());
+        return d.toISOString().slice(0, 10);
+      };
       const items = [
-        // 1. Habilitaciones de Clase
-        {
-          key: "CLASS_ASEL",
-          label: "Monomotor terrestre (ASEL)",
-          group: "CLASS",
-          category: "A",
-          applies: hasPc12,
-          expiryDate: "",
-          notes: ""
-        },
-        {
-          key: "CLASS_AMEL",
-          label: "Multimotor terrestre (AMEL)",
-          group: "CLASS",
-          category: "A",
-          applies: hasMultiLand,
-          expiryDate: "",
-          notes: ""
-        },
-        // 3. Habilitaciones e Instrucción Interna
-        {
-          key: "INT_PC12",
-          label: "Curso interno PC-12",
-          material: "PC-12",
-          group: "INTERNAL",
-          category: "A",
-          applies: hasPc12,
-          expiryDate: "",
-          notes: ""
-        },
-        // 4. Otras Habilitaciones
-        { key: "MEDICO", label: "Examen Médico", group: "OTHER", category: "A", applies: true, expiryDate: "", notes: "Certificación Médica DGAC Clase 1" },
-        { key: "IFR", label: "IFR", group: "OTHER", category: "A", applies: true, expiryDate: "", notes: "Habilitación Vuelo por Instrumentos" },
-        { key: "INGLES", label: "Inglés Aeronáutico", group: "OTHER", category: "B", applies: true, expiryDate: "", notes: "Competencia Lingüística OACI" },
-        { key: "IV", label: "IV", group: "OTHER", category: "B", applies: false, expiryDate: "", notes: "Instructor de Vuelo" },
-        { key: "IVI", label: "IVI", group: "OTHER", category: "B", applies: false, expiryDate: "", notes: "Instructor de Vuelo Instrumental" },
-        { key: "IE", label: "IE", group: "OTHER", category: "B", applies: false, expiryDate: "", notes: "Instructor Examinador / Inspector" }
+        { key: "MEDICO", label: "Examen Médico", category: "A", applies: true, examDate: subMonthsISO(4), expiryDate: addMonthsISO(8), notes: "Certificación Médica DGAC Clase 1" },
+        { key: "IFR", label: "IFR", category: "A", applies: true, examDate: subMonthsISO(5), expiryDate: addMonthsISO(7), notes: "Habilitación Vuelo por Instrumentos" },
+        { key: "INGLES", label: "Inglés Aeronáutico", category: "B", applies: true, examDate: subMonthsISO(12), expiryDate: addMonthsISO(24), notes: "Competencia Lingüística OACI" },
+        { key: "IV", label: "IV", category: "B", applies: false, examDate: "", expiryDate: "", notes: "Instructor de Vuelo" },
+        { key: "IVI", label: "IVI", category: "B", applies: false, examDate: "", expiryDate: "", notes: "Instructor de Vuelo Instrumental" },
+        { key: "IE", label: "IE", category: "B", applies: false, examDate: "", expiryDate: "", notes: "Instructor Examinador / Inspector" }
       ];
-
-      // 2. Habilitaciones de Tipo (solo para aeronaves que requieren Type Rating; PC-12 EXCLUIDO)
-      pilot.hab.filter(mat => mat !== "PC-12").forEach(mat => {
+      pilot.hab.forEach(mat => {
         items.push({
           key: `TR_${mat}`,
           label: `Type Rating ${mat}`,
           material: mat,
-          group: "TYPE",
           category: "A",
           applies: true,
-          expiryDate: "",
+          examDate: subMonthsISO(3),
+          expiryDate: addMonthsISO(9),
           notes: `Habilitación de Tipo ${mat}`
         });
       });
-
       return items;
-    }
-
-    function normalizePilotQualList(pilot, rawList) {
-      let changed = false;
-      const list = Array.isArray(rawList) ? rawList.map(item => ({ ...item })) : [];
-
-      // Compatibilidad: si existía un registro histórico TR_PC-12, migrarlo sin perder datos y marcarlo como legado oculto
-      const legacyTrPc12 = list.find(q => q.key === "TR_PC-12");
-      if (legacyTrPc12 && !legacyTrPc12.hiddenLegacy) {
-        legacyTrPc12.hiddenLegacy = true;
-        changed = true;
-      }
-
-      // Asegurar Habilitaciones de Clase (ASEL y AMEL)
-      if (!list.some(q => q.key === "CLASS_ASEL")) {
-        list.push({
-          key: "CLASS_ASEL",
-          label: "Monomotor terrestre (ASEL)",
-          group: "CLASS",
-          category: "A",
-          applies: pilot.hab.includes("PC-12"),
-          expiryDate: "",
-          notes: ""
-        });
-        changed = true;
-      }
-      if (!list.some(q => q.key === "CLASS_AMEL")) {
-        list.push({
-          key: "CLASS_AMEL",
-          label: "Multimotor terrestre (AMEL)",
-          group: "CLASS",
-          category: "A",
-          applies: pilot.hab.some(m => MULTI_ENGINE_LAND_MATERIALS.includes(m)),
-          expiryDate: "",
-          notes: ""
-        });
-        changed = true;
-      }
-
-      // Asegurar Curso interno PC-12 (migrando metadatos si existía TR_PC-12 previo)
-      if (!list.some(q => q.key === "INT_PC12")) {
-        list.push({
-          key: "INT_PC12",
-          label: "Curso interno PC-12",
-          material: "PC-12",
-          group: "INTERNAL",
-          category: "A",
-          applies: legacyTrPc12 ? !!legacyTrPc12.applies : pilot.hab.includes("PC-12"),
-          expiryDate: legacyTrPc12?.expiryDate || "",
-          notes: legacyTrPc12?.notes || ""
-        });
-        changed = true;
-      }
-
-      // Asegurar Type Ratings de flota asignada (excluyendo PC-12)
-      pilot.hab.filter(mat => mat !== "PC-12").forEach(mat => {
-        const trKey = `TR_${mat}`;
-        if (!list.some(q => q.key === trKey)) {
-          list.push({
-            key: trKey,
-            label: `Type Rating ${mat}`,
-            material: mat,
-            group: "TYPE",
-            category: "A",
-            applies: true,
-            expiryDate: "",
-            notes: `Habilitación de Tipo ${mat}`
-          });
-          changed = true;
-        }
-      });
-
-      // Normalizar metadatos de grupo y etiquetas sin eliminar campos históricos almacenados
-      list.forEach(item => {
-        if (item.key === "CLASS_ASEL") {
-          if (item.label !== "Monomotor terrestre (ASEL)") { item.label = "Monomotor terrestre (ASEL)"; changed = true; }
-          if (item.group !== "CLASS") { item.group = "CLASS"; changed = true; }
-          if (item.category !== "A") { item.category = "A"; changed = true; }
-        } else if (item.key === "CLASS_AMEL") {
-          if (item.label !== "Multimotor terrestre (AMEL)") { item.label = "Multimotor terrestre (AMEL)"; changed = true; }
-          if (item.group !== "CLASS") { item.group = "CLASS"; changed = true; }
-          if (item.category !== "A") { item.category = "A"; changed = true; }
-        } else if (item.key === "INT_PC12") {
-          if (item.label !== "Curso interno PC-12") { item.label = "Curso interno PC-12"; changed = true; }
-          if (item.group !== "INTERNAL") { item.group = "INTERNAL"; changed = true; }
-          if (item.category !== "A") { item.category = "A"; changed = true; }
-        } else if (item.key.startsWith("TR_") && item.key !== "TR_PC-12") {
-          if (item.group !== "TYPE") { item.group = "TYPE"; changed = true; }
-          if (item.category !== "A") { item.category = "A"; changed = true; }
-        } else if (!item.hiddenLegacy) {
-          if (item.group !== "OTHER") { item.group = "OTHER"; changed = true; }
-        }
-      });
-
-      return { list, changed };
     }
 
     function getQualificationsStore() {
@@ -1164,11 +1021,14 @@
           store[p.ini] = buildDefaultQualsForPilot(p);
           changed = true;
         } else {
-          const norm = normalizePilotQualList(p, store[p.ini]);
-          if (norm.changed) {
-            store[p.ini] = norm.list;
-            changed = true;
-          }
+          // Ensure every enabled material has a Type Rating entry
+          p.hab.forEach(mat => {
+            const trKey = `TR_${mat}`;
+            if (!store[p.ini].some(q => q.key === trKey)) {
+              const def = buildDefaultQualsForPilot(p).find(q => q.key === trKey);
+              if (def) { store[p.ini].push(def); changed = true; }
+            }
+          });
         }
       });
       if (changed) localStorage.setItem(KEYS.QUALIFICATIONS, JSON.stringify(store));
@@ -1585,14 +1445,7 @@
           if (Array.isArray(sharedActs)) saveActivities(sharedActs);
 
           const sharedQuals = await readOpsConfigJson(headers, opsConfigFolderId, "habilitaciones.json");
-          if (sharedQuals && typeof sharedQuals === "object") {
-            PILOTOS_DB.forEach(p => {
-              if (Array.isArray(sharedQuals[p.ini])) {
-                sharedQuals[p.ini] = normalizePilotQualList(p, sharedQuals[p.ini]).list;
-              }
-            });
-            saveQualificationsStore(sharedQuals);
-          }
+          if (sharedQuals && typeof sharedQuals === "object") saveQualificationsStore(sharedQuals);
 
           const sharedAuth = await readOpsConfigJson(headers, opsConfigFolderId, "jornadas_consecutivas_auth.json");
           if (Array.isArray(sharedAuth)) saveConsecAuthList(sharedAuth);
@@ -1638,193 +1491,14 @@
     }
 
     /* =========================================================================
-       4. MÓDULO HABILITACIONES Y REGLAS UNIFICADAS DE ELEGIBILIDAD POR MATERIAL
+       4. MÓDULO ENTRENAMIENTO RECIENTE (DESPEGUES Y ATERRIZAJES EN 90 DÍAS)
        ========================================================================= */
-    function evaluatePilotQualifications(pilot, evalMs) {
-      const store = getQualificationsStore();
-      const rawList = store[pilot.ini] || [];
-      const thresholdDays = getOpsSettings().qualAlertDays || 30;
-      const evalDayStart = isoDateStartMs(msToLocalISODate(evalMs));
-
-      const evaluatedItems = rawList
-        .filter(item => !item.hiddenLegacy && item.key !== "TR_PC-12")
-        .map(item => {
-          if (!item.applies) {
-            return { ...item, daysRemaining: null, state: "NA", stateLabel: "No aplica" };
-          }
-          if (!item.expiryDate || !isValidCompleteISODate(item.expiryDate)) {
-            return { ...item, daysRemaining: null, state: "NO_DATE", stateLabel: "Sin fecha registrada" };
-          }
-          const expMs = isoDateStartMs(item.expiryDate);
-          const daysRemaining = Math.floor((expMs - evalDayStart) / 86400000);
-          let state = "OK";
-          let stateLabel = `Vigente (${daysRemaining}d)`;
-          if (daysRemaining < 0) {
-            state = "EXPIRED";
-            stateLabel = `Vencida (hace ${Math.abs(daysRemaining)}d)`;
-          } else if (daysRemaining <= thresholdDays) {
-            state = "WARN";
-            stateLabel = `Próximo a vencer (${daysRemaining}d)`;
-          }
-          return { ...item, daysRemaining, state, stateLabel };
-        });
-
-      const byKey = {};
-      evaluatedItems.forEach(q => { byKey[q.key] = q; });
-
-      const globalMandatoryKeys = ["MEDICO", "IFR"];
-      const missingGlobalMandatory = globalMandatoryKeys
-        .map(k => byKey[k])
-        .filter(q => !q || !q.applies);
-      const expiredClassAGlobal = evaluatedItems.filter(q =>
-        q.applies && globalMandatoryKeys.includes(q.key) && q.state === "EXPIRED"
-      );
-
-      const expiredTypeRatings = evaluatedItems.filter(q => q.applies && q.key.startsWith("TR_") && q.state === "EXPIRED");
-      const expiredClassB = evaluatedItems.filter(q => q.applies && q.category === "B" && q.state === "EXPIRED");
-      const upcomingExpirations = evaluatedItems.filter(q => q.applies && q.state === "WARN");
-
-      const functionalRestrictions = expiredClassB.map(q => {
-        if (q.key === "IV") return "No puede ejercer como Instructor de Vuelo (IV)";
-        if (q.key === "IVI") return "No puede ejercer como Instructor Instrumental (IVI / SIM)";
-        if (q.key === "IE") return "No puede actuar como Examinador / Inspector (IE)";
-        if (q.key === "INGLES") return "Restringido a vuelos nacionales (Inglés OACI vencido)";
-        return `${q.label} vencida`;
-      });
-
-      return {
-        items: evaluatedItems,
-        byKey,
-        missingGlobalMandatory,
-        expiredClassAGlobal,
-        expiredTypeRatings,
-        expiredTypeRatingMaterials: expiredTypeRatings.map(q => q.material),
-        expiredClassB,
-        upcomingExpirations,
-        functionalRestrictions,
-        hasGlobalHardBlock: expiredClassAGlobal.length > 0 || missingGlobalMandatory.length > 0
-      };
-    }
-
-    /**
-     * Fuente única de validación operacional por aeronave/material.
-     * - PC-12: requiere Monomotor terrestre (ASEL) + Curso interno PC-12 (SIN Type Rating).
-     * - Demás aviones multimotor terrestres (PC-24, L-410, G-150, D-228): requiere Multimotor terrestre (AMEL) + Type Rating correspondiente.
-     * - Helicópteros (A109S, A109SP): requiere Type Rating correspondiente.
-     */
-    function evaluateMaterialEligibility(pilot, rawMat, evalMs, precomputedQuals = null) {
-      const material = normalizeMaterialCode(rawMat);
-      const quals = precomputedQuals || evaluatePilotQualifications(pilot, evalMs);
-      const missingReasons = [];
-      const expiredReasons = [];
-      const warningReasons = [];
-
-      if (material === "PC-12") {
-        const asel = quals.byKey["CLASS_ASEL"];
-        const intPc12 = quals.byKey["INT_PC12"];
-
-        if (!asel || !asel.applies) {
-          missingReasons.push("Falta habilitación Monomotor terrestre (ASEL)");
-        } else if (asel.state === "EXPIRED") {
-          expiredReasons.push("Monomotor terrestre (ASEL) vencida");
-        } else if (asel.state === "WARN") {
-          warningReasons.push(`Monomotor terrestre (ASEL) vence en ${asel.daysRemaining}d`);
-        }
-
-        if (!intPc12 || !intPc12.applies) {
-          missingReasons.push("Falta Curso interno PC-12 registrado");
-        } else if (intPc12.state === "EXPIRED") {
-          expiredReasons.push("Curso interno PC-12 vencido");
-        } else if (intPc12.state === "WARN") {
-          warningReasons.push(`Curso interno PC-12 vence en ${intPc12.daysRemaining}d`);
-        }
-      } else if (MULTI_ENGINE_LAND_MATERIALS.includes(material)) {
-        const amel = quals.byKey["CLASS_AMEL"];
-        const tr = quals.byKey[`TR_${material}`];
-
-        if (!amel || !amel.applies) {
-          missingReasons.push("Falta habilitación Multimotor terrestre (AMEL)");
-        } else if (amel.state === "EXPIRED") {
-          expiredReasons.push("Multimotor terrestre (AMEL) vencida");
-        } else if (amel.state === "WARN") {
-          warningReasons.push(`Multimotor terrestre (AMEL) vence en ${amel.daysRemaining}d`);
-        }
-
-        if (!tr || !tr.applies) {
-          missingReasons.push(`Falta Type Rating ${material}`);
-        } else if (tr.state === "EXPIRED") {
-          expiredReasons.push(`Type Rating ${material} vencido`);
-        } else if (tr.state === "WARN") {
-          warningReasons.push(`Type Rating ${material} vence en ${tr.daysRemaining}d`);
-        }
-      } else {
-        // Helicópteros u otros materiales con Type Rating
-        const tr = quals.byKey[`TR_${material}`];
-        if (!tr || !tr.applies) {
-          missingReasons.push(`Falta Type Rating ${material}`);
-        } else if (tr.state === "EXPIRED") {
-          expiredReasons.push(`Type Rating ${material} vencido`);
-        } else if (tr.state === "WARN") {
-          warningReasons.push(`Type Rating ${material} vence en ${tr.daysRemaining}d`);
-        }
-      }
-
-      const hasQualification = missingReasons.length === 0;
-      const isExpired = expiredReasons.length > 0;
-      const isOperational = hasQualification && !isExpired;
-
-      return {
-        material,
-        hasQualification,
-        isExpired,
-        isOperational,
-        missingReasons,
-        expiredReasons,
-        warningReasons
-      };
-    }
-
-    /**
-     * Lista unificada de materiales asociados al perfil del piloto en el Dashboard.
-     */
-    function getPilotRosterMaterials(pilot, evalMs, precomputedQuals = null) {
-      const quals = precomputedQuals || evaluatePilotQualifications(pilot, evalMs);
-      const matSet = new Set();
-
-      // Materiales con Type Rating activo
-      quals.items.forEach(q => {
-        if (q.key.startsWith("TR_") && q.applies && q.material && q.material !== "PC-12") {
-          matSet.add(q.material);
-        }
-      });
-
-      // PC-12: asociado si figura en su dotación base o tiene Curso interno PC-12 activo
-      const intPc12 = quals.byKey["INT_PC12"];
-      if (pilot.hab.includes("PC-12") || (intPc12 && intPc12.applies)) {
-        matSet.add("PC-12");
-      }
-
-      // Conservar orden canónico de flota
-      const order = ["PC-24", "L-410", "G-150", "D-228", "PC-12", "A109S", "A109SP"];
-      const sorted = Array.from(matSet).sort((a, b) => {
-        const ia = order.indexOf(a);
-        const ib = order.indexOf(b);
-        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-      });
-
-      return sorted.map(mat => evaluateMaterialEligibility(pilot, mat, evalMs, quals));
-    }
-
-    /* =========================================================================
-       5. MÓDULO ENTRENAMIENTO RECIENTE (DESPEGUES Y ATERRIZAJES EN 90 DÍAS)
-       ========================================================================= */
-    function evaluateRecentExperience90d(pilot, evalMs, allFlights, precomputedQuals = null) {
+    function evaluateRecentExperience90d(pilot, evalMs, allFlights) {
       const pilotIniUpper = pilot.ini.toUpperCase();
       const baselines = getBaseline90d()[pilot.ini] || {};
       const perMaterial = {};
-      const rosterMats = getPilotRosterMaterials(pilot, evalMs, precomputedQuals).map(r => r.material);
 
-      rosterMats.forEach(mat => {
+      pilot.hab.forEach(mat => {
         const normMat = normalizeMaterialCode(mat);
         const base = baselines[normMat] || {};
         let lastTakeoffMs = base.takeoffDate ? new Date(`${base.takeoffDate}T12:00:00Z`).getTime() : null;
@@ -1869,7 +1543,7 @@
         const daysSinceTakeoff = lastTakeoffMs ? Math.max(0, Math.floor((evalMs - lastTakeoffMs) / 86400000)) : null;
         const daysSinceLanding = lastLandingMs ? Math.max(0, Math.floor((evalMs - lastLandingMs) / 86400000)) : null;
 
-        let status = "RED";
+        let status = "RED"; // GREEN, YELLOW, RED
         let statusLabel = "DESENTRENADO (>90d)";
         let isValid = false;
 
@@ -1924,6 +1598,58 @@
     }
 
     /* =========================================================================
+       5. MÓDULO HABILITACIONES Y VENCIMIENTOS (CLASE A BLOQUEO / CLASE B FUNC.)
+       ========================================================================= */
+    function evaluatePilotQualifications(pilot, evalMs) {
+      const store = getQualificationsStore();
+      const list = store[pilot.ini] || [];
+      const thresholdDays = getOpsSettings().qualAlertDays || 30;
+      const evalDayStart = isoDateStartMs(msToLocalISODate(evalMs));
+
+      const evaluatedItems = list.map(item => {
+        if (!item.applies || !item.expiryDate) {
+          return { ...item, daysRemaining: null, state: "NA", stateLabel: item.applies ? "SIN FECHA" : "NO POSEE / N/A" };
+        }
+        const expMs = isoDateStartMs(item.expiryDate);
+        const daysRemaining = Math.floor((expMs - evalDayStart) / 86400000);
+        let state = "OK";
+        let stateLabel = `VIGENTE (${daysRemaining}d)`;
+        if (daysRemaining < 0) {
+          state = "EXPIRED";
+          stateLabel = `VENCIDA (hace ${Math.abs(daysRemaining)}d)`;
+        } else if (daysRemaining <= thresholdDays) {
+          state = "WARN";
+          stateLabel = `POR VENCER (${daysRemaining}d)`;
+        }
+        return { ...item, daysRemaining, state, stateLabel };
+      });
+
+      const expiredClassAGlobal = evaluatedItems.filter(q => q.applies && q.category === "A" && !q.key.startsWith("TR_") && q.state === "EXPIRED");
+      const expiredTypeRatings = evaluatedItems.filter(q => q.applies && q.key.startsWith("TR_") && q.state === "EXPIRED");
+      const expiredClassB = evaluatedItems.filter(q => q.applies && q.category === "B" && q.state === "EXPIRED");
+      const upcomingExpirations = evaluatedItems.filter(q => q.applies && q.state === "WARN");
+
+      const functionalRestrictions = expiredClassB.map(q => {
+        if (q.key === "IV") return "No puede ejercer como Instructor de Vuelo (IV)";
+        if (q.key === "IVI") return "No puede ejercer como Instructor Instrumental (IVI / SIM)";
+        if (q.key === "IE") return "No puede actuar como Examinador / Inspector (IE)";
+        if (q.key === "INGLES") return "Restringido a vuelos nacionales (Inglés OACI vencido)";
+        return `${q.label} vencida`;
+      });
+
+      return {
+        items: evaluatedItems,
+        expiredClassAGlobal,
+        expiredTypeRatings,
+        expiredTypeRatingMaterials: expiredTypeRatings.map(q => q.material),
+        expiredClassB,
+        upcomingExpirations,
+        functionalRestrictions,
+        hasGlobalHardBlock: expiredClassAGlobal.length > 0
+      };
+    }
+
+    /* =========================================================================
        6. MÓDULO JORNADAS CONSECUTIVAS Y DESCANSO (LEY 20.321 — ART. 152 TER H)
        ========================================================================= */
     function isServiceActivityType(typeStr) {
@@ -1944,6 +1670,7 @@
       const pilotIniUpper = pilot.ini.toUpperCase();
       const serviceDatesSet = new Set();
 
+      // 1. Días con vuelo / PSV (Art. 152 ter A c)
       allFlights.forEach(f => {
         if (!Array.isArray(f.crew) || !f.crew.some(c => c.toUpperCase() === pilotIniUpper)) return;
         const startISO = msToLocalISODate(f.startMs);
@@ -1957,6 +1684,7 @@
         }
       });
 
+      // 2. Días con simulador, instrucción o servicio en tierra asignado (Art. 152 ter A c y d)
       allActs.forEach(a => {
         if (!a.pilotIni || a.pilotIni.toUpperCase() !== pilotIniUpper) return;
         if (!isServiceActivityType(a.type)) return;
@@ -1971,13 +1699,14 @@
         }
       });
 
+      // Simulación cronológica día a día desde 45 días atrás hasta evalDateISO
       const scanStartISO = addDaysToISODate(evalDateISO, -45);
       let cursor = scanStartISO;
 
       let activeStreak = 0;
       let seqStartDate = null;
       let lastServiceDate = null;
-      let restBlockType = null;
+      let restBlockType = null; // null | "REST_5X2" | "REST_INT_6_9" | "REST_10D"
       let restRequiredDays = 0;
       let restStartDate = null;
       let restDaysCompleted = 0;
@@ -1986,7 +1715,9 @@
         const workedToday = serviceDatesSet.has(cursor);
 
         if (workedToday) {
-          if (activeStreak === 0) seqStartDate = cursor;
+          if (activeStreak === 0) {
+            seqStartDate = cursor;
+          }
           activeStreak += 1;
           lastServiceDate = cursor;
           restBlockType = null;
@@ -1994,26 +1725,1398 @@
           restStartDate = null;
           restDaysCompleted = 0;
         } else {
+          // Día sin actividad de servicio
           if (activeStreak > 0) {
+            // Se acaba de interrumpir/finalizar la racha en este día
             restStartDate = cursor;
             restDaysCompleted = 1;
             if (activeStreak >= 10) {
               restBlockType = "REST_10D";
-              restRequiredDays = 4;
+              restRequiredDays = 4; // 4 días consecutivos tras 10 días (Art. 152 ter H)
             } else if (activeStreak >= 6 && activeStreak <= 9) {
               restBlockType = "REST_INT_6_9";
-              restRequiredDays = 3;
+              restRequiredDays = 3; // 3 días consecutivos por interrupción entre días 6 y 9
             } else {
               restBlockType = "REST_5X2";
-              restRequiredDays = 2;
+              restRequiredDays = 2; // 2 días consecutivos bajo esquema 5x2
             }
             activeStreak = 0;
           } else if (restBlockType !== null) {
             restDaysCompleted += 1;
             if (restDaysCompleted > restRequiredDays) {
+              // Descanso completado antes de hoy: contador reiniciado
               restBlockType = null;
               restRequiredDays = 0;
               restStartDate = null;
               restDaysCompleted = 0;
               seqStartDate = null;
             }
+          }
+        }
+        cursor = addDaysToISODate(cursor, 1);
+      }
+
+      // Evaluar si el día 10 se completó hoy mismo (workedToday en evalDateISO y activeStreak === 10)
+      const workedEvalDay = serviceDatesSet.has(evalDateISO);
+      const authRecord = seqStartDate ? hasConsecDay6Auth(pilot.ini, seqStartDate) : null;
+
+      let state = "GREEN_5X2"; // GREEN_5X2 | YELLOW_DAY5 | GREEN_EXCEP | BLOCK_REST_2D | BLOCK_REST_3D | BLOCK_REST_4D | BLOCK_MAX_10D
+      let badgeText = "0 días · Disponible";
+      let badgeClass = "st-ok";
+      let regimeLabel = "Esquema Normal 5x2";
+      let nextRestRequiredText = "2 días al completar ≤5d";
+      let restProgressText = "Sin descanso pendiente";
+      let isBlocked = false;
+      let blockEndMs = 0;
+      let blockReason = "";
+      let needsDay6Confirm = false;
+
+      if (restBlockType !== null && restDaysCompleted <= restRequiredDays) {
+        isBlocked = true;
+        const releaseISO = addDaysToISODate(restStartDate, restRequiredDays);
+        blockEndMs = isoDateStartMs(releaseISO);
+        const remDays = restRequiredDays - restDaysCompleted + 1;
+
+        if (restBlockType === "REST_10D") {
+          state = "BLOCK_REST_4D";
+          badgeText = `DESC. OBLIG. 4d (${restDaysCompleted}/${restRequiredDays})`;
+          badgeClass = "st-alert";
+          regimeLabel = "Post-10 Días Consecutivos (Art. 152 ter H)";
+          nextRestRequiredText = "4 días consecutivos";
+          restProgressText = `Cumplidos: ${restDaysCompleted - 1}d · Pendientes: ${remDays}d`;
+          blockReason = `Bloqueo obligatorio de 4 días consecutivos tras alcanzar 10 días de servicio (libera ${releaseISO}).`;
+        } else if (restBlockType === "REST_INT_6_9") {
+          state = "BLOCK_REST_3D";
+          badgeText = `DESC. INTERR. 3d (${restDaysCompleted}/${restRequiredDays})`;
+          badgeClass = "st-alert";
+          regimeLabel = "Interrupción Secuencia 6–9d (Ref. Art. 152 ter H)";
+          nextRestRequiredText = "3 días consecutivos";
+          restProgressText = `Cumplidos: ${restDaysCompleted - 1}d · Pendientes: ${remDays}d`;
+          blockReason = `Secuencia interrumpida entre días 6 y 9: bloqueo obligatorio de 3 días consecutivos (libera ${releaseISO}).`;
+        } else {
+          state = "BLOCK_REST_2D";
+          badgeText = `DESCANSO 5x2 (${restDaysCompleted}/${restRequiredDays})`;
+          badgeClass = "st-rest";
+          regimeLabel = "Descanso Semanal 5x2 (Art. 152 ter H)";
+          nextRestRequiredText = "2 días consecutivos";
+          restProgressText = `Cumplidos: ${restDaysCompleted - 1}d · Pendientes: ${remDays}d`;
+          blockReason = `Descanso mínimo de 2 días tras secuencia ≤5 días (libera ${releaseISO}).`;
+        }
+      } else if (activeStreak >= 10) {
+        isBlocked = true;
+        state = "BLOCK_MAX_10D";
+        const firstRestISO = workedEvalDay ? addDaysToISODate(evalDateISO, 1) : evalDateISO;
+        const releaseISO = addDaysToISODate(firstRestISO, 4);
+        blockEndMs = isoDateStartMs(releaseISO);
+        badgeText = `DÍA ${activeStreak}/10 · TOPE LEGAL`;
+        badgeClass = "st-alert";
+        regimeLabel = "Tope Legal 10d Alcanzado (Art. 152 ter H)";
+        nextRestRequiredText = "4 días consecutivos obligatorios";
+        restProgressText = "0/4 días cumplidos (inicia mañana)";
+        blockReason = `Completó 10 días consecutivos (máximo legal Art. 152 ter H). Prohibido programar día 11; requiere 4 días de descanso (libera ${releaseISO}).`;
+      } else if (activeStreak >= 6 && activeStreak <= 9) {
+        state = "GREEN_EXCEP";
+        badgeText = `DÍA ${activeStreak}/10 · EXCEP. AUT.`;
+        badgeClass = "st-ok";
+        regimeLabel = authRecord
+          ? `Régimen Excepcional 6–10d Autorizado (${authRecord.authorizedBy || "Ops"})`
+          : "Régimen Excepcional 6–10d Activo";
+        nextRestRequiredText = "4d (si llega a 10d) / 3d (si interrumpe 6–9d)";
+        restProgressText = `En servicio (${10 - activeStreak}d disp. hasta tope 10d)`;
+      } else if (activeStreak === 5) {
+        state = "YELLOW_DAY5";
+        needsDay6Confirm = !authRecord;
+        badgeText = authRecord ? "DÍA 5/10 · 6° DÍA AUT." : "DÍA 5/5 · ALERTA 6° DÍA";
+        badgeClass = authRecord ? "st-ok" : "st-warn";
+        regimeLabel = authRecord
+          ? `6° Día Pre-Autorizado (${authRecord.authorizedBy || "Ops"})`
+          : "Límite Esquema 5x2 (Bloqueo Preventivo 6° Día)";
+        nextRestRequiredText = "2 días (si descansa ahora) / Req. confirmación para 6° día";
+        restProgressText = "5 días completados";
+      } else if (activeStreak > 0) {
+        state = "GREEN_5X2";
+        badgeText = `DÍA ${activeStreak}/5 · VERDE`;
+        badgeClass = "st-ok";
+        regimeLabel = "Esquema Normal 5x2";
+        nextRestRequiredText = "2 días al completar ≤5d";
+        restProgressText = `Día ${activeStreak} de 5`;
+      }
+
+      return {
+        activeStreak,
+        seqStartDate,
+        lastServiceDate,
+        state,
+        badgeText,
+        badgeClass,
+        regimeLabel,
+        nextRestRequiredText,
+        restProgressText,
+        isBlocked,
+        blockEndMs,
+        blockReason,
+        needsDay6Confirm,
+        authRecord,
+        workedEvalDay
+      };
+    }
+
+    /* =========================================================================
+       7. MOTOR CENTRALIZADO DE DISPONIBILIDAD Y PRÓXIMO DESPEGUE
+       ========================================================================= */
+    function isFlightActiveAt(f, evalMs) {
+      if (f.isClosed === false && f.hasEfbData === true) {
+        const openCeilingMs = Math.max(f.endMs, f.startMs + 14 * 3600000);
+        return evalMs >= f.startMs && evalMs <= openCeilingMs;
+      }
+      return evalMs >= f.startMs && evalMs < f.endMs;
+    }
+
+    function computePilotStatus(pilot, evalMs, matFilter) {
+      const pilotIniUpper = pilot.ini.toUpperCase();
+      const allFlightsRaw = getFlights();
+      const allActsRaw = getActivities();
+
+      const allFlights = allFlightsRaw.filter(f =>
+        !isNaN(f.startMs) && !isNaN(f.endMs) &&
+        Array.isArray(f.crew) && f.crew.some(c => c.toUpperCase() === pilotIniUpper)
+      );
+      const allActs = allActsRaw.filter(a => a.pilotIni && a.pilotIni.toUpperCase() === pilotIniUpper);
+      const effectiveRole = getPilotRoleForMaterial(pilot, matFilter);
+
+      // Evaluar los 3 nuevos subsistemas
+      const recent90d = evaluateRecentExperience90d(pilot, evalMs, allFlightsRaw);
+      const quals = evaluatePilotQualifications(pilot, evalMs);
+      const consec = evaluateConsecutiveDuty(pilot, evalMs, allFlightsRaw, allActsRaw);
+
+      // Acumulados DAN 135 (5d, 10d, Mes, 90d)
+      const evalDateObj = new Date(evalMs);
+      const evalYear = evalDateObj.getFullYear();
+      const evalMonth = evalDateObj.getMonth();
+
+      let min5d = 0, min10d = 0, minMonth = 0, min90d = 0;
+      const ms5dAgo = evalMs - 5 * 86400000;
+      const ms10dAgo = evalMs - 10 * 86400000;
+      const ms90dAgo = evalMs - 90 * 86400000;
+
+      allFlights.forEach(f => {
+        if (f.startMs <= evalMs) {
+          if (f.endMs >= ms5dAgo) min5d += f.blockMin;
+          if (f.endMs >= ms10dAgo) min10d += f.blockMin;
+          if (f.endMs >= ms90dAgo) min90d += f.blockMin;
+          const d = new Date(f.startMs);
+          if (d.getFullYear() === evalYear && d.getMonth() === evalMonth) minMonth += f.blockMin;
+        }
+      });
+
+      allActs.filter(a => a.extFlightMin > 0 && a.startMs <= evalMs).forEach(a => {
+        if (a.endMs >= ms5dAgo) min5d += a.extFlightMin;
+        if (a.endMs >= ms10dAgo) min10d += a.extFlightMin;
+        if (a.endMs >= ms90dAgo) min90d += a.extFlightMin;
+        const d = new Date(a.startMs);
+        if (d.getFullYear() === evalYear && d.getMonth() === evalMonth) minMonth += a.extFlightMin;
+      });
+
+      const rem5d = Math.max(0, DAN135.MAX_5D_MIN - min5d);
+      const rem10d = Math.max(0, DAN135.MAX_10D_MIN - min10d);
+      const remMonth = Math.max(0, DAN135.MAX_MONTH_MIN - minMonth);
+      const rem90d = Math.max(0, DAN135.MAX_90D_MIN - min90d);
+
+      // Descanso semanal 36h en 7 días
+      const winStart = evalMs - 7 * 86400000;
+      const busyIntervals = [];
+      allFlights.forEach(f => {
+        const effEnd = isFlightActiveAt(f, evalMs) ? Math.max(f.endMs, evalMs) : f.endMs;
+        if (effEnd > winStart && f.startMs < evalMs) busyIntervals.push([Math.max(winStart, f.startMs), Math.min(evalMs, effEnd)]);
+      });
+      allActs.filter(a => isServiceActivityType(a.type)).forEach(a => {
+        if (a.endMs > winStart && a.startMs < evalMs) busyIntervals.push([Math.max(winStart, a.startMs), Math.min(evalMs, a.endMs)]);
+      });
+      busyIntervals.sort((a, b) => a[0] - b[0]);
+
+      let maxFreeMs = 0, cursor = winStart;
+      for (const [s, e] of busyIntervals) {
+        if (s > cursor) maxFreeMs = Math.max(maxFreeMs, s - cursor);
+        cursor = Math.max(cursor, e);
+      }
+      maxFreeMs = Math.max(maxFreeMs, evalMs - cursor);
+      const maxRest7dHours = Math.round(maxFreeMs / 3600000);
+
+      // Cálculo base de presentación disponible y Próximo Despegue (+60 min)
+      let category = "DISPONIBLE";
+      let statusRank = 1;
+      let presentacionMs = evalMs;
+      let isImmediate = true;
+      let badgeText = "DISPONIBLE";
+      let badgeClass = "st-ok";
+      let takeoffSub = `Presentación: Inmediata (${formatCltShortTime(evalMs)} CLT)`;
+      let clockMain = "Sin restricciones";
+      let clockSub = "Descanso DAN 135 y traslados al día";
+
+      const activeBlock = allActs.find(a => evalMs >= a.startMs && evalMs < a.endMs);
+      const activeFlight = allFlights.find(f => isFlightActiveAt(f, evalMs));
+      const pastFlights = allFlights.filter(f => !isFlightActiveAt(f, evalMs) && f.endMs <= evalMs);
+      const lastFlight = pastFlights[pastFlights.length - 1];
+      const nextScheduledFlight = allFlights.find(f => f.startMs > evalMs);
+
+      // Verificar descanso de 11h tras Período de Servicio en tierra (Art. 152 ter D Ley 20.321)
+      const pastGroundServices = allActs.filter(a => a.type === "Curso o Capacitación" && a.endMs <= evalMs);
+      const lastGroundService = pastGroundServices[pastGroundServices.length - 1];
+      const groundReleaseMs = lastGroundService ? (lastGroundService.endMs + 11 * 3600000) : 0;
+
+      if (activeBlock) {
+        category = "BLOQUEADO";
+        statusRank = 4;
+        presentacionMs = activeBlock.endMs;
+        isImmediate = false;
+        badgeText = activeBlock.type.includes("Permiso") ? "PERMISO ADM" :
+                    activeBlock.type.includes("Simulador") ? "SIMULADOR" :
+                    activeBlock.type.includes("Curso") ? "CURSO" :
+                    activeBlock.type.includes("Franco") ? "FRANCO" : "BLOQUEADO";
+        badgeClass = "st-leave";
+        takeoffSub = `Presentación: ${formatCltDateTime(presentacionMs)}`;
+        clockMain = `${badgeText}:`;
+        clockSub = activeBlock.note || activeBlock.type;
+      } else if (activeFlight) {
+        category = "EN PSV";
+        statusRank = 2;
+        isImmediate = false;
+        const elapsedMin = Math.round((evalMs - activeFlight.startMs) / 60000);
+        const remPsvMin = Math.max(0, DAN135.PSV_NOMINAL_MIN - elapsedMin);
+        const restInfo = calcRequiredRestBreakdown(Math.max(activeFlight.psvMin, elapsedMin), activeFlight.baseType);
+        const estEndMs = Math.max(activeFlight.endMs, evalMs + 30 * 60000);
+        presentacionMs = estEndMs + restInfo.totalUnavailableMin * 60000;
+        badgeText = "EN PSV";
+        badgeClass = "st-psv";
+        takeoffSub = `Pres: ${formatCltDateTime(presentacionMs)} (${restInfo.tableH}h desc + 60m trasl)`;
+        clockMain = `PSV Activo (${activeFlight.aircraft} · POV ${activeFlight.pov})`;
+        clockSub = `Transc: ${formatHHMM(elapsedMin)}h · Rem 12h: ${formatHHMM(remPsvMin)}h`;
+      } else if (lastFlight) {
+        const restInfo = calcRequiredRestBreakdown(lastFlight.psvMin, lastFlight.baseType);
+        const releaseMs = lastFlight.endMs + restInfo.totalUnavailableMin * 60000;
+        if (evalMs < releaseMs) {
+          category = "EN DESCANSO";
+          statusRank = 3;
+          isImmediate = false;
+          presentacionMs = releaseMs;
+          badgeText = "EN DESCANSO";
+          badgeClass = "st-rest";
+          const remTotalMin = Math.ceil((releaseMs - evalMs) / 60000);
+          takeoffSub = `Pres: ${formatCltDateTime(releaseMs)} (${restInfo.tableH}h + 30m/30m trasl)`;
+          clockMain = `Pres. ${formatCltShortTime(releaseMs)} (faltan ${formatHHMM(remTotalMin)}h)`;
+          clockSub = `Descanso ${restInfo.tableH}h + 60m traslado (${lastFlight.aircraft} · POV ${lastFlight.pov})`;
+        } else if (evalMs < groundReleaseMs) {
+          category = "EN DESCANSO";
+          statusRank = 3;
+          isImmediate = false;
+          presentacionMs = groundReleaseMs;
+          badgeText = "DESC. PS TIERRA";
+          badgeClass = "st-rest";
+          takeoffSub = `Pres: ${formatCltDateTime(groundReleaseMs)} (11h Art. 152 ter D)`;
+          clockMain = `Pres. ${formatCltShortTime(groundReleaseMs)} CLT`;
+          clockSub = `Descanso mín. 11h tras servicio en tierra`;
+        } else if (nextScheduledFlight) {
+          takeoffSub = `Pres: Inmediata · Prog POV ${nextScheduledFlight.pov}: ${formatCltDateTime(nextScheduledFlight.startMs)}`;
+        }
+      } else if (evalMs < groundReleaseMs) {
+        category = "EN DESCANSO";
+        statusRank = 3;
+        isImmediate = false;
+        presentacionMs = groundReleaseMs;
+        badgeText = "DESC. PS TIERRA";
+        badgeClass = "st-rest";
+        takeoffSub = `Pres: ${formatCltDateTime(groundReleaseMs)} (11h Art. 152 ter D)`;
+        clockMain = `Pres. ${formatCltShortTime(groundReleaseMs)} CLT`;
+        clockSub = `Descanso mín. 11h tras servicio en tierra`;
+      } else if (nextScheduledFlight) {
+        takeoffSub = `Pres: Inmediata · Prog POV ${nextScheduledFlight.pov}: ${formatCltDateTime(nextScheduledFlight.startMs)}`;
+      }
+
+      // Verificar bloqueos por Jornadas Consecutivas (Ley 20.321 Art. 152 ter H)
+      if (consec.isBlocked) {
+        category = "BLOQUEADO";
+        statusRank = 5;
+        isImmediate = false;
+        presentacionMs = Math.max(presentacionMs, consec.blockEndMs);
+        badgeText = consec.state === "BLOCK_REST_4D" ? "DESC. 4D (10d)" :
+                    consec.state === "BLOCK_REST_3D" ? "DESC. 3D (6-9d)" :
+                    consec.state === "BLOCK_MAX_10D" ? "TOPE 10D LEY" : "DESC. 5x2 (2d)";
+        badgeClass = "st-alert";
+        takeoffSub = `Pres: ${formatCltDateTime(presentacionMs)}`;
+        clockMain = consec.regimeLabel;
+        clockSub = consec.blockReason;
+      }
+
+      // Verificar bloqueos por Habilitaciones Clase A (Médico / IFR / Type Rating del material filtrado)
+      const relevantTrExpired = matFilter === "TODOS"
+        ? (pilot.hab.length > 0 && pilot.hab.every(m => quals.expiredTypeRatingMaterials.includes(m)))
+        : quals.expiredTypeRatingMaterials.some(m => materialMatchesFilter(m, matFilter));
+
+      if (quals.hasGlobalHardBlock || relevantTrExpired) {
+        category = "BLOQUEADO";
+        statusRank = 6;
+        isImmediate = false;
+        const reasons = [
+          ...quals.expiredClassAGlobal.map(q => `${q.label} vencido`),
+          ...quals.expiredTypeRatings.filter(q => matFilter === "TODOS" || materialMatchesFilter(q.material, matFilter)).map(q => `${q.label} vencido`)
+        ];
+        badgeText = "HAB. VENCIDA";
+        badgeClass = "st-alert";
+        takeoffSub = "Bloqueado hasta renovación";
+        clockMain = "Bloqueo Habilitación Clase A";
+        clockSub = reasons.join(" · ");
+      }
+
+      // Verificar bloqueos por Entrenamiento Reciente 90 días en el material filtrado
+      const relevant90dExpired = matFilter === "TODOS"
+        ? recent90d.allMaterialsExpired
+        : pilot.hab.filter(m => materialMatchesFilter(m, matFilter)).every(m => recent90d.redMaterials.includes(m));
+
+      if (relevant90dExpired && category !== "BLOQUEADO") {
+        category = "BLOQUEADO";
+        statusRank = 6;
+        isImmediate = false;
+        const matsAffected = matFilter === "TODOS"
+          ? recent90d.redMaterials.join(", ")
+          : pilot.hab.filter(m => materialMatchesFilter(m, matFilter)).join(", ");
+        badgeText = "DESENTRENADO 90d";
+        badgeClass = "st-alert";
+        takeoffSub = "Requiere reentrenamiento desp./aterr.";
+        clockMain = `Sin actividad >90d (${matsAffected})`;
+        clockSub = "Excede límite de 90 días en material";
+      }
+
+      // Verificar topes de horas DAN 135 (5d, 10d, Mes, 36h/7d)
+      const limitExceeded = min5d >= DAN135.MAX_5D_MIN || min10d >= DAN135.MAX_10D_MIN || minMonth >= DAN135.MAX_MONTH_MIN || maxRest7dHours < 36;
+      if (limitExceeded && category === "DISPONIBLE") {
+        category = "BLOQUEADO";
+        statusRank = 6;
+        isImmediate = false;
+        badgeText = "TOPE DAN 135";
+        badgeClass = "st-alert";
+        takeoffSub = "No Disponible (Tope Normativo)";
+        clockMain = "Bloqueo Horas / Descanso 7d";
+        clockSub = maxRest7dHours < 36 ? `Descanso máx 7d: ${maxRest7dHours}h (< 36h)` : "Excede límite horas de vuelo 5d/10d/Mes";
+      }
+
+      // Si está DISPONIBLE pero tiene restricciones funcionales Clase B, Day 5 warning, o algún material vencido en vista TODOS
+      const partialTrBlocked = matFilter === "TODOS" && !relevantTrExpired && quals.expiredTypeRatingMaterials.length > 0;
+      const partial90dBlocked = matFilter === "TODOS" && !relevant90dExpired && recent90d.redMaterials.length > 0;
+      if (category === "DISPONIBLE" && (quals.expiredClassB.length > 0 || partialTrBlocked || partial90dBlocked)) {
+        badgeText = "DISP. C/ RESTRICC.";
+        badgeClass = "st-warn";
+        const notes = [];
+        if (quals.expiredClassB.length > 0) notes.push(`Restr. func: ${quals.expiredClassB.map(q => q.label).join("/")}`);
+        if (partialTrBlocked) notes.push(`TR vencido: ${quals.expiredTypeRatingMaterials.join("/")}`);
+        if (partial90dBlocked) notes.push(`>90d en: ${recent90d.redMaterials.join("/")}`);
+        clockMain = "Disponible con Restricciones";
+        clockSub = notes.join(" · ");
+      }
+
+      // Cálculo final de Próximo Despegue = Hora de Presentación Disponible + 60 min
+      const nextTakeoffMs = presentacionMs + DAN135.PRESENTACION_A_DESPEGUE_MIN * 60000;
+      const takeoffTimestamp = (category === "BLOQUEADO" && (quals.hasGlobalHardBlock || relevantTrExpired || relevant90dExpired || limitExceeded))
+        ? Number.MAX_SAFE_INTEGER
+        : (isImmediate ? 0 : nextTakeoffMs);
+
+      const takeoffMain = takeoffTimestamp === Number.MAX_SAFE_INTEGER
+        ? "No Disponible"
+        : (isImmediate
+          ? `Inmediato +1h (${formatCltShortTime(nextTakeoffMs)} CLT)`
+          : formatCltDateTime(nextTakeoffMs));
+
+      return {
+        pilot,
+        effectiveRole,
+        category,
+        statusRank,
+        presentacionMs,
+        nextTakeoffMs,
+        takeoffTimestamp,
+        isImmediate,
+        badgeText,
+        badgeClass,
+        takeoffMain,
+        takeoffSub,
+        clockMain,
+        clockSub,
+        min5d, min10d, minMonth, min90d,
+        rem5d, rem10d, remMonth, rem90d,
+        maxRest7dHours,
+        recent90d,
+        quals,
+        consec
+      };
+    }
+
+    /* =========================================================================
+       8. ORDENAMIENTO Y NAVEGACIÓN DE PESTAÑAS
+       ========================================================================= */
+    function switchModuleTab(tabId, btnEl) {
+      activeModuleTab = tabId;
+      document.querySelectorAll(".mod-tab").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      ["TAB_MAIN", "TAB_90D", "TAB_QUALS", "TAB_CONSEC"].forEach(id => {
+        const el = document.getElementById(`view_${id}`);
+        if (el) el.style.display = (id === tabId) ? "block" : "none";
+      });
+      renderDashboard();
+    }
+
+    function setSort(key) {
+      if (currentSortKey === key) {
+        currentSortDir = currentSortDir === "ASC" ? "DESC" : "ASC";
+      } else {
+        currentSortKey = key;
+        currentSortDir = DEFAULT_SORT_DIRECTIONS[key] || "ASC";
+      }
+      updateSortIndicators();
+      renderDashboard();
+    }
+
+    function updateSortIndicators() {
+      const arrowChar = currentSortDir === "ASC" ? "▲" : "▼";
+      document.querySelectorAll(".sort-btn").forEach(btn => {
+        const key = btn.getAttribute("data-sort");
+        const isActive = key === currentSortKey;
+        btn.classList.toggle("active", isActive);
+        const arrowEl = document.getElementById(`arrow-${key}`);
+        if (arrowEl) arrowEl.textContent = isActive ? arrowChar : "";
+      });
+      document.querySelectorAll("th.sortable").forEach(th => {
+        const key = th.getAttribute("data-th");
+        const isActive = key === currentSortKey;
+        th.classList.toggle("sorted-col", isActive);
+        const thArrow = document.getElementById(`th-arrow-${key}`);
+        if (thArrow) thArrow.textContent = isActive ? arrowChar : "";
+      });
+    }
+
+    function sortEvaluatedRows(rows) {
+      const factor = currentSortDir === "ASC" ? 1 : -1;
+      return [...rows].sort((a, b) => {
+        let cmp = 0;
+        switch (currentSortKey) {
+          case "AVAIL":
+            cmp = a.takeoffTimestamp - b.takeoffTimestamp;
+            break;
+          case "NAME":
+            cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
+            break;
+          case "REM_MONTH":
+            cmp = a.remMonth - b.remMonth;
+            break;
+          case "REM_5D":
+            cmp = a.rem5d - b.rem5d;
+            break;
+          case "REM_10D":
+            cmp = a.rem10d - b.rem10d;
+            break;
+          case "REST_7D":
+            cmp = a.maxRest7dHours - b.maxRest7dHours;
+            break;
+          case "CONSEC":
+            cmp = a.consec.activeStreak - b.consec.activeStreak;
+            break;
+          case "ROLE":
+            cmp = a.effectiveRole.localeCompare(b.effectiveRole);
+            break;
+          case "STATUS":
+            cmp = a.statusRank - b.statusRank;
+            break;
+        }
+        if (cmp === 0) cmp = a.pilot.displayName.localeCompare(b.pilot.displayName, "es");
+        return cmp * factor;
+      });
+    }
+
+    function selectMaterial(mat, btnEl) {
+      selectedMaterial = mat;
+      selectedStatusFilter = "ALL";
+      document.querySelectorAll(".mat-pill").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      updateKpiActiveBorder();
+      renderDashboard();
+    }
+
+    function toggleStatusFilter(st) {
+      selectedStatusFilter = (selectedStatusFilter === st) ? "ALL" : st;
+      updateKpiActiveBorder();
+      renderDashboard();
+    }
+
+    function updateKpiActiveBorder() {
+      document.getElementById("kpiCardAvail").classList.toggle("active-filter", selectedStatusFilter === "DISPONIBLE");
+      document.getElementById("kpiCardPsv").classList.toggle("active-filter", selectedStatusFilter === "EN PSV");
+      document.getElementById("kpiCardRest").classList.toggle("active-filter", selectedStatusFilter === "EN DESCANSO");
+      document.getElementById("kpiCardBlock").classList.toggle("active-filter", selectedStatusFilter === "BLOQUEADO");
+      document.getElementById("btnClearStatusFilter").style.display = selectedStatusFilter === "ALL" ? "none" : "inline-flex";
+    }
+
+    /* =========================================================================
+       9. RENDERIZADO PRINCIPAL DEL DASHBOARD Y SUB-VISTAS
+       ========================================================================= */
+    function renderDashboard() {
+      const evalMs = getEvalTimestampMs();
+      const query = document.getElementById("searchPilotInput").value.trim().toLowerCase();
+
+      const validFlights = getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs));
+      document.getElementById("btnViewPovs").textContent = `📋 POVs (${validFlights.length})`;
+
+      const allEvaluated = PILOTOS_DB.map(p => computePilotStatus(p, evalMs, selectedMaterial));
+      const fleetEvaluated = allEvaluated.filter(e => pilotMatchesMaterial(e.pilot, selectedMaterial));
+
+      // Actualizar badges globales de pestañas
+      updateModuleTabBadges(allEvaluated);
+
+      const availList = fleetEvaluated.filter(e => e.category === "DISPONIBLE");
+      const psvList = fleetEvaluated.filter(e => e.category === "EN PSV");
+      const restList = fleetEvaluated.filter(e => e.category === "EN DESCANSO");
+      const blockList = fleetEvaluated.filter(e => e.category === "BLOQUEADO");
+
+      const picAvail = availList.filter(e => e.effectiveRole.startsWith("PIC")).length;
+      const sicAvail = availList.filter(e => e.effectiveRole.startsWith("SIC")).length;
+
+      document.getElementById("kpiLabelAvail").textContent = `DISPONIBLES (${availList.length})`;
+      document.getElementById("kpiNumAvail").textContent = availList.length;
+      document.getElementById("kpiSubAvail").textContent = `${picAvail} PIC · ${sicAvail} SIC`;
+
+      document.getElementById("kpiLabelPsv").textContent = `EN SERVICIO ACTIVO (${psvList.length})`;
+      document.getElementById("kpiNumPsv").textContent = psvList.length;
+
+      document.getElementById("kpiLabelRest").textContent = `EN DESCANSO OBLIGATORIO (${restList.length})`;
+      document.getElementById("kpiNumRest").textContent = restList.length;
+
+      document.getElementById("kpiLabelBlock").textContent = `BLOQUEADOS / RESTRICC. (${blockList.length})`;
+      document.getElementById("kpiNumBlock").textContent = blockList.length;
+
+      const matLabel = selectedMaterial === "A109" ? "A109S/SP" : selectedMaterial;
+      document.getElementById("tableMainTitle").textContent =
+        selectedMaterial === "TODOS"
+          ? `TABLA PRINCIPAL DE TRIPULACIONES — TODOS LOS MATERIALES (${fleetEvaluated.length})`
+          : `TABLA PRINCIPAL DE TRIPULACIONES — MATERIAL ${matLabel} (${fleetEvaluated.length})`;
+
+      const filteredRows = sortEvaluatedRows(
+        fleetEvaluated.filter(e => {
+          if (selectedStatusFilter !== "ALL" && e.category !== selectedStatusFilter) return false;
+          if (query && !e.pilot.displayName.toLowerCase().includes(query) && !e.pilot.ini.toLowerCase().includes(query)) return false;
+          return true;
+        })
+      );
+
+      const tbody = document.getElementById("crewTableBody");
+      if (filteredRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:20px;">No hay tripulantes en esta categoría para el material seleccionado.</td></tr>`;
+      } else {
+        tbody.innerHTML = filteredRows.map(e => {
+          const pct5d = Math.min(100, Math.round((e.min5d / DAN135.MAX_5D_MIN) * 100));
+          const color5d = pct5d >= 90 ? "#EF4444" : (pct5d >= 75 ? "#F59E0B" : "#22C55E");
+          const pctMonth = Math.min(100, Math.round((e.minMonth / DAN135.MAX_MONTH_MIN) * 100));
+          const colorMonth = pctMonth >= 90 ? "#EF4444" : (pctMonth >= 75 ? "#F59E0B" : "#22C55E");
+          const restOk = e.maxRest7dHours >= 36;
+
+          // Chips de cumplimiento integrado (90d, Habilitaciones, Jornadas Consecutivas)
+          const r90Red = e.recent90d.redMaterials.length;
+          const r90Yel = e.recent90d.yellowMaterials.length;
+          const chip90 = r90Red > 0
+            ? `<span class="c-chip c-chip-err">90d: ${e.recent90d.redMaterials.join("/")} VENC</span>`
+            : (r90Yel > 0
+              ? `<span class="c-chip c-chip-warn">90d: ${e.recent90d.yellowMaterials.join("/")} Próx</span>`
+              : `<span class="c-chip c-chip-ok">90d: OK</span>`);
+
+          const qExpA = e.quals.expiredClassAGlobal.length + e.quals.expiredTypeRatings.length;
+          const qExpB = e.quals.expiredClassB.length;
+          const qWarn = e.quals.upcomingExpirations.length;
+          const chipQual = qExpA > 0
+            ? `<span class="c-chip c-chip-err">Hab: ${qExpA} vencida(s)</span>`
+            : (qExpB > 0
+              ? `<span class="c-chip c-chip-warn">Restr: ${e.quals.expiredClassB.map(x => x.label).join("/")}</span>`
+              : (qWarn > 0
+                ? `<span class="c-chip c-chip-warn">Hab: ${qWarn} próx. venc.</span>`
+                : `<span class="c-chip c-chip-ok">Hab: Vigentes</span>`));
+
+          const chipConsec = e.consec.isBlocked
+            ? `<span class="c-chip c-chip-err">Jorn: ${e.consec.badgeText}</span>`
+            : (e.consec.state === "YELLOW_DAY5" && !e.consec.authRecord
+              ? `<span class="c-chip c-chip-warn">Jorn: Día 5/5 (Alerta 6°)</span>`
+              : `<span class="c-chip c-chip-ok">Jorn: ${e.consec.activeStreak}d consec.</span>`);
+
+          const matTagsHtml = e.pilot.hab.map(h => {
+            const isBlockedMat = e.quals.expiredTypeRatingMaterials.includes(h) || e.recent90d.redMaterials.includes(h);
+            return `<span class="mat-tag ${isBlockedMat ? "expired" : ""}" title="${isBlockedMat ? "Bloqueado por TR o >90d" : "Habilitado y vigente"}">${h}</span>`;
+          }).join("");
+
+          return `
+            <tr>
+              <td>
+                <div class="pilot-cell" onclick="openPilotDetailModal('${e.pilot.ini}')" title="Ver ficha operacional completa">
+                  <div class="pilot-avatar">${e.pilot.ini}</div>
+                  <div>
+                    <div class="pilot-name">${e.pilot.displayName}</div>
+                    <div class="pilot-role">(${e.effectiveRole}) · ${e.pilot.lic}</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="mat-tags">${matTagsHtml}</div></td>
+              <td><span class="status-pill ${e.badgeClass}">${e.badgeText}</span></td>
+              <td>
+                <div class="avail-main">${e.takeoffMain}</div>
+                <div class="avail-sub">${e.takeoffSub}</div>
+              </td>
+              <td>
+                <div class="avail-main">${e.clockMain}</div>
+                <div class="avail-sub">${e.clockSub}</div>
+              </td>
+              <td>
+                <div class="compliance-badges">
+                  ${chip90}
+                  ${chipQual}
+                  ${chipConsec}
+                </div>
+              </td>
+              <td>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar-text">5d: ${formatHoursDecimal(e.min5d)} / 10d: ${formatHoursDecimal(e.min10d)}</div>
+                  <div class="mini-bar-sub ${e.rem5d < 360 ? "low" : ""}">Disp: ${formatHoursDecimal(e.rem5d)} (5d) · ${formatHoursDecimal(e.rem10d)} (10d)</div>
+                  <div class="mini-track"><div class="mini-fill" style="width:${pct5d}%; background:${color5d};"></div></div>
+                </div>
+              </td>
+              <td>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar-text">Mes: ${formatHoursDecimal(e.minMonth)} (${pctMonth}%)</div>
+                  <div class="mini-bar-sub ${e.remMonth < 900 ? "low" : ""}">Disp. Mes: ${formatHoursDecimal(e.remMonth)}</div>
+                  <div class="mini-track"><div class="mini-fill" style="width:${pctMonth}%; background:${colorMonth};"></div></div>
+                </div>
+              </td>
+              <td>
+                <span class="${restOk ? "rest7-ok" : "rest7-warn"}">Max: ${e.maxRest7dHours}h ${restOk ? "✓" : "⚠️"}</span>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      renderSidebarActivities(evalMs);
+      if (activeModuleTab === "TAB_90D") renderRecent90dTab(allEvaluated);
+      if (activeModuleTab === "TAB_QUALS") renderQualificationsTab();
+      if (activeModuleTab === "TAB_CONSEC") renderConsecutiveDaysTab(allEvaluated);
+    }
+
+    function updateModuleTabBadges(allEvaluated) {
+      const b90 = document.getElementById("badgeTab90d");
+      const red90 = allEvaluated.reduce((s, e) => s + e.recent90d.redMaterials.length, 0);
+      const yel90 = allEvaluated.reduce((s, e) => s + e.recent90d.yellowMaterials.length, 0);
+      if (red90 > 0) { b90.className = "tab-badge tab-badge-err"; b90.textContent = `${red90} Venc.`; }
+      else if (yel90 > 0) { b90.className = "tab-badge tab-badge-warn"; b90.textContent = `${yel90} Próx.`; }
+      else { b90.className = "tab-badge tab-badge-ok"; b90.textContent = "OK"; }
+
+      const bQ = document.getElementById("badgeTabQuals");
+      const expQ = allEvaluated.reduce((s, e) => s + e.quals.expiredClassAGlobal.length + e.quals.expiredTypeRatings.length, 0);
+      const warnQ = allEvaluated.reduce((s, e) => s + e.quals.expiredClassB.length + e.quals.upcomingExpirations.length, 0);
+      if (expQ > 0) { bQ.className = "tab-badge tab-badge-err"; bQ.textContent = `${expQ} Venc.`; }
+      else if (warnQ > 0) { bQ.className = "tab-badge tab-badge-warn"; bQ.textContent = `${warnQ} Alerta`; }
+      else { bQ.className = "tab-badge tab-badge-ok"; bQ.textContent = "OK"; }
+
+      const bC = document.getElementById("badgeTabConsec");
+      const blkC = allEvaluated.filter(e => e.consec.isBlocked).length;
+      const d5C = allEvaluated.filter(e => e.consec.state === "YELLOW_DAY5" && !e.consec.authRecord).length;
+      if (blkC > 0) { bC.className = "tab-badge tab-badge-err"; bC.textContent = `${blkC} Bloq.`; }
+      else if (d5C > 0) { bC.className = "tab-badge tab-badge-warn"; bC.textContent = `${d5C} Día 5`; }
+      else { bC.className = "tab-badge tab-badge-ok"; bC.textContent = "5x2 OK"; }
+    }
+
+    /* =========================================================================
+       10. RENDERIZADO DE PESTAÑAS ESPECIALIZADAS (90D, HABILITACIONES, JORNADAS)
+       ========================================================================= */
+    function renderRecent90dTab(preEvaluated) {
+      const evalMs = getEvalTimestampMs();
+      const evaluated = preEvaluated || PILOTOS_DB.map(p => computePilotStatus(p, evalMs, selectedMaterial));
+      const statusFilter = document.getElementById("filter90dStatus").value;
+      const q = document.getElementById("search90dPilot").value.trim().toLowerCase();
+
+      const rows = [];
+      evaluated.forEach(e => {
+        if (q && !e.pilot.displayName.toLowerCase().includes(q) && !e.pilot.ini.toLowerCase().includes(q)) return;
+        e.recent90d.entries.forEach(item => {
+          if (!materialMatchesFilter(item.material, selectedMaterial)) return;
+          if (statusFilter !== "ALL" && item.status !== statusFilter) return;
+          rows.push({ pilot: e.pilot, item });
+        });
+      });
+
+      const tbody = document.getElementById("recent90dTableBody");
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:20px;">No hay registros para los filtros seleccionados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(({ pilot, item }) => {
+        const badgeCls = item.status === "GREEN" ? "st-ok" : (item.status === "YELLOW" ? "st-warn" : "st-alert");
+        const toDateStr = item.lastTakeoffMs ? `${msToLocalISODate(item.lastTakeoffMs)} <span style="color:var(--text-muted); font-size:10.5px;">(${item.takeoffSource})</span>` : `<span style="color:#F87171;">Sin registro</span>`;
+        const ldDateStr = item.lastLandingMs ? `${msToLocalISODate(item.lastLandingMs)} <span style="color:var(--text-muted); font-size:10.5px;">(${item.landingSource})</span>` : `<span style="color:#F87171;">Sin registro</span>`;
+        const impact = item.status === "RED"
+          ? `<span style="color:#F87171; font-weight:700;">Bloqueado en ${item.material} (no afecta otros materiales)</span>`
+          : (item.status === "YELLOW"
+            ? `<span style="color:#FBBF24; font-weight:700;">Habilitado · Programar vuelo antes de 90d</span>`
+            : `<span style="color:#4ADE80;">Habilitado para operar ${item.material}</span>`);
+
+        return `
+          <tr>
+            <td><strong>${pilot.displayName}</strong> <span style="color:var(--text-muted);">(${pilot.ini})</span></td>
+            <td><span class="mat-tag">${item.material}</span></td>
+            <td>${toDateStr}</td>
+            <td><strong>${item.daysSinceTakeoff !== null ? item.daysSinceTakeoff + " días" : "-"}</strong></td>
+            <td>${ldDateStr}</td>
+            <td><strong>${item.daysSinceLanding !== null ? item.daysSinceLanding + " días" : "-"}</strong></td>
+            <td><span class="status-pill ${badgeCls}">${item.statusLabel}</span></td>
+            <td>${impact}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function openBaseline90dModal() {
+      populateBase90Materials();
+      openModal("modalBaseline90d");
+    }
+
+    function populateBase90Materials() {
+      const ini = document.getElementById("base90Pilot").value;
+      const pilot = PILOTOS_DB.find(p => p.ini === ini) || PILOTOS_DB[0];
+      const matSel = document.getElementById("base90Mat");
+      matSel.innerHTML = pilot.hab.map(m => `<option value="${m}">${m}</option>`).join("");
+      const base = (getBaseline90d()[pilot.ini] || {})[pilot.hab[0]] || {};
+      document.getElementById("base90Takeoff").value = base.takeoffDate || "";
+      document.getElementById("base90Landing").value = base.landingDate || "";
+    }
+
+    async function saveBaseline90d() {
+      const ini = document.getElementById("base90Pilot").value;
+      const mat = normalizeMaterialCode(document.getElementById("base90Mat").value);
+      const takeoffDate = document.getElementById("base90Takeoff").value;
+      const landingDate = document.getElementById("base90Landing").value;
+      const store = getBaseline90d();
+      if (!store[ini]) store[ini] = {};
+      store[ini][mat] = { takeoffDate, landingDate };
+      saveBaseline90dStore(store);
+      closeModal("modalBaseline90d");
+      renderDashboard();
+      await writeOpsConfigJson("entrenamiento_90d_base.json", store);
+    }
+
+    /* --- Pestaña Habilitaciones --- */
+    function updateQualThreshold(val) {
+      const num = Math.max(1, Math.min(365, parseInt(val, 10) || 30));
+      const settings = getOpsSettings();
+      settings.qualAlertDays = num;
+      saveOpsSettings(settings);
+      renderDashboard();
+    }
+
+    function renderQualificationsTab() {
+      const evalMs = getEvalTimestampMs();
+      const pilotIni = document.getElementById("qualPilotSelect").value || PILOTOS_DB[0].ini;
+      const pilot = PILOTOS_DB.find(p => p.ini === pilotIni) || PILOTOS_DB[0];
+      const quals = evaluatePilotQualifications(pilot, evalMs);
+      document.getElementById("qualAlertThresholdInput").value = getOpsSettings().qualAlertDays || 30;
+
+      const summaryEl = document.getElementById("qualPilotSummaryHeader");
+      const statusHtml = quals.hasGlobalHardBlock
+        ? `<span class="status-pill st-alert">BLOQUEO GENERAL POR HABILITACIÓN CLASE A</span>`
+        : (quals.expiredTypeRatings.length > 0
+          ? `<span class="status-pill st-alert">BLOQUEO EN MATERIAL: ${quals.expiredTypeRatingMaterials.join(", ")}</span>`
+          : (quals.expiredClassB.length > 0
+            ? `<span class="status-pill st-warn">DISPONIBLE CON RESTRICCIONES FUNCIONALES</span>`
+            : `<span class="status-pill st-ok">TODAS LAS HABILITACIONES VIGENTES</span>`));
+
+      summaryEl.innerHTML = `
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <strong style="font-size:14px;">${pilot.displayName}</strong> · Licencia: ${pilot.lic} · RUT: ${pilot.rut}
+            ${quals.functionalRestrictions.length > 0 ? `<div style="color:#FBBF24; font-size:11.5px; margin-top:3px;">⚠️ ${quals.functionalRestrictions.join(" · ")}</div>` : ""}
+          </div>
+          <div>${statusHtml}</div>
+        </div>
+      `;
+
+      const grid = document.getElementById("qualCardsGrid");
+      grid.innerHTML = quals.items.map((item, idx) => {
+        const cardCls = !item.applies ? "q-na" : (item.state === "EXPIRED" ? "q-expired" : (item.state === "WARN" ? "q-warn" : "q-ok"));
+        const pillCls = !item.applies ? "st-leave" : (item.state === "EXPIRED" ? "st-alert" : (item.state === "WARN" ? "st-warn" : "st-ok"));
+        const catTag = item.category === "A"
+          ? `<span style="font-size:10px; color:#FCA5A5; font-weight:800;">CLASE A (BLOQUEO)</span>`
+          : `<span style="font-size:10px; color:#FDE68A; font-weight:800;">CLASE B (RESTR. FUNC.)</span>`;
+
+        return `
+          <div class="qual-card ${cardCls}">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+              <div>
+                <div style="font-weight:800; font-size:13px; color:#FFF;">${item.label}</div>
+                ${catTag}
+              </div>
+              <span class="status-pill ${pillCls}">${item.stateLabel}</span>
+            </div>
+            <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:#CBD5E1; cursor:pointer;">
+              <input type="checkbox" style="width:auto;" ${item.applies ? "checked" : ""} onchange="toggleQualApplies('${pilot.ini}', ${idx}, this.checked)" />
+              Habilitación aplicable / activa en perfil
+            </label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; ${!item.applies ? "opacity:0.45; pointer-events:none;" : ""}">
+              <div class="form-field">
+                <label>Último Examen / Eval.</label>
+                <input type="date" value="${item.examDate || ""}" onchange="updateQualField('${pilot.ini}', ${idx}, 'examDate', this.value)" />
+              </div>
+              <div class="form-field">
+                <label>Fecha Vencimiento</label>
+                <input type="date" value="${item.expiryDate || ""}" onchange="updateQualField('${pilot.ini}', ${idx}, 'expiryDate', this.value)" />
+              </div>
+            </div>
+            <div class="form-field" style="${!item.applies ? "opacity:0.45; pointer-events:none;" : ""}">
+              <label>Observaciones</label>
+              <input type="text" value="${item.notes || ""}" placeholder="Observaciones..." onchange="updateQualField('${pilot.ini}', ${idx}, 'notes', this.value)" />
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function toggleQualApplies(pilotIni, idx, checked) {
+      const store = getQualificationsStore();
+      if (store[pilotIni] && store[pilotIni][idx]) {
+        store[pilotIni][idx].applies = checked;
+        if (checked && !store[pilotIni][idx].expiryDate) {
+          const d = new Date();
+          d.setFullYear(d.getFullYear() + 1);
+          store[pilotIni][idx].expiryDate = d.toISOString().slice(0, 10);
+        }
+        saveQualificationsStore(store);
+        renderDashboard();
+        await writeOpsConfigJson("habilitaciones.json", store);
+      }
+    }
+
+    async function updateQualField(pilotIni, idx, field, val) {
+      const store = getQualificationsStore();
+      if (store[pilotIni] && store[pilotIni][idx]) {
+        store[pilotIni][idx][field] = val;
+        saveQualificationsStore(store);
+        renderDashboard();
+        await writeOpsConfigJson("habilitaciones.json", store);
+      }
+    }
+
+    function openQualOverviewModal() {
+      const evalMs = getEvalTimestampMs();
+      const rows = [...PILOTOS_DB].sort((a, b) => a.displayName.localeCompare(b.displayName, "es")).map(p => {
+        const q = evaluatePilotQualifications(p, evalMs);
+        const byKey = (k) => q.items.find(x => x.key === k);
+        const fmt = (item) => {
+          if (!item || !item.applies) return `<span style="color:var(--text-muted);">N/A</span>`;
+          const cls = item.state === "EXPIRED" ? "st-alert" : (item.state === "WARN" ? "st-warn" : "st-ok");
+          return `<span class="status-pill ${cls}">${item.expiryDate || "-"}</span>`;
+        };
+        const trSummary = q.items.filter(x => x.key.startsWith("TR_")).map(tr => {
+          const cls = tr.state === "EXPIRED" ? "c-chip-err" : (tr.state === "WARN" ? "c-chip-warn" : "c-chip-ok");
+          return `<span class="c-chip ${cls}">${tr.material}: ${tr.expiryDate || "-"}</span>`;
+        }).join(" ");
+
+        return `
+          <tr>
+            <td><strong>${p.displayName}</strong></td>
+            <td>${fmt(byKey("MEDICO"))}</td>
+            <td>${fmt(byKey("IFR"))}</td>
+            <td>${fmt(byKey("INGLES"))}</td>
+            <td>${fmt(byKey("IV"))} / ${fmt(byKey("IVI"))} / ${fmt(byKey("IE"))}</td>
+            <td><div style="display:flex; flex-wrap:wrap; gap:3px;">${trSummary}</div></td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("qualMatrixBody").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>PILOTO</th>
+              <th>EX. MÉDICO</th>
+              <th>IFR</th>
+              <th>INGLÉS OACI</th>
+              <th>IV / IVI / IE</th>
+              <th>TYPE RATINGS</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+      openModal("modalQualMatrix");
+    }
+
+    /* --- Pestaña Jornadas Consecutivas (Ley 20.321 Art. 152 ter H) --- */
+    function renderConsecutiveDaysTab(preEvaluated) {
+      const evalMs = getEvalTimestampMs();
+      const evaluated = preEvaluated || PILOTOS_DB.map(p => computePilotStatus(p, evalMs, selectedMaterial));
+      const fleetRows = evaluated.filter(e => pilotMatchesMaterial(e.pilot, selectedMaterial));
+
+      const tbody = document.getElementById("consecTableBody");
+      tbody.innerHTML = fleetRows.map(e => {
+        const c = e.consec;
+        let actionHtml = `<span style="color:var(--text-muted); font-size:11px;">Control automático</span>`;
+        if (c.activeStreak === 5 && !c.authRecord) {
+          actionHtml = `<button class="btn btn-sm btn-amber" onclick="authorizeSixthDayPrompt('${e.pilot.ini}', '${c.seqStartDate}')">⚠️ Autorizar 6° Día</button>`;
+        } else if (c.authRecord) {
+          actionHtml = `<span class="c-chip c-chip-ok">✓ Aut. ${c.authRecord.authorizedAt.slice(0, 10)}</span>`;
+        } else if (c.isBlocked) {
+          actionHtml = `<span style="color:#F87171; font-weight:800; font-size:11px;">🔒 Bloqueado Ley 20.321</span>`;
+        }
+
+        return `
+          <tr>
+            <td><strong>${e.pilot.displayName}</strong> <span style="color:var(--text-muted);">(${e.pilot.ini})</span></td>
+            <td><strong style="font-size:14px;">${c.activeStreak}</strong> días</td>
+            <td>${c.seqStartDate || "-"}</td>
+            <td>${c.regimeLabel}</td>
+            <td><span class="status-pill ${c.badgeClass}">${c.badgeText}</span></td>
+            <td>${c.nextRestRequiredText}</td>
+            <td>${c.restProgressText}</td>
+            <td>${actionHtml}</td>
+          </tr>
+        `;
+      }).join("");
+
+      const authList = getConsecAuthList();
+      document.getElementById("consecAuditCount").textContent = `${authList.length} registro(s)`;
+      const auditBody = document.getElementById("consecAuditBody");
+      if (authList.length === 0) {
+        auditBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:12px;">Sin autorizaciones excepcionales de 6° a 10° día registradas.</td></tr>`;
+      } else {
+        auditBody.innerHTML = authList.map((a, idx) => {
+          const p = PILOTOS_DB.find(x => x.ini === a.pilotIni);
+          return `
+            <tr>
+              <td>${a.authorizedAt}</td>
+              <td><strong>${p ? p.displayName : a.pilotIni}</strong></td>
+              <td>${a.seqStartDate}</td>
+              <td><span class="status-pill st-warn">Régimen 6–10d Autorizado</span></td>
+              <td>${a.note || "Autorización operacional"}</td>
+              <td><button class="btn btn-sm" onclick="revokeConsecAuth(${idx})" title="Revocar autorización">✕</button></td>
+            </tr>
+          `;
+        }).join("");
+      }
+    }
+
+    async function authorizeSixthDayPrompt(pilotIni, seqStartDate) {
+      const pilot = PILOTOS_DB.find(p => p.ini === pilotIni);
+      const msg = `Este piloto (${pilot ? pilot.displayName : pilotIni}) ha completado cinco días consecutivos de servicio. Su programación para un sexto día interrumpe el esquema de descanso 5x2 y activa la condición de seis o más días consecutivos. ¿Desea autorizar esta programación?`;
+      if (!confirm(msg)) return false;
+
+      const reason = prompt("Ingrese motivo o respaldo operacional de la autorización (opcional):", "Continuidad operacional autorizada por Operaciones") || "Autorización operacional";
+      const list = getConsecAuthList();
+      if (!list.some(x => x.pilotIni === pilotIni && x.seqStartDate === seqStartDate)) {
+        list.unshift({
+          pilotIni,
+          seqStartDate,
+          authorizedAt: new Date().toISOString().replace("T", " ").slice(0, 16) + " CLT",
+          authorizedBy: "Despacho / Ops",
+          note: reason
+        });
+        saveConsecAuthList(list);
+      }
+      renderDashboard();
+      await writeOpsConfigJson("jornadas_consecutivas_auth.json", list);
+      return true;
+    }
+
+    async function revokeConsecAuth(idx) {
+      const list = getConsecAuthList();
+      list.splice(idx, 1);
+      saveConsecAuthList(list);
+      renderDashboard();
+      await writeOpsConfigJson("jornadas_consecutivas_auth.json", list);
+    }
+
+    /* =========================================================================
+       11. VALIDADOR DE ASIGNACIÓN OPERACIONAL (INTEGRACIÓN TOTAL)
+       ========================================================================= */
+    function openAssignValidatorModal() {
+      document.getElementById("valDate").value = document.getElementById("evalDate").value || msToLocalISODate(Date.now());
+      document.getElementById("valTime").value = "08:00";
+      runAssignmentValidationPreview();
+      openModal("modalAssignValidator");
+    }
+
+    function runAssignmentValidationPreview() {
+      const pilotIni = document.getElementById("valPilot").value;
+      const mat = document.getElementById("valMaterial").value;
+      const dateISO = document.getElementById("valDate").value;
+      const timeStr = document.getElementById("valTime").value || "08:00";
+      const funcReq = document.getElementById("valFuncReq").value;
+      const pilot = PILOTOS_DB.find(p => p.ini === pilotIni) || PILOTOS_DB[0];
+
+      const takeoffTargetMs = new Date(`${dateISO}T${timeStr}:00`).getTime();
+      const presentationTargetMs = takeoffTargetMs - 60 * 60000;
+      const st = computePilotStatus(pilot, presentationTargetMs, mat);
+
+      const errors = [];
+      const warnings = [];
+
+      // 1. Habilitación del material
+      if (!pilot.hab.includes(mat)) {
+        errors.push(`El piloto no posee habilitación de flota para ${mat}.`);
+      }
+      // 2. Habilitaciones Clase A
+      st.quals.expiredClassAGlobal.forEach(q => errors.push(`Habilitación obligatoria vencida: ${q.label}.`));
+      if (st.quals.expiredTypeRatingMaterials.includes(mat)) {
+        errors.push(`Type Rating ${mat} vencido.`);
+      }
+      // 3. Habilitaciones Clase B (Restricciones funcionales)
+      const hasExpired = (k) => st.quals.expiredClassB.some(q => q.key === k);
+      if (funcReq === "INTL" && hasExpired("INGLES")) errors.push("Restricción funcional: Inglés Aeronáutico OACI vencido (no apto vuelo internacional).");
+      if (funcReq === "INST_VFR" && hasExpired("IV")) errors.push("Restricción funcional: Habilitación IV vencida.");
+      if (funcReq === "INST_IFR" && hasExpired("IVI")) errors.push("Restricción funcional: Habilitación IVI vencida.");
+      if (funcReq === "EXAM" && hasExpired("IE")) errors.push("Restricción funcional: Habilitación IE vencida.");
+
+      // 4. Entrenamiento reciente 90 días
+      const r90 = st.recent90d.perMaterial[mat];
+      if (r90 && r90.status === "RED") errors.push(`Desentrenado >90 días en ${mat} (${r90.statusLabel}).`);
+      if (r90 && r90.status === "YELLOW") warnings.push(`Actividad reciente en ${mat} próxima a vencer (${r90.statusLabel}).`);
+
+      // 5. Descanso y Próximo Despegue
+      if (st.category === "EN PSV" || st.category === "EN DESCANSO") {
+        errors.push(`En servicio o descanso obligatorio. Próximo despegue habilitado: ${st.takeoffMain}.`);
+      } else if (!st.isImmediate && takeoffTargetMs < st.nextTakeoffMs) {
+        errors.push(`Hora de despegue (${timeStr}) anterior al Próximo Despegue permitido (${st.takeoffMain}).`);
+      }
+
+      // 6. Jornadas Consecutivas (Ley 20.321 Art. 152 ter H)
+      if (st.consec.isBlocked) {
+        errors.push(`Bloqueo por jornadas consecutivas: ${st.consec.blockReason}`);
+      } else if (st.consec.activeStreak === 5 && !st.consec.authRecord && !st.consec.workedEvalDay) {
+        warnings.push(`Completó 5 días consecutivos: asignar este día requiere confirmación explícita del 6° día (interrumpe esquema 5x2).`);
+      }
+
+      const box = document.getElementById("valResultBox");
+      if (errors.length > 0) {
+        box.innerHTML = `
+          <div style="color:#F87171; font-weight:800; font-size:13px; margin-bottom:6px;">⛔ ASIGNACIÓN BLOQUEADA (${pilot.displayName} — ${mat})</div>
+          <ul style="margin:0; padding-left:18px; color:#FCA5A5;">${errors.map(x => `<li>${x}</li>`).join("")}</ul>
+          ${warnings.length > 0 ? `<div style="margin-top:8px; color:#FBBF24; font-size:11.5px;">Advertencias: ${warnings.join(" · ")}</div>` : ""}
+        `;
+      } else if (warnings.length > 0) {
+        box.innerHTML = `
+          <div style="color:#FBBF24; font-weight:800; font-size:13px; margin-bottom:6px;">⚠️ ASIGNACIÓN SUJETA A CONFIRMACIÓN / ADVERTENCIA</div>
+          <ul style="margin:0; padding-left:18px; color:#FDE68A;">${warnings.map(x => `<li>${x}</li>`).join("")}</ul>
+          ${st.consec.activeStreak === 5 && !st.consec.authRecord ? `<div style="margin-top:10px;"><button class="btn btn-sm btn-amber" onclick="authorizeSixthDayPrompt('${pilot.ini}', '${st.consec.seqStartDate}').then(()=>runAssignmentValidationPreview())">Autorizar 6° Día Consecutivo</button></div>` : ""}
+        `;
+      } else {
+        box.innerHTML = `
+          <div style="color:#4ADE80; font-weight:800; font-size:13px; margin-bottom:4px;">✅ TRIPULANTE APTO PARA ASIGNACIÓN</div>
+          <div style="font-size:12px; color:#E2E8F0;">
+            Presentación: <strong>${timeStr} CLT</strong> · Despegue: <strong>${formatCltShortTime(takeoffTargetMs)} CLT</strong> · Próximo Despegue permitido: <strong>${st.takeoffMain}</strong>.
+          </div>
+        `;
+      }
+    }
+
+    /* =========================================================================
+       12. FICHA DETALLADA 360° DEL PILOTO (AL HACER CLIC EN SU NOMBRE)
+       ========================================================================= */
+    function openPilotDetailModal(pilotIni) {
+      const pilot = PILOTOS_DB.find(p => p.ini === pilotIni);
+      if (!pilot) return;
+      const evalMs = getEvalTimestampMs();
+      const st = computePilotStatus(pilot, evalMs, "TODOS");
+
+      document.getElementById("pilotDetailTitle").textContent = `Ficha Operacional Integral — ${pilot.displayName} (${pilot.ini})`;
+      document.getElementById("pilotDetailBody").innerHTML = `
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:14px;">
+          <div class="qual-card">
+            <div class="section-label">ESTADO Y PRÓXIMO DESPEGUE</div>
+            <div><span class="status-pill ${st.badgeClass}">${st.badgeText}</span></div>
+            <div style="font-weight:800; font-size:13px; margin-top:4px;">${st.takeoffMain}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${st.takeoffSub}</div>
+          </div>
+          <div class="qual-card">
+            <div class="section-label">JORNADAS CONSECUTIVAS (LEY 20.321)</div>
+            <div><span class="status-pill ${st.consec.badgeClass}">${st.consec.badgeText}</span></div>
+            <div style="font-size:11.5px; margin-top:4px;"><strong>${st.consec.activeStreak}</strong> días acumulados · Inicio: ${st.consec.seqStartDate || "-"}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${st.consec.nextRestRequiredText}</div>
+          </div>
+          <div class="qual-card">
+            <div class="section-label">SALDOS DAN 135</div>
+            <div style="font-size:11.5px;">5d: <strong>${formatHoursDecimal(st.rem5d)}</strong> disp. · 10d: <strong>${formatHoursDecimal(st.rem10d)}</strong> disp.</div>
+            <div style="font-size:11.5px;">Mes: <strong>${formatHoursDecimal(st.remMonth)}</strong> disp. (100h)</div>
+            <div style="font-size:11.5px;">Descanso máx 7d: <strong>${st.maxRest7dHours}h</strong></div>
+          </div>
+        </div>
+
+        <div class="section-label">ENTRENAMIENTO RECIENTE 90 DÍAS POR MATERIAL</div>
+        <div class="table-scroll" style="margin-bottom:14px;">
+          <table>
+            <thead><tr><th>Material</th><th>Últ. Despegue</th><th>Últ. Aterrizaje</th><th>Estado</th></tr></thead>
+            <tbody>
+              ${st.recent90d.entries.map(r => `
+                <tr>
+                  <td><strong>${r.material}</strong></td>
+                  <td>${r.lastTakeoffMs ? msToLocalISODate(r.lastTakeoffMs) + ` (${r.daysSinceTakeoff}d)` : "Sin registro"}</td>
+                  <td>${r.lastLandingMs ? msToLocalISODate(r.lastLandingMs) + ` (${r.daysSinceLanding}d)` : "Sin registro"}</td>
+                  <td><span class="status-pill ${r.status === "GREEN" ? "st-ok" : (r.status === "YELLOW" ? "st-warn" : "st-alert")}">${r.statusLabel}</span></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-label">HABILITACIONES Y VENCIMIENTOS</div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Habilitación</th><th>Clase</th><th>Último Examen</th><th>Vencimiento</th><th>Estado</th></tr></thead>
+            <tbody>
+              ${st.quals.items.filter(q => q.applies).map(q => `
+                <tr>
+                  <td><strong>${q.label}</strong></td>
+                  <td>${q.category === "A" ? "Clase A (Bloqueo)" : "Clase B (Func.)"}</td>
+                  <td>${q.examDate || "-"}</td>
+                  <td>${q.expiryDate || "-"}</td>
+                  <td><span class="status-pill ${q.state === "EXPIRED" ? "st-alert" : (q.state === "WARN" ? "st-warn" : "st-ok")}">${q.stateLabel}</span></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+      openModal("modalPilotDetail");
+    }
+
+    /* =========================================================================
+       13. PANEL DERECHO: REGISTRO COMPARTIDO DE PERMISOS Y ACTIVIDADES
+       ========================================================================= */
+    function toggleExternalHoursField() {
+      const val = document.getElementById("actType").value;
+      document.getElementById("extHoursWrap").style.display = val.includes("Externo") ? "block" : "none";
+    }
+
+    async function saveCrewActivity() {
+      const pilotIni = document.getElementById("actPilot").value;
+      const type = document.getElementById("actType").value;
+      const sDate = document.getElementById("actStartDate").value;
+      const sTime = document.getElementById("actStartTime").value;
+      const eDate = document.getElementById("actEndDate").value;
+      const eTime = document.getElementById("actEndTime").value;
+      const note = document.getElementById("actNote").value.trim();
+      const extHoursStr = document.getElementById("actExtHours").value;
+
+      if (!sDate || !sTime || !eDate || !eTime) { alert("Complete fecha y hora de inicio y término."); return; }
+      const startMs = new Date(`${sDate}T${sTime}:00`).getTime();
+      const endMs = new Date(`${eDate}T${eTime}:00`).getTime();
+      if (endMs <= startMs) { alert("La fecha/hora de término debe ser posterior al inicio."); return; }
+
+      const pilot = PILOTOS_DB.find(p => p.ini === pilotIni);
+
+      // Validación integrada si se asigna una actividad de servicio (Simulador / Curso / Vuelo Externo)
+      if (pilot && isServiceActivityType(type)) {
+        const st = computePilotStatus(pilot, startMs, "TODOS");
+        if (type === "Simulador / Instrucción" && st.quals.expiredClassB.some(q => q.key === "IVI" || q.key === "IV")) {
+          if (!confirm(`⚠️ Alerta Funcional: ${pilot.displayName} tiene habilitación de instructor (IV/IVI) vencida. ¿Registrar solo como alumno/entrenamiento?`)) return;
+        }
+        if (st.consec.isBlocked) {
+          alert(`⛔ Bloqueo Legal (Ley 20.321 Art. 152 ter H): ${st.consec.blockReason}`);
+          return;
+        }
+        if (st.consec.activeStreak === 5 && !st.consec.authRecord && !st.consec.workedEvalDay) {
+          const ok6 = await authorizeSixthDayPrompt(pilot.ini, st.consec.seqStartDate);
+          if (!ok6) return;
+        }
+      }
+
+      const extFlightMin = type.includes("Externo") ? (parseHHMMToMin(extHoursStr) || 0) : 0;
+      const list = getActivities();
+      list.unshift({ id: "ACT_" + Date.now(), pilotIni, type, startMs, endMs, note, extFlightMin });
+      saveActivities(list);
+      document.getElementById("actNote").value = "";
+      renderDashboard();
+      await writeOpsConfigJson("tripulacion_eventos.json", list);
+    }
+
+    async function deleteActivity(id) {
+      const list = getActivities().filter(a => a.id !== id);
+      saveActivities(list);
+      renderDashboard();
+      await writeOpsConfigJson("tripulacion_eventos.json", list);
+    }
+
+    function renderSidebarActivities(evalMs) {
+      const list = getActivities().filter(a => a.endMs >= evalMs - 86400000);
+      document.getElementById("activeBlocksCount").textContent = list.length;
+      const container = document.getElementById("activeBlocksContainer");
+
+      if (list.length === 0) {
+        container.innerHTML = `<div style="color:var(--text-muted); font-size:11.5px;">Sin bloqueos o permisos activos.</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(a => {
+        const p = PILOTOS_DB.find(x => x.ini === a.pilotIni);
+        const endStr = formatCltDateTime(a.endMs).replace(" CLT", "");
+        return `
+          <div class="block-item">
+            <div>
+              <strong>${p ? p.displayName : a.pilotIni}</strong> — ${a.type}<br>
+              <span style="color:var(--text-muted); font-size:10.5px;">Hasta ${endStr}${a.note ? " · " + a.note : ""}</span>
+            </div>
+            <button class="btn btn-sm" onclick="deleteActivity('${a.id}')" title="Eliminar bloqueo">✕</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* =========================================================================
+       14. MODAL POVs, EXPORTACIÓN SIGO Y CONTROLES AUXILIARES
+       ========================================================================= */
+    function openPovsModal() {
+      const list = getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs));
+      const tbody = document.getElementById("povsTableBody");
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:14px;">No hay vuelos POV cargados actualmente.</td></tr>`;
+      } else {
+        tbody.innerHTML = list.map(f => {
+          const crewLabel = [
+            f.picIni ? `PIC: ${f.picIni}` : "",
+            f.sicIni ? `SIC: ${f.sicIni}` : "",
+            f.refIni ? `Ref: ${f.refIni}` : ""
+          ].filter(Boolean).join(" · ") || (f.crew || []).join(" / ");
+
+          const stateLabel = f.isClosed ? "COMPLETADO" : (f.planState || "ABIERTO");
+          const stateClass = f.isClosed ? "st-ok" : "st-psv";
+          const folderBtn = f.driveFolderUrl
+            ? `<a href="${f.driveFolderUrl}" target="_blank" class="btn btn-sm btn-blue">📂 Drive</a>`
+            : `<button class="btn btn-sm" onclick="deleteSingleFlight('${f.id}')">✕</button>`;
+
+          return `
+            <tr>
+              <td><strong>${f.pov}</strong></td>
+              <td>${f.material ? `${f.material} · ` : ""}${f.aircraft}</td>
+              <td>${f.route || "-"}</td>
+              <td>${crewLabel}</td>
+              <td><span class="status-pill ${stateClass}">${stateLabel}</span></td>
+              <td>${formatCltDateTime(f.startMs)}</td>
+              <td>${f.isClosed ? formatCltDateTime(f.endMs) : `Est. ${formatCltDateTime(f.endMs)}`}</td>
+              <td>${folderBtn}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+      openModal("modalPovs");
+    }
+
+    function deleteSingleFlight(id) {
+      saveFlights(getFlights().filter(f => f.id !== id));
+      renderDashboard();
+      openPovsModal();
+    }
+
+    function exportSigoCSV() {
+      const evalMs = getEvalTimestampMs();
+      const d = new Date(evalMs);
+      const monthLabel = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+      const headers = [
+        "Mes", "Iniciales", "Apellido_Nombre", "Funcion", "RUT", "Licencia", "Materiales",
+        "TV_5d_Horas", "Disp_5d_Horas", "TV_10d_Horas", "Disp_10d_Horas", "TV_Mes_Horas", "Disp_Mes_Horas",
+        "Descanso_Max_7d_H", "Dias_Consecutivos", "Estado_Actual", "Proximo_Despegue"
+      ];
+      const rows = [...PILOTOS_DB].sort((a, b) => a.displayName.localeCompare(b.displayName, "es")).map(p => {
+        const st = computePilotStatus(p, evalMs, "TODOS");
+        return [
+          monthLabel, p.ini, `"${p.displayName}"`, `"${st.effectiveRole}"`, p.rut, p.lic, `"${p.hab.join("/")}"`,
+          (st.min5d / 60).toFixed(1), (st.rem5d / 60).toFixed(1), (st.min10d / 60).toFixed(1), (st.rem10d / 60).toFixed(1),
+          (st.minMonth / 60).toFixed(1), (st.remMonth / 60).toFixed(1),
+          st.maxRest7dHours, st.consec.activeStreak, `"${st.badgeText}"`, `"${st.takeoffMain}"`
+        ].join(";");
+      });
+
+      const blob = new Blob(["\uFEFF" + [headers.join(";"), ...rows].join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `SIGO_Disponibilidad_Aerocardal_${monthLabel}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function onEvalTimeChange() {
+      const d = document.getElementById("evalDate").value;
+      const t = document.getElementById("evalTime").value;
+      if (d && t) {
+        useLiveClock = false;
+        customEvalMs = new Date(`${d}T${t}:00`).getTime();
+        renderDashboard();
+      }
+    }
+
+    function resetEvalToNow() {
+      useLiveClock = true;
+      customEvalMs = null;
+      updateClockTick();
+      renderDashboard();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add("open"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+    function saveClientIdConfig() {
+      localStorage.setItem(KEYS.CLIENT_ID, document.getElementById("clientIdInput").value.trim());
+      closeModal("modalConfig");
+    }
+
+    function clearAllLocalData() {
+      if (confirm("¿Eliminar todos los vuelos, bloqueos y configuraciones locales en caché?")) {
+        localStorage.removeItem(KEYS.FLIGHTS);
+        localStorage.removeItem(KEYS.ACTIVITIES);
+        localStorage.removeItem(KEYS.CONSEC_AUTH);
+        closeModal("modalConfig");
+        closeModal("modalPovs");
+        renderDashboard();
+      }
+    }
+
+    /* =========================================================================
+       15. INICIALIZACIÓN
+       ========================================================================= */
+    window.addEventListener("DOMContentLoaded", () => {
+      getQualificationsStore();
+      const sortedPilots = [...PILOTOS_DB].sort((a, b) => a.displayName.localeCompare(b.displayName, "es"));
+      const opts = sortedPilots.map(p => `<option value="${p.ini}">${p.displayName} (${p.hab.join("/")})</option>`).join("");
+      ["actPilot", "excPic", "excFo", "qualPilotSelect", "valPilot", "base90Pilot"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = opts;
+      });
+      document.getElementById("actPilot").value = "JO";
+      document.getElementById("qualPilotSelect").value = "JO";
+      document.getElementById("valPilot").value = "JO";
+      document.getElementById("base90Pilot").value = "JO";
+      document.getElementById("excPic").value = "FE";
+      document.getElementById("excFo").value = "JO";
+
+      const now = new Date();
+      const todayISO = now.toISOString().slice(0, 10);
+      const tomorrowISO = new Date(now.getTime() + 86400000).toISOString().slice(0, 10);
+      document.getElementById("actStartDate").value = todayISO;
+      document.getElementById("actEndDate").value = tomorrowISO;
+      document.getElementById("excDate").value = todayISO;
+
+      const savedCid = localStorage.getItem(KEYS.CLIENT_ID);
+      if (savedCid) document.getElementById("clientIdInput").value = savedCid;
+
+      saveFlights(getFlights().filter(f => !isNaN(f.startMs) && !isNaN(f.endMs)));
+
+      updateClockTick();
+      updateSortIndicators();
+      setInterval(() => {
+        updateClockTick();
+        if (useLiveClock) renderDashboard();
+      }, 30000);
+
+      renderDashboard();
+    });
+  </script>
+</body>
+</html>
