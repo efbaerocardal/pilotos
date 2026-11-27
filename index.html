@@ -999,9 +999,9 @@ function formatDatePdf(dateStr) {
 }
 
 const aeronavesDB = [
-{ trigram: "AOA", matricula: "CC-AOA", material: "G-150" }, { trigram: "CWK", matricula: "CC-CWK", material: "G-150" }, { trigram: "CWC", matricula: "CC-CWC", material: "D-228" }, { trigram: "CWX", matricula: "CC-CWX", material: "D-228" },
-{ trigram: "ANY", matricula: "CC-ANY", material: "PC-12" }, { trigram: "DLI", matricula: "CC-DLI", material: "L-410" }, { trigram: "DPA", matricula: "CC-DPA", material: "L-410" }, { trigram: "DPB", matricula: "CC-DPB", material: "L-410" },
-{ trigram: "DRS", matricula: "CC-DRS", material: "PC-24" }, { trigram: "AHY", matricula: "CC-AHY", material: "A109SP" }, { trigram: "ANZ", matricula: "CC-ANZ", material: "A109S" }, { trigram: "ACK", matricula: "CC-ACK", material: "A109S" }
+{ trigram: "AOA", matricula: "CC-AOA", material: "G150" }, { trigram: "CWK", matricula: "CC-CWK", material: "G150" }, { trigram: "CWC", matricula: "CC-CWC", material: "D228" }, { trigram: "CWX", matricula: "CC-CWX", material: "D228" },
+{ trigram: "ANY", matricula: "CC-ANY", material: "PC12" }, { trigram: "DLI", matricula: "CC-DLI", material: "L410" }, { trigram: "DPA", matricula: "CC-DPA", material: "L410" }, { trigram: "DPB", matricula: "CC-DPB", material: "L410" },
+{ trigram: "DRS", matricula: "CC-DRS", material: "PC24" }, { trigram: "AHY", matricula: "CC-AHY", material: "A109" }, { trigram: "ANZ", matricula: "CC-ANZ", material: "A109" },{ trigram: "DBA", matricula: "CC-DBA", material: "A109" }, { trigram: "ACK", matricula: "CC-ACK", material: "A109" }
 ];
 function lookupAircraft() {
 const suffix = val('m_matricula_suffix').trim().toUpperCase(); const matInput = el('m_material'); const fullMatInput = el('m_matricula'); const msgDiv = el('ui_mat_msg');
